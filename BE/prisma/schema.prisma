@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String   @id @default(cuid())
+  username        String   @unique
+  name            String
+  email           String?
+  password        String
+  role            Role     @default(student)
+  grade           String?
+  school          String?
+  isDisplaced     Boolean  @default(false)
+  syndicateNumber String?
+  likesToTeach    Boolean  @default(false)
+  courses         Course[] @relation("TeacherCourses")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum Role {
+  student
+  teacher
+  admin
+}
+
+model Course {
+  id               String   @id @default(cuid())
+  title            String
+  subject          String
+  grades           String[]
+  school           String?
+  youtubeVideoId   String   @unique
+  clicks           Int      @default(0)
+  isHealthContent  Boolean  @default(false)
+  isSpecialNeeds   Boolean  @default(false)
+  isKidToKid       Boolean  @default(false)
+  teacher          User     @relation("TeacherCourses", fields: [teacherId], references: [id])
+  teacherId        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model VisitorLog {
+  id        String   @id @default(cuid())
+  ip        String
+  createdAt DateTime @default(now())
+
+  @@index([ip])
+}
