@@ -48,10 +48,10 @@ const FOOTER_COMMUNITY = ['Student Forum', 'Become a Teacher', 'Donations', 'Sup
 export default function LandingPage() {
   const navigate = useNavigate();
   const { data: rawCourses } = useCourses();
-  const courses = rawCourses?.filter(
+  const courses = (rawCourses ?? []).filter(
     (c) => !c.isKidToKid && !c.isHealthContent && !c.isSpecialNeeds
   );
-  const sample = courses?.slice(0, 3) ?? [];
+  const sample = courses.slice(0, 3);
 
   return (
     <Box sx={{ bgcolor: '#edf2f5', minHeight: '100vh' }}>

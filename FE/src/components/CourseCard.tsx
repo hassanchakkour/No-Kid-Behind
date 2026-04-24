@@ -10,7 +10,7 @@ const GRADE_NUMS: Record<string, number> = {
 };
 
 function formatGrades(grades: string[]): string {
-  if (!grades || grades.length === 0) return '';
+  if (!Array.isArray(grades) || grades.length === 0) return '';
   if (grades.length === 1) return grades[0];
   const numbered = grades.filter((g) => GRADE_NUMS[g] >= 7 && GRADE_NUMS[g] <= 12).sort((a, b) => GRADE_NUMS[a] - GRADE_NUMS[b]);
   if (numbered.length === grades.length && numbered.length > 1) {
