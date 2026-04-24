@@ -48,7 +48,7 @@ const FOOTER_COMMUNITY = ['Student Forum', 'Become a Teacher', 'Donations', 'Sup
 export default function LandingPage() {
   const navigate = useNavigate();
   const { data: rawCourses } = useCourses();
-  const courses = (rawCourses ?? []).filter(
+  const courses = (Array.isArray(rawCourses) ? rawCourses : []).filter(
     (c) => !c.isKidToKid && !c.isHealthContent && !c.isSpecialNeeds
   );
   const sample = courses.slice(0, 3);

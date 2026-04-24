@@ -20,11 +20,11 @@ export default function CoursesPage() {
 
   const { data: rawCourses, isLoading } = useCourses();
 
-  const allCourses = rawCourses?.filter(
+  const allCourses = (Array.isArray(rawCourses) ? rawCourses : []).filter(
     (c) => !c.isKidToKid && !c.isHealthContent && !c.isSpecialNeeds
   );
 
-  const filtered = allCourses?.filter((c) => {
+  const filtered = allCourses.filter((c) => {
     const gradeMatch = !grade || c.grades.includes(grade);
     const subjectMatch = !subject || c.subject.toLowerCase().includes(subject.toLowerCase());
     const schoolMatch = !school || (c.school && c.school.toLowerCase().includes(school.toLowerCase()));
@@ -33,7 +33,7 @@ export default function CoursesPage() {
       c.title.toLowerCase().includes(search.toLowerCase()) ||
       c.subject.toLowerCase().includes(search.toLowerCase());
     return gradeMatch && subjectMatch && schoolMatch && searchMatch;
-  }) ?? [];
+  });
 
   const activeFilters = [grade, subject, school, search].filter(Boolean).length;
 

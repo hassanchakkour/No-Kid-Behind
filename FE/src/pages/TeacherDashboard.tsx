@@ -91,7 +91,7 @@ export default function TeacherDashboard() {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const myCourses = courses?.filter((c) => c.teacherId === user?.id) ?? [];
+  const myCourses = (Array.isArray(courses) ? courses : []).filter((c) => c.teacherId === user?.id);
   const totalViews = myCourses.reduce((sum, c) => sum + c.clicks, 0);
   const avgViews =
     myCourses.length > 0 ? Math.round(totalViews / myCourses.length) : 0;

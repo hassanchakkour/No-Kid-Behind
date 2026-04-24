@@ -38,7 +38,7 @@ export default function StudentDashboard() {
     user?.grade ? { grade: user.grade } : undefined
   );
 
-  const filtered = allCourses?.filter((c) => {
+  const filtered = (Array.isArray(allCourses) ? allCourses : []).filter((c) => {
     const gradeMatch = !grade || c.grades.includes(grade);
     const subjectMatch = !subject || c.subject.toLowerCase().includes(subject.toLowerCase());
     const searchMatch =
@@ -46,9 +46,9 @@ export default function StudentDashboard() {
       c.title.toLowerCase().includes(search.toLowerCase()) ||
       c.subject.toLowerCase().includes(search.toLowerCase());
     return gradeMatch && subjectMatch && searchMatch;
-  }) ?? [];
+  });
 
-  const recommendedCourses = recommended?.slice(0, 4) ?? [];
+  const recommendedCourses = Array.isArray(recommended) ? recommended.slice(0, 4) : [];
 
   const initials = user?.name
     ? user.name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)

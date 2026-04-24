@@ -19,7 +19,7 @@ export default function KidToKidPage() {
 
   const { data: allCourses, isLoading } = useCourses({ isKidToKid: true });
 
-  const filtered = allCourses?.filter((c) => {
+  const filtered = (Array.isArray(allCourses) ? allCourses : []).filter((c) => {
     const gradeMatch = !grade || c.grades.includes(grade);
     const subjectMatch = !subject || c.subject.toLowerCase().includes(subject.toLowerCase());
     const searchMatch =
@@ -27,7 +27,7 @@ export default function KidToKidPage() {
       c.title.toLowerCase().includes(search.toLowerCase()) ||
       c.subject.toLowerCase().includes(search.toLowerCase());
     return gradeMatch && subjectMatch && searchMatch;
-  }) ?? [];
+  });
 
   const activeFilters = [grade, subject, search].filter(Boolean).length;
 

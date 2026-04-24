@@ -13,14 +13,14 @@ export default function HealthPage() {
 
   const { data: allVideos, isLoading } = useCourses({ isHealthContent: true });
 
-  const filtered = allVideos?.filter((v) => {
+  const filtered = (Array.isArray(allVideos) ? allVideos : []).filter((v) => {
     const subjectMatch = !subject || v.subject.toLowerCase().includes(subject.toLowerCase());
     const searchMatch =
       !search ||
       v.title.toLowerCase().includes(search.toLowerCase()) ||
       v.subject.toLowerCase().includes(search.toLowerCase());
     return subjectMatch && searchMatch;
-  }) ?? [];
+  });
 
   const activeFilters = [subject, search].filter(Boolean).length;
 
