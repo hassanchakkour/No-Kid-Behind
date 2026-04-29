@@ -9,9 +9,9 @@ export const authLimiter = rateLimit({
 });
 
 export const courseCreateLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 30,
-  message: { error: 'Too many course creation requests.' },
+  windowMs: 5 * 60 * 1000, 
+  max: 40,
+  message: { error: 'Too many course creation requests, Please try again in 5 minutes.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
