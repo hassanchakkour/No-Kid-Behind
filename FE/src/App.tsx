@@ -22,11 +22,17 @@ function RequireAuth({ children, role }: { children: JSX.Element; role?: string 
   return children;
 }
 
+// Accessible to: professional, admin, kid_tutor, and students with likesToTeach
 function RequireTeacher({ children }: { children: JSX.Element }) {
   const { isAuthenticated, user } = useAuth();
   if (!isAuthenticated) return <Navigate to="/auth" replace />;
   if (!user) return <Navigate to="/" replace />;
-  if (user.role === 'teacher' || user.role === 'admin' || (user.role === 'student' && user.likesToTeach)) {
+  if (
+    user.role === 'professional' ||
+    user.role === 'admin' ||
+    user.role === 'kid_tutor' ||
+    (user.role === 'student' && user.likesToTeach)
+  ) {
     return children;
   }
   return <Navigate to="/" replace />;
@@ -52,7 +58,7 @@ export default function App() {
         }
       />
 
-      {/* Teacher routes — also accessible to students with likesToTeach */}
+      {/* Teaching routes — accessible to professional, kid_tutor, admin, students with likesToTeach */}
       <Route
         path="/teacher"
         element={
@@ -81,6 +87,7 @@ export default function App() {
       <Route path="/admin/special-needs" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
       <Route path="/admin/kid-to-kid" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
       <Route path="/admin/analytics" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
+      <Route path="/admin/pending" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
 
       <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
 

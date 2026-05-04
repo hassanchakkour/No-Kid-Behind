@@ -52,3 +52,21 @@ export function useToggleLikesToTeach() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
   });
 }
+
+export function usePendingKidTutors() {
+  return useQuery({
+    queryKey: ['admin', 'pending-kid-tutors'],
+    queryFn: adminApi.getPendingKidTutors,
+  });
+}
+
+export function useApproveKidTutor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.approveKidTutor(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'pending-kid-tutors'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+    },
+  });
+}

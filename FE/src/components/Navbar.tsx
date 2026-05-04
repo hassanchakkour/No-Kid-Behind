@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   AppBar, Toolbar, Typography, Button, Box, Avatar,
-  Menu, MenuItem, Divider, ListItemIcon,
+  Menu, MenuItem, Divider, ListItemIcon, Tooltip, Popper,
+  Paper, ClickAwayListener,
 } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -9,22 +10,30 @@ import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
+import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 
 interface NavLink {
   label: string;
   path: string;
+  description: string;
 }
 
-const baseLinks: NavLink[] = [
-  { label: 'Explore', path: '/courses' },
-  { label: 'My Learning', path: '/dashboard' },
-];
+const NAV_DESCRIPTIONS: Record<string, string> = {
+  '/courses': 'Browse our full catalog of free educational courses for every grade and subject.',
+  '/health': 'Mental health and wellness resources to support student wellbeing.',
+  '/special-needs': 'Specialized content and support for students with learning differences.',
+  '/kid-to-kid': 'Courses created by students, for students — peer-to-peer learning.',
+  '/dashboard': 'Your personal learning dashboard and progress tracker.',
+  '/teacher': 'Create and manage your courses for students.',
+};
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [mobileTooltipPath, setMobileTooltipPath] = useState<string | null>(null);
+  const tooltipAnchorRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const handleAvatarClick = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
@@ -38,23 +47,40 @@ export default function Navbar() {
   const getDashboardPath = () => {
     if (!user) return '/auth';
     if (user.role === 'admin') return '/admin';
-    if (user.role === 'teacher') return '/teacher';
+    if (user.role === 'professional' || user.role === 'kid_tutor') return '/teacher';
     return '/dashboard';
   };
 
-  const navLinks = [
-    { label: 'Explore', path: '/courses' },
-    { label: 'Health', path: '/health' },
-    { label: 'Special Needs', path: '/special-needs' },
-    { label: 'Kid to Kid', path: '/kid-to-kid' },
-    ...(user?.role === 'teacher' || user?.role === 'admin' || (user?.role === 'student' && user?.likesToTeach)
-      ? [{ label: 'Teaching', path: '/teacher' }]
-      : [{ label: 'My Learning', path: '/dashboard' }]),
+  const getDashboardLabel = () => {
+    if (!user) return 'Dashboard';
+    if (user.role === 'admin') return 'Admin Panel';
+    if (user.role === 'professional' || user.role === 'kid_tutor') return 'My Courses';
+    return 'Dashboard';
+  };
+
+  const canTeach =
+    user?.role === 'professional' ||
+    user?.role === 'admin' ||
+    user?.role === 'kid_tutor' ||
+    (user?.role === 'student' && user?.likesToTeach);
+
+  const navLinks: NavLink[] = [
+    { label: 'Explore', path: '/courses', description: NAV_DESCRIPTIONS['/courses'] },
+    { label: 'Wellbeing', path: '/health', description: NAV_DESCRIPTIONS['/health'] },
+    { label: 'Learning Difficulties', path: '/special-needs', description: NAV_DESCRIPTIONS['/special-needs'] },
+    { label: 'Kid to Kid', path: '/kid-to-kid', description: NAV_DESCRIPTIONS['/kid-to-kid'] },
+    ...(canTeach
+      ? [{ label: 'Teaching', path: '/teacher', description: NAV_DESCRIPTIONS['/teacher'] }]
+      : [{ label: 'My Learning', path: '/dashboard', description: NAV_DESCRIPTIONS['/dashboard'] }]),
   ];
 
   const initials = user?.name
     ? user.name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)
     : '?';
+
+  const handleMobileTooltip = (path: string) => {
+    setMobileTooltipPath((prev) => (prev === path ? null : path));
+  };
 
   return (
     <AppBar
@@ -84,30 +110,68 @@ export default function Navbar() {
             No Kid Behind
           </Typography>
 
-          {/* Nav links */}
+          {/* Desktop nav links */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 3 }}>
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Box
                   key={link.path}
-                  onClick={() => navigate(link.path)}
-                  sx={{
-                    cursor: 'pointer',
-                    pb: isActive ? '6px' : 0,
-                    borderBottom: isActive ? '2px solid' : 'none',
-                    borderColor: 'primary.main',
-                  }}
+                  sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
                 >
-                  <Typography
+                  <Box
+                    onClick={() => navigate(link.path)}
                     sx={{
-                      fontWeight: isActive ? 600 : 400,
-                      fontSize: '0.875rem',
-                      color: isActive ? 'primary.main' : 'text.secondary',
+                      cursor: 'pointer',
+                      pb: isActive ? '6px' : 0,
+                      borderBottom: isActive ? '2px solid' : 'none',
+                      borderColor: 'primary.main',
                     }}
                   >
-                    {link.label}
-                  </Typography>
+                    <Typography
+                      sx={{
+                        fontWeight: isActive ? 600 : 400,
+                        fontSize: '0.875rem',
+                        color: isActive ? 'primary.main' : 'text.secondary',
+                      }}
+                    >
+                      {link.label}
+                    </Typography>
+                  </Box>
+                  {/* Desktop: hover tooltip */}
+                  <Tooltip
+                    title={link.description}
+                    placement="bottom"
+                    arrow
+                    enterDelay={300}
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          bgcolor: 'text.primary',
+                          color: 'background.paper',
+                          fontSize: '0.75rem',
+                          maxWidth: 220,
+                          borderRadius: '8px',
+                          px: 1.5,
+                          py: 1,
+                        },
+                      },
+                      arrow: { sx: { color: 'text.primary' } },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        cursor: 'default',
+                        color: 'text.disabled',
+                        '&:hover': { color: 'text.secondary' },
+                        transition: 'color 0.15s',
+                      }}
+                    >
+                      <HelpOutlineRoundedIcon sx={{ fontSize: '0.875rem' }} />
+                    </Box>
+                  </Tooltip>
                 </Box>
               );
             })}
@@ -116,9 +180,84 @@ export default function Navbar() {
 
         {/* Auth actions */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Mobile nav — show ? icons that toggle tooltip poppers */}
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1.5, alignItems: 'center' }}>
+            {navLinks.map((link) => (
+              <Box key={link.path} sx={{ position: 'relative' }}>
+                <Box
+                  ref={(el) => { tooltipAnchorRefs.current[link.path] = el as HTMLElement | null; }}
+                  onClick={() => handleMobileTooltip(link.path)}
+                  sx={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    bgcolor: mobileTooltipPath === link.path ? 'rgba(27,107,81,0.1)' : 'transparent',
+                    color: mobileTooltipPath === link.path ? 'primary.main' : 'text.secondary',
+                    border: '1px solid',
+                    borderColor: mobileTooltipPath === link.path ? 'primary.main' : 'transparent',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  <HelpOutlineRoundedIcon sx={{ fontSize: '0.875rem' }} />
+                </Box>
+                <Popper
+                  open={mobileTooltipPath === link.path}
+                  anchorEl={tooltipAnchorRefs.current[link.path]}
+                  placement="bottom-start"
+                  style={{ zIndex: 200 }}
+                >
+                  <ClickAwayListener onClickAway={() => setMobileTooltipPath(null)}>
+                    <Paper
+                      elevation={4}
+                      sx={{
+                        mt: 1,
+                        p: 1.5,
+                        maxWidth: 220,
+                        borderRadius: '10px',
+                        bgcolor: 'text.primary',
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: '0.75rem',
+                          color: 'background.paper',
+                          mb: 0.5,
+                        }}
+                      >
+                        {link.label}
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}
+                      >
+                        {link.description}
+                      </Typography>
+                      <Box
+                        onClick={() => { navigate(link.path); setMobileTooltipPath(null); }}
+                        sx={{
+                          mt: 1,
+                          fontSize: '0.6875rem',
+                          fontWeight: 700,
+                          color: '#a6f2d1',
+                          cursor: 'pointer',
+                          '&:hover': { textDecoration: 'underline' },
+                        }}
+                      >
+                        Go →
+                      </Box>
+                    </Paper>
+                  </ClickAwayListener>
+                </Popper>
+              </Box>
+            ))}
+          </Box>
+
           {isAuthenticated ? (
             <>
-              {/* Avatar → opens dropdown */}
               <Avatar
                 onClick={handleAvatarClick}
                 sx={{
@@ -155,7 +294,6 @@ export default function Navbar() {
                   },
                 }}
               >
-                {/* User info header */}
                 <Box sx={{ px: 2, pt: 2, pb: 1.5 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main', color: '#a6f2d1', fontSize: '0.8125rem', fontWeight: 800 }}>
@@ -166,7 +304,7 @@ export default function Navbar() {
                         {user?.name}
                       </Typography>
                       <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', textTransform: 'capitalize' }}>
-                        {user?.role}
+                        {user?.role === 'kid_tutor' ? 'Kid Tutor' : user?.role}
                       </Typography>
                     </Box>
                   </Box>
@@ -181,7 +319,7 @@ export default function Navbar() {
                   <ListItemIcon sx={{ minWidth: 'auto' }}>
                     <DashboardRoundedIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
                   </ListItemIcon>
-                  <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>Dashboard</Typography>
+                  <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.primary' }}>{getDashboardLabel()}</Typography>
                 </MenuItem>
 
                 <MenuItem

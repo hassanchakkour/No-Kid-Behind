@@ -7,6 +7,7 @@ export interface JwtPayload {
   role: string;
   username: string;
   likesToTeach?: boolean;
+  kidTutorApproved?: boolean;
 }
 
 export function signToken(payload: JwtPayload): string {

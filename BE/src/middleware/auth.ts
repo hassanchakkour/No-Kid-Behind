@@ -35,13 +35,9 @@ export function requireTeacherOrStudentTeacher(req: AuthRequest, res: Response, 
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-  if (['teacher', 'admin'].includes(req.user.role)) {
-    next();
-    return;
-  }
-  if (req.user.role === 'student' && req.user.likesToTeach) {
-    next();
-    return;
-  }
+  const { role, likesToTeach, kidTutorApproved } = req.user;
+  if (role === 'professional' || role === 'admin') { next(); return; }
+  if (role === 'kid_tutor' && kidTutorApproved) { next(); return; }
+  if (role === 'student' && likesToTeach) { next(); return; }
   res.status(403).json({ error: 'Forbidden' });
 }

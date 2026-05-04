@@ -20,6 +20,15 @@ export async function register(req: Request, res: Response): Promise<void> {
     return;
   }
 
+  // Duplicate syndicate number check for professionals
+  if (role === 'professional' && syndicateNumber) {
+    const dupSyndicate = await prisma.user.findFirst({ where: { syndicateNumber } });
+    if (dupSyndicate) {
+      res.status(409).json({ error: 'A professional with the same syndicate number already exists' });
+      return;
+    }
+  }
+
   const hashed = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
@@ -36,10 +45,19 @@ export async function register(req: Request, res: Response): Promise<void> {
     },
   });
 
-  const token = signToken({ userId: user.id, role: user.role, username: user.username, likesToTeach: user.likesToTeach });
+  const token = signToken({ userId: user.id, role: user.role, username: user.username, likesToTeach: user.likesToTeach, kidTutorApproved: user.kidTutorApproved });
   res.status(201).json({
     token,
-    user: { id: user.id, username: user.username, name: user.name, role: user.role, grade: user.grade, school: user.school, likesToTeach: user.likesToTeach },
+    user: {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      role: user.role,
+      grade: user.grade,
+      school: user.school,
+      likesToTeach: user.likesToTeach,
+      kidTutorApproved: user.kidTutorApproved,
+    },
   });
 }
 
@@ -64,10 +82,19 @@ export async function login(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const token = signToken({ userId: user.id, role: user.role, username: user.username, likesToTeach: user.likesToTeach });
+  const token = signToken({ userId: user.id, role: user.role, username: user.username, likesToTeach: user.likesToTeach, kidTutorApproved: user.kidTutorApproved });
   res.json({
     token,
-    user: { id: user.id, username: user.username, name: user.name, role: user.role, grade: user.grade, school: user.school, likesToTeach: user.likesToTeach },
+    user: {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      role: user.role,
+      grade: user.grade,
+      school: user.school,
+      likesToTeach: user.likesToTeach,
+      kidTutorApproved: user.kidTutorApproved,
+    },
   });
 }
 
@@ -97,10 +124,19 @@ export async function updateMe(req: AuthRequest, res: Response): Promise<void> {
 
   const updated = await prisma.user.update({ where: { id: userId }, data });
 
-  const token = signToken({ userId: updated.id, role: updated.role, username: updated.username, likesToTeach: updated.likesToTeach });
+  const token = signToken({ userId: updated.id, role: updated.role, username: updated.username, likesToTeach: updated.likesToTeach, kidTutorApproved: updated.kidTutorApproved });
   res.json({
     token,
-    user: { id: updated.id, username: updated.username, name: updated.name, role: updated.role, grade: updated.grade, school: updated.school, likesToTeach: updated.likesToTeach },
+    user: {
+      id: updated.id,
+      username: updated.username,
+      name: updated.name,
+      role: updated.role,
+      grade: updated.grade,
+      school: updated.school,
+      likesToTeach: updated.likesToTeach,
+      kidTutorApproved: updated.kidTutorApproved,
+    },
   });
 }
 
@@ -122,10 +158,18 @@ export async function toggleLikesToTeachSelf(req: AuthRequest, res: Response): P
     data: { likesToTeach: !user.likesToTeach },
   });
 
-  // Issue a new token so the updated flag is immediately reflected
-  const token = signToken({ userId: updated.id, role: updated.role, username: updated.username, likesToTeach: updated.likesToTeach });
+  const token = signToken({ userId: updated.id, role: updated.role, username: updated.username, likesToTeach: updated.likesToTeach, kidTutorApproved: updated.kidTutorApproved });
   res.json({
     token,
-    user: { id: updated.id, username: updated.username, name: updated.name, role: updated.role, grade: updated.grade, school: updated.school, likesToTeach: updated.likesToTeach },
+    user: {
+      id: updated.id,
+      username: updated.username,
+      name: updated.name,
+      role: updated.role,
+      grade: updated.grade,
+      school: updated.school,
+      likesToTeach: updated.likesToTeach,
+      kidTutorApproved: updated.kidTutorApproved,
+    },
   });
 }

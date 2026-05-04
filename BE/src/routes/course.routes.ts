@@ -29,7 +29,7 @@ router.post(
 router.put(
   '/:id',
   authenticate,
-  requireRole('teacher', 'admin'),
+  requireRole('professional', 'kid_tutor', 'admin', 'student'),
   [
     body('title').optional().trim().isLength({ min: 3, max: 200 }),
     body('subject').optional().trim().isLength({ min: 2, max: 100 }),
@@ -41,6 +41,6 @@ router.put(
   updateCourse
 );
 
-router.delete('/:id', authenticate, requireRole('teacher', 'admin'), deleteCourse);
+router.delete('/:id', authenticate, requireRole('professional', 'kid_tutor', 'admin', 'student'), deleteCourse);
 
 export default router;

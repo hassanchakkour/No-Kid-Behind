@@ -1,15 +1,31 @@
-import { Box, Typography, Button, Grid, Divider } from "@mui/material";
+import { useState, useMemo } from "react";
+import {
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Divider,
+  TextField,
+  MenuItem,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import CourseCard from "../components/CourseCard";
 import { useCourses } from "../hooks/useCourses";
+import client from "../api/client";
+import schoolData from "../data/public_schools_lebanon.json";
 import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
 import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
 import LockOpenRoundedIcon from "@mui/icons-material/LockOpenRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import LebanonMapImg from "../public/lebanon-map-nkb.png";
+
+type SchoolEntry = { Caza: string; Area: string; "School Name": string };
+const SCHOOL_DATA = schoolData as SchoolEntry[];
+const PRIVATE_SCHOOLS = ["IC", "ACS", "College"];
 
 const STATS = [
   { value: "50k+", label: "Active Learners" },
@@ -32,7 +48,7 @@ const FEATURES = [
   {
     icon: AutoStoriesRoundedIcon,
     title: "Curated Curriculum",
-    body: "Courses are submitted by verified teachers and organized by grade, subject, and institution for clarity.",
+    body: "Courses are submitted by verified Professionals and organized by grade, subject, and institution for clarity.",
   },
   {
     icon: VolunteerActivismRoundedIcon,
@@ -49,13 +65,49 @@ const FOOTER_PLATFORM = [
 ];
 const FOOTER_COMMUNITY = [
   "Student Forum",
-  "Become a Teacher",
+  "Become a Professional",
   "Donations",
   "Support",
 ];
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [madristiSchool, setMadristiSchool] = useState("");
+  const [pubCaza, setPubCaza] = useState("");
+  const [pubArea, setPubArea] = useState("");
+  const [pubSchool, setPubSchool] = useState("");
+
+  const cazas = useMemo(
+    () => [...new Set(SCHOOL_DATA.map((s) => s.Caza))].sort(),
+    [],
+  );
+  const areas = useMemo(
+    () =>
+      pubCaza
+        ? [
+            ...new Set(
+              SCHOOL_DATA.filter((s) => s.Caza === pubCaza).map((s) => s.Area),
+            ),
+          ].sort()
+        : [],
+    [pubCaza],
+  );
+  const publicSchools = useMemo(
+    () =>
+      pubArea
+        ? SCHOOL_DATA.filter((s) => s.Caza === pubCaza && s.Area === pubArea)
+            .map((s) => s["School Name"])
+            .sort()
+        : [],
+    [pubCaza, pubArea],
+  );
+
+  const analyticsSchool =
+    madristiSchool === "Public School"
+      ? pubSchool || "Public School"
+      : madristiSchool;
+  const canVisit =
+    madristiSchool === "Public School" ? !!pubSchool : !!madristiSchool;
   const { data: rawCourses } = useCourses();
   const courses = (Array.isArray(rawCourses) ? rawCourses : []).filter(
     (c) => !c.isKidToKid && !c.isHealthContent && !c.isSpecialNeeds,
@@ -292,14 +344,205 @@ export default function LandingPage() {
         </Box>
       </Box>
 
-      {/* ─── Ministry Banner ─── */}
+      {/* ─── Ministry Section ─── */}
       <Box sx={{ px: { xs: 4, md: 8 }, pt: 8, pb: 0, bgcolor: "#edf2f5" }}>
         <Box sx={{ maxWidth: 1280, mx: "auto" }}>
+          {/* School picker cards */}
+          <Box sx={{ mb: madristiSchool === "Public School" ? 2 : 3 }}>
+            <Typography
+              sx={{
+                fontWeight: 700,
+                fontSize: "0.6875rem",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "text.secondary",
+                mb: 2,
+              }}
+            >
+              Access Madristi — select your school
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              {[...PRIVATE_SCHOOLS, "Public School"].map((s) => {
+                const active = madristiSchool === s;
+                const isPublic = s === "Public School";
+                return (
+                  <Box
+                    key={s}
+                    onClick={() => {
+                      if (active) {
+                        setMadristiSchool("");
+                        setPubCaza("");
+                        setPubArea("");
+                        setPubSchool("");
+                      } else {
+                        setMadristiSchool(s);
+                        setPubCaza("");
+                        setPubArea("");
+                        setPubSchool("");
+                      }
+                    }}
+                    sx={{
+                      flex: "1 1 120px",
+                      minWidth: 120,
+                      maxWidth: 220,
+                      py: 2.5,
+                      px: 3,
+                      borderRadius: "12px",
+                      border: "2px solid",
+                      borderColor: active
+                        ? "primary.main"
+                        : "rgba(169,180,185,0.25)",
+                      bgcolor: active
+                        ? "rgba(27,107,81,0.06)"
+                        : "background.paper",
+                      cursor: "pointer",
+                      textAlign: "center",
+                      transition: "all 0.15s",
+                      boxShadow: active
+                        ? "0px 4px 16px rgba(27,107,81,0.15)"
+                        : "0px 2px 8px rgba(0,0,0,0.04)",
+                      "&:hover": {
+                        borderColor: "primary.main",
+                        bgcolor: "rgba(27,107,81,0.04)",
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: "10px",
+                        bgcolor: active
+                          ? "primary.main"
+                          : "rgba(169,180,185,0.12)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mx: "auto",
+                        mb: 1,
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      {isPublic ? (
+                        <PublicRoundedIcon
+                          sx={{
+                            fontSize: "1.1rem",
+                            color: active ? "#a6f2d1" : "text.secondary",
+                          }}
+                        />
+                      ) : (
+                        <SchoolOutlinedIcon
+                          sx={{
+                            fontSize: "1.1rem",
+                            color: active ? "#a6f2d1" : "text.secondary",
+                          }}
+                        />
+                      )}
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: "0.9375rem",
+                        color: active ? "primary.main" : "text.primary",
+                      }}
+                    >
+                      {s}
+                    </Typography>
+                  </Box>
+                );
+              })}
+            </Box>
+          </Box>
+
+          {/* Public school cascade */}
+          {madristiSchool === "Public School" && (
+            <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
+              <TextField
+                select
+                label="Caza"
+                value={pubCaza}
+                onChange={(e) => {
+                  setPubCaza(e.target.value);
+                  setPubArea("");
+                  setPubSchool("");
+                }}
+                size="small"
+                sx={{
+                  minWidth: 160,
+                  flex: 1,
+                  "& .MuiOutlinedInput-root": {
+                    bgcolor: "background.paper",
+                    borderRadius: "8px",
+                  },
+                }}
+              >
+                <MenuItem value="" disabled>
+                  <em style={{ color: "#a9b4b9" }}>Select caza</em>
+                </MenuItem>
+                {cazas.map((c) => (
+                  <MenuItem key={c} value={c}>
+                    {c}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                label="Area"
+                value={pubArea}
+                onChange={(e) => {
+                  setPubArea(e.target.value);
+                  setPubSchool("");
+                }}
+                size="small"
+                disabled={!pubCaza}
+                sx={{
+                  minWidth: 160,
+                  flex: 1,
+                  "& .MuiOutlinedInput-root": {
+                    bgcolor: "background.paper",
+                    borderRadius: "8px",
+                  },
+                }}
+              >
+                <MenuItem value="" disabled>
+                  <em style={{ color: "#a9b4b9" }}>Select area</em>
+                </MenuItem>
+                {areas.map((a) => (
+                  <MenuItem key={a} value={a}>
+                    {a}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                label="School"
+                value={pubSchool}
+                onChange={(e) => setPubSchool(e.target.value)}
+                size="small"
+                disabled={!pubArea}
+                sx={{
+                  minWidth: 200,
+                  flex: 2,
+                  "& .MuiOutlinedInput-root": {
+                    bgcolor: "background.paper",
+                    borderRadius: "8px",
+                  },
+                }}
+              >
+                <MenuItem value="" disabled>
+                  <em style={{ color: "#a9b4b9" }}>Select school</em>
+                </MenuItem>
+                {publicSchools.map((s) => (
+                  <MenuItem key={s} value={s}>
+                    {s}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
+          )}
+
+          {/* Banner */}
           <Box
-            component="a"
-            href="https://madristi.mehe.gov.lb"
-            target="_blank"
-            rel="noopener noreferrer"
             sx={{
               display: "flex",
               alignItems: "center",
@@ -311,12 +554,6 @@ export default function LandingPage() {
               borderRadius: "14px",
               background: "linear-gradient(135deg, #023d2e 0%, #1b6b51 100%)",
               border: "1px solid rgba(166,242,209,0.18)",
-              textDecoration: "none",
-              transition: "box-shadow 0.2s, transform 0.2s",
-              "&:hover": {
-                boxShadow: "0px 8px 32px rgba(27,107,81,0.25)",
-                transform: "translateY(-1px)",
-              },
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
@@ -360,18 +597,29 @@ export default function LandingPage() {
                     mt: 0.25,
                   }}
                 >
-                  Access official learning resources from the Ministry of
-                  Education and Higher Education
+                  {canVisit
+                    ? `Visiting as: ${analyticsSchool}`
+                    : "Select your school above to continue"}
                 </Typography>
               </Box>
             </Box>
             <Box
+              onClick={() => {
+                if (!canVisit) return;
+                client
+                  .post("/analytics/madristi-click", {
+                    school: analyticsSchool,
+                  })
+                  .catch(() => {});
+                window.open(
+                  "https://madristi.mehe.gov.lb",
+                  "_blank",
+                  "noopener,noreferrer",
+                );
+              }}
               sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                bgcolor: "#a6f2d1",
-                color: "#023d2e",
+                bgcolor: canVisit ? "#a6f2d1" : "rgba(166,242,209,0.2)",
+                color: canVisit ? "#023d2e" : "rgba(166,242,209,0.4)",
                 px: 3,
                 py: 1.25,
                 borderRadius: "8px",
@@ -379,6 +627,11 @@ export default function LandingPage() {
                 fontSize: "0.875rem",
                 flexShrink: 0,
                 fontFamily: "'Public Sans', sans-serif",
+                cursor: canVisit ? "pointer" : "not-allowed",
+                transition: "all 0.2s",
+                "&:hover": {
+                  bgcolor: canVisit ? "#8de8be" : "rgba(166,242,209,0.2)",
+                },
               }}
             >
               Visit Madristi →
@@ -472,14 +725,14 @@ export default function LandingPage() {
                 sx={{ fontSize: "3rem", color: "text.disabled", mb: 2 }}
               />
               <Typography sx={{ color: "text.secondary", fontSize: "1rem" }}>
-                No courses yet. Be the first teacher to add one!
+                No courses yet. Be the first Professional to add one!
               </Typography>
               <Button
                 variant="contained"
                 onClick={() => navigate("/auth?tab=register")}
                 sx={{ mt: 3, borderRadius: "8px", px: 4 }}
               >
-                Register as Teacher
+                Register as Professional
               </Button>
             </Box>
           )}

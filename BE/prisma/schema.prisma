@@ -7,26 +7,36 @@ datasource db {
 }
 
 model User {
-  id              String   @id @default(cuid())
-  username        String   @unique
-  name            String
-  email           String?
-  password        String
-  role            Role     @default(student)
-  grade           String?
-  school          String?
-  isDisplaced     Boolean  @default(false)
-  syndicateNumber String?
-  likesToTeach    Boolean  @default(false)
-  courses         Course[] @relation("TeacherCourses")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(cuid())
+  username          String   @unique
+  name              String
+  email             String?
+  password          String
+  role              Role     @default(student)
+  grade             String?
+  school            String?
+  isDisplaced       Boolean  @default(false)
+  syndicateNumber   String?
+  likesToTeach      Boolean  @default(false)
+  kidTutorApproved  Boolean  @default(false)
+  courses           Course[] @relation("TeacherCourses")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 enum Role {
   student
-  teacher
+  professional
+  kid_tutor
   admin
+}
+
+model MadristiClick {
+  id        String   @id @default(cuid())
+  school    String
+  createdAt DateTime @default(now())
+
+  @@index([school])
 }
 
 model Course {

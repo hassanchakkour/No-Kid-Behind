@@ -52,13 +52,31 @@ export async function createCourse(req: AuthRequest, res: Response): Promise<voi
   }
 
   const { title, subject, grades, school, youtubeUrl, isHealthContent, isSpecialNeeds } = req.body;
+  const userRole = req.user!.role;
 
-  if (isHealthContent && req.user!.role !== 'admin') {
+  const wantsHealth = isHealthContent === true || isHealthContent === 'true';
+  const wantsSpecialNeeds = isSpecialNeeds === true || isSpecialNeeds === 'true';
+
+  // Only admins can create health content
+  if (wantsHealth && userRole !== 'admin') {
     res.status(403).json({ error: 'Only admins can add health content' });
     return;
   }
-  if (isSpecialNeeds && req.user!.role !== 'admin') {
-    res.status(403).json({ error: 'Only admins can add special needs content' });
+  // Only admins can create learning difficulties (special needs) content
+  if (wantsSpecialNeeds && userRole !== 'admin') {
+    res.status(403).json({ error: 'Only admins can add learning difficulties content' });
+    return;
+  }
+
+  // Professionals can ONLY create health or learning difficulties content
+  if (userRole === 'professional' && !wantsHealth && !wantsSpecialNeeds) {
+    res.status(403).json({ error: 'Professionals can only create Wellbeing or Learning Difficulties content' });
+    return;
+  }
+
+  // Kid tutors can only create kid-to-kid content (not health or special needs)
+  if (userRole === 'kid_tutor' && (wantsHealth || wantsSpecialNeeds)) {
+    res.status(403).json({ error: 'Kid tutors cannot create this type of content' });
     return;
   }
 
@@ -74,7 +92,10 @@ export async function createCourse(req: AuthRequest, res: Response): Promise<voi
     return;
   }
 
-  const isStudentTeacher = req.user!.role === 'student' && req.user!.likesToTeach;
+  const isKidToKid =
+    userRole === 'kid_tutor' ||
+    (userRole === 'student' && req.user!.likesToTeach);
+
   const gradesArray: string[] = Array.isArray(grades) ? grades : grades ? [grades] : [];
 
   const course = await prisma.course.create({
@@ -84,9 +105,9 @@ export async function createCourse(req: AuthRequest, res: Response): Promise<voi
       grades: gradesArray,
       school: school || null,
       youtubeVideoId: videoId,
-      isHealthContent: isHealthContent === true || isHealthContent === 'true',
-      isSpecialNeeds: isSpecialNeeds === true || isSpecialNeeds === 'true',
-      isKidToKid: isStudentTeacher,
+      isHealthContent: wantsHealth,
+      isSpecialNeeds: wantsSpecialNeeds,
+      isKidToKid,
       teacherId: req.user!.userId,
     },
     include: {

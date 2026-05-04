@@ -26,6 +26,7 @@ import PlayCircleOutlineRoundedIcon from "@mui/icons-material/PlayCircleOutlineR
 import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
+import ChildCareRoundedIcon from "@mui/icons-material/ChildCareRounded";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import Navbar from "../components/Navbar";
@@ -70,6 +71,7 @@ const courseSchema = Yup.object({
     .required("Required"),
   school: Yup.string().optional(),
   youtubeUrl: Yup.string().required("Required"),
+  contentType: Yup.string().optional(),
 });
 
 interface CourseFormValues {
@@ -78,6 +80,7 @@ interface CourseFormValues {
   grades: string[];
   school: string;
   youtubeUrl: string;
+  contentType: "" | "health" | "specialNeeds";
 }
 
 export default function TeacherDashboard() {
@@ -96,6 +99,9 @@ export default function TeacherDashboard() {
   const avgViews =
     myCourses.length > 0 ? Math.round(totalViews / myCourses.length) : 0;
 
+  const isProfessional = user?.role === 'professional';
+  const isKidTutor = user?.role === 'kid_tutor';
+
   const initialValues: CourseFormValues = editingCourse
     ? {
         title: editingCourse.title,
@@ -103,11 +109,20 @@ export default function TeacherDashboard() {
         grades: editingCourse.grades ?? [],
         school: editingCourse.school ?? "",
         youtubeUrl: editingCourse.youtubeVideoId,
+        contentType: editingCourse.isHealthContent ? "health" : editingCourse.isSpecialNeeds ? "specialNeeds" : "",
       }
-    : { title: "", subject: "", grades: [], school: "", youtubeUrl: "" };
+    : {
+        title: "", subject: "", grades: [], school: "", youtubeUrl: "",
+        contentType: isProfessional ? "health" : "",
+      };
 
   const handleSubmit = async (values: CourseFormValues) => {
-    const payload = { ...values, grades: values.grades };
+    const payload = {
+      ...values,
+      grades: values.grades,
+      isHealthContent: values.contentType === "health",
+      isSpecialNeeds: values.contentType === "specialNeeds",
+    };
     if (editingCourse) {
       await updateCourse.mutateAsync({ id: editingCourse.id, data: payload });
     } else {
@@ -139,11 +154,10 @@ export default function TeacherDashboard() {
         title="Instructor Portal"
         subtitle="Your Teaching Hub"
         links={SIDEBAR_LINKS}
-        actionLabel="+ New Course"
-        onAction={() => {
-          setEditingCourse(null);
-          setDialogOpen(true);
-        }}
+        {...(!(isKidTutor && !user?.kidTutorApproved) && {
+          actionLabel: '+ New Course',
+          onAction: () => { setEditingCourse(null); setDialogOpen(true); },
+        })}
       />
 
       <Box
@@ -171,7 +185,7 @@ export default function TeacherDashboard() {
               mb: 1,
             }}
           >
-            Instructor Workspace
+            {isProfessional ? "Professional Workspace" : isKidTutor ? "Kid Tutor Workspace" : "Instructor Workspace"}
           </Typography>
           <Box
             sx={{
@@ -204,24 +218,23 @@ export default function TeacherDashboard() {
                 Welcome back, {user?.name}. Manage your courses below.
               </Typography>
             </Box>
-            <Button
-              variant="contained"
-              startIcon={<AddRoundedIcon />}
-              onClick={() => {
-                setEditingCourse(null);
-                setDialogOpen(true);
-              }}
-              sx={{
-                px: 3,
-                py: 1.5,
-                fontSize: "0.9375rem",
-                borderRadius: "8px",
-                boxShadow: "0px 4px 12px 0px rgba(27,107,81,0.2)",
-                flexShrink: 0,
-              }}
-            >
-              Add Course
-            </Button>
+            {!(isKidTutor && !user?.kidTutorApproved) && (
+              <Button
+                variant="contained"
+                startIcon={<AddRoundedIcon />}
+                onClick={() => { setEditingCourse(null); setDialogOpen(true); }}
+                sx={{
+                  px: 3,
+                  py: 1.5,
+                  fontSize: "0.9375rem",
+                  borderRadius: "8px",
+                  boxShadow: "0px 4px 12px 0px rgba(27,107,81,0.2)",
+                  flexShrink: 0,
+                }}
+              >
+                Add Course
+              </Button>
+            )}
           </Box>
 
           {/* Stats row */}
@@ -305,6 +318,53 @@ export default function TeacherDashboard() {
           </Grid>
         </Box>
 
+        {/* ── Kid Tutor approval banner ── */}
+        {isKidTutor && (
+          <Box
+            sx={{
+              mx: { xs: 4, md: 6 },
+              mt: 3,
+              px: 3,
+              py: 2.5,
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              ...(user?.kidTutorApproved
+                ? {
+                    background: 'linear-gradient(135deg, #1b6b51 0%, #035d45 100%)',
+                    border: '1px solid rgba(166,242,209,0.25)',
+                  }
+                : {
+                    background: 'linear-gradient(135deg, #7c5a0a 0%, #a37412 100%)',
+                    border: '1px solid rgba(255,220,130,0.25)',
+                  }),
+            }}
+          >
+            <Box
+              sx={{
+                width: 40, height: 40, borderRadius: '10px',
+                bgcolor: 'rgba(255,255,255,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}
+            >
+              <ChildCareRoundedIcon sx={{ color: user?.kidTutorApproved ? '#a6f2d1' : '#ffd97a', fontSize: '1.25rem' }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', color: '#e0ffee', lineHeight: 1.3 }}>
+                {user?.kidTutorApproved
+                  ? `You have been approved by ${user.school || 'your school'}`
+                  : `Your account is being reviewed by ${user?.school || 'your school'}`}
+              </Typography>
+              <Typography sx={{ fontSize: '0.8125rem', color: 'rgba(224,255,238,0.65)', mt: 0.25 }}>
+                {user?.kidTutorApproved
+                  ? 'You can upload courses in the Kid to Kid section below.'
+                  : 'This usually takes a short while. You can still prepare your courses while waiting.'}
+              </Typography>
+            </Box>
+          </Box>
+        )}
+
         {/* ── Course List ── */}
         <Box sx={{ px: { xs: 4, md: 6 }, py: 4, flex: 1 }}>
           <Box
@@ -355,22 +415,21 @@ export default function TeacherDashboard() {
               <PlayCircleOutlineRoundedIcon
                 sx={{ fontSize: "3rem", color: "text.disabled", mb: 2 }}
               />
-              <Typography
-                sx={{ color: "text.secondary", fontSize: "1rem", mb: 3 }}
-              >
-                You haven't created any courses yet.
+              <Typography sx={{ color: "text.secondary", fontSize: "1rem", mb: 3 }}>
+                {isKidTutor && !user?.kidTutorApproved
+                  ? "You'll be able to create courses once your school approves your account."
+                  : "You haven't created any courses yet."}
               </Typography>
-              <Button
-                variant="contained"
-                startIcon={<AddRoundedIcon />}
-                onClick={() => {
-                  setEditingCourse(null);
-                  setDialogOpen(true);
-                }}
-                sx={{ borderRadius: "8px", px: 4 }}
-              >
-                Create Your First Course
-              </Button>
+              {!(isKidTutor && !user?.kidTutorApproved) && (
+                <Button
+                  variant="contained"
+                  startIcon={<AddRoundedIcon />}
+                  onClick={() => { setEditingCourse(null); setDialogOpen(true); }}
+                  sx={{ borderRadius: "8px", px: 4 }}
+                >
+                  Create Your First Course
+                </Button>
+              )}
             </Box>
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -492,7 +551,7 @@ export default function TeacherDashboard() {
                   </Box>
 
                   {/* Actions */}
-                  <Box sx={{ display: "flex", gap: 1, flexShrink: 0 }}>
+                  <Box sx={{ display: "flex", gap: 1, flexShrink: 0, ...(isKidTutor && !user?.kidTutorApproved && { display: 'none' }) }}>
                     <Button
                       startIcon={
                         <EditRoundedIcon
@@ -564,17 +623,42 @@ export default function TeacherDashboard() {
           onSubmit={handleSubmit}
           enableReinitialize
         >
-          {({
-            isSubmitting,
-            values,
-            touched,
-            setFieldValue,
-            setFieldTouched,
-          }) => (
+          {({ isSubmitting, values, touched, setFieldValue, setFieldTouched }) => (
             <Form>
               <DialogContent
                 sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}
               >
+                {/* Content type selector for professionals */}
+                {isProfessional && (
+                  <Box>
+                    <FormLabel sx={{ fontWeight: 700, fontSize: "0.625rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "text.secondary", display: "block", mb: 1 }}>
+                      Content Category *
+                    </FormLabel>
+                    <Box sx={{ display: "flex", gap: 1.5 }}>
+                      {[
+                        { value: "health", label: "Wellbeing" },
+                        { value: "specialNeeds", label: "Learning Difficulties" },
+                      ].map(({ value, label }) => (
+                        <Box
+                          key={value}
+                          onClick={() => setFieldValue("contentType", value)}
+                          sx={{
+                            flex: 1, py: 1.25, px: 2, borderRadius: "8px", cursor: "pointer", textAlign: "center",
+                            border: "2px solid",
+                            borderColor: values.contentType === value ? "primary.main" : "rgba(169,180,185,0.3)",
+                            bgcolor: values.contentType === value ? "rgba(27,107,81,0.06)" : "#f7f9fb",
+                            fontWeight: values.contentType === value ? 700 : 500,
+                            fontSize: "0.875rem",
+                            color: values.contentType === value ? "primary.main" : "text.secondary",
+                            transition: "all 0.15s",
+                          }}
+                        >
+                          {label}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
                 <InputField
                   name="youtubeUrl"
                   label="YouTube Link"

@@ -19,16 +19,17 @@ import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import MetricCard from '../components/MetricCard';
-import { useAdminStats, useUsers, useAdminCourses, useDeleteUser, useAdminDeleteCourse, useToggleLikesToTeach } from '../hooks/useAdminStats';
+import { useAdminStats, useUsers, useAdminCourses, useDeleteUser, useAdminDeleteCourse, useToggleLikesToTeach, usePendingKidTutors, useApproveKidTutor } from '../hooks/useAdminStats';
 import { useCreateCourse, useDeleteCourse, useCourses } from '../hooks/useCourses';
 
 const SIDEBAR_LINKS = [
   { label: 'Dashboard', path: '/admin' },
   { label: 'Users', path: '/admin/users' },
   { label: 'Courses', path: '/admin/courses' },
-  { label: 'Health Videos', path: '/admin/health' },
-  { label: 'Special Needs', path: '/admin/special-needs' },
+  { label: 'Wellbeing', path: '/admin/health' },
+  { label: 'Learning Difficulties', path: '/admin/special-needs' },
   { label: 'Kid to Kid', path: '/admin/kid-to-kid' },
+  { label: 'Pending Approvals', path: '/admin/pending' },
   { label: 'Analytics', path: '/admin/analytics' },
 ];
 
@@ -37,7 +38,8 @@ function getTabFromPath(pathname: string): number {
   if (pathname.startsWith('/admin/health')) return 2;
   if (pathname.startsWith('/admin/special-needs')) return 3;
   if (pathname.startsWith('/admin/kid-to-kid')) return 4;
-  if (pathname.startsWith('/admin/analytics')) return 5;
+  if (pathname.startsWith('/admin/pending')) return 5;
+  if (pathname.startsWith('/admin/analytics')) return 6;
   return 0;
 }
 
@@ -51,7 +53,7 @@ function OverviewSection() {
   const metricsData = stats
     ? [
         { value: stats.totalUsers, label: 'Total Users', icon: PeopleRoundedIcon },
-        { value: stats.totalTeachers, label: 'Teachers', icon: SchoolRoundedIcon },
+        { value: stats.totalProfessionals, label: 'Professionals', icon: SchoolRoundedIcon },
         { value: stats.totalCourses, label: 'Courses', icon: BarChartRoundedIcon },
         { value: stats.totalVisitors, label: 'Visitors', icon: PeopleRoundedIcon },
         { value: stats.totalCourseClicks, label: 'Course Views', icon: BarChartRoundedIcon },
@@ -289,8 +291,8 @@ function OverviewSection() {
                       value: stats.totalCourses > 0 ? Math.round(stats.totalCourseClicks / stats.totalCourses).toLocaleString() : '0',
                     },
                     {
-                      label: 'Teacher : Student',
-                      value: stats.totalTeachers > 0 ? `1:${Math.round((stats.totalUsers - stats.totalTeachers) / stats.totalTeachers)}` : '—',
+                      label: 'Professional : Student',
+                      value: stats.totalProfessionals > 0 ? `1:${Math.round((stats.totalUsers - stats.totalProfessionals) / stats.totalProfessionals)}` : '—',
                     },
                     {
                       label: 'Total Activity',
@@ -482,12 +484,14 @@ function ManagementSection() {
   const { data: courses, isLoading: coursesLoading } = useAdminCourses();
   const { data: stats, isLoading: statsLoading } = useAdminStats();
   const { data: kidCourses, isLoading: kidLoading } = useCourses({ isKidToKid: true });
+  const { data: pendingKidTutors, isLoading: pendingLoading } = usePendingKidTutors();
   const deleteUser = useDeleteUser();
   const deleteCourse = useAdminDeleteCourse();
   const toggleTeach = useToggleLikesToTeach();
+  const approveKidTutor = useApproveKidTutor();
 
   const handleTabChange = (_: unknown, newValue: number) => {
-    navigate(['/admin/users', '/admin/courses', '/admin/health', '/admin/special-needs', '/admin/kid-to-kid', '/admin/analytics'][newValue]);
+    navigate(['/admin/users', '/admin/courses', '/admin/health', '/admin/special-needs', '/admin/kid-to-kid', '/admin/pending', '/admin/analytics'][newValue]);
   };
 
   const handleDelete = async () => {
@@ -501,8 +505,9 @@ function ManagementSection() {
   const usersByRole = users
     ? {
         admin: users.filter((u) => u.role === 'admin').length,
-        teacher: users.filter((u) => u.role === 'teacher').length,
+        professional: users.filter((u) => u.role === 'professional').length,
         student: users.filter((u) => u.role === 'student').length,
+        kid_tutor: users.filter((u) => u.role === 'kid_tutor').length,
       }
     : null;
 
@@ -521,9 +526,10 @@ function ManagementSection() {
       >
         <Tab label="Users" />
         <Tab label="Courses" />
-        <Tab label="Health Videos" />
-        <Tab label="Special Needs" />
+        <Tab label="Wellbeing" />
+        <Tab label="Learning Difficulties" />
         <Tab label="Kid to Kid" />
+        <Tab label={`Pending${pendingKidTutors?.length ? ` (${pendingKidTutors.length})` : ''}`} />
         <Tab label="Analytics" />
       </Tabs>
 
@@ -540,7 +546,7 @@ function ManagementSection() {
                   <TableCell>Role</TableCell>
                   <TableCell>Grade / School</TableCell>
                   <TableCell>Joined</TableCell>
-                  <TableCell align="center">Student Teacher</TableCell>
+                  <TableCell align="center">Teaching Flag</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -560,13 +566,14 @@ function ManagementSection() {
                     </TableCell>
                     <TableCell>
                       <Chip
-                        label={u.role}
+                        label={u.role === 'kid_tutor' ? 'Kid Tutor' : u.role}
                         size="small"
                         sx={{
-                          bgcolor: u.role === 'admin' ? 'rgba(27,107,81,0.1)' : u.role === 'teacher' ? '#e1e9ee' : '#f0f4f7',
-                          color: u.role === 'admin' ? 'primary.main' : 'text.primary',
+                          bgcolor: u.role === 'admin' ? 'rgba(27,107,81,0.1)' : u.role === 'professional' ? '#e1e9ee' : u.role === 'kid_tutor' ? 'rgba(196,122,30,0.12)' : '#f0f4f7',
+                          color: u.role === 'admin' ? 'primary.main' : u.role === 'kid_tutor' ? '#c47a1e' : 'text.primary',
                           fontWeight: 700,
                           fontSize: '0.625rem',
+                          textTransform: 'capitalize',
                         }}
                       />
                     </TableCell>
@@ -744,10 +751,77 @@ function ManagementSection() {
         )
       )}
 
-      {/* Analytics */}
+      {/* Pending Approvals — Kid Tutors */}
       {tab === 5 && (
+        pendingLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
+        ) : (
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
+              <Box sx={{ bgcolor: 'rgba(196,122,30,0.1)', borderRadius: '8px', p: 0.875, display: 'flex' }}>
+                <ChildCareRoundedIcon sx={{ color: '#c47a1e', fontSize: '1rem' }} />
+              </Box>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', color: 'text.primary' }}>Pending Kid Tutor Approvals</Typography>
+              {pendingKidTutors && <Chip label={pendingKidTutors.length} size="small" sx={{ bgcolor: 'rgba(196,122,30,0.12)', color: '#c47a1e', fontWeight: 700 }} />}
+            </Box>
+            <TableContainer component={Paper} sx={{ borderRadius: '10px', boxShadow: '0px 2px 12px 0px rgba(42,52,57,0.06)', border: '1px solid rgba(169,180,185,0.12)' }}>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: '#f7f9fb' }}>
+                    <TableCell>Student</TableCell>
+                    <TableCell>Grade</TableCell>
+                    <TableCell>School</TableCell>
+                    <TableCell>Registered</TableCell>
+                    <TableCell align="right">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {pendingKidTutors && pendingKidTutors.length > 0 ? pendingKidTutors.map((u) => (
+                    <TableRow key={u.id} hover sx={{ '&:last-child td': { border: 0 } }}>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          <Avatar sx={{ width: 30, height: 30, bgcolor: 'rgba(196,122,30,0.1)', color: '#c47a1e', fontSize: '0.75rem', fontWeight: 700 }}>
+                            {u.name?.[0]?.toUpperCase()}
+                          </Avatar>
+                          <Box>
+                            <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: 'text.primary', lineHeight: 1.3 }}>{u.name}</Typography>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>@{u.username}</Typography>
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>{u.grade || '—'}</TableCell>
+                      <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>{u.school || '—'}</TableCell>
+                      <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>{new Date(u.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell align="right">
+                        <Button
+                          onClick={() => approveKidTutor.mutate(u.id)}
+                          disabled={approveKidTutor.isPending}
+                          size="small"
+                          sx={{ bgcolor: 'rgba(27,107,81,0.08)', color: 'primary.main', fontWeight: 700, fontSize: '0.8125rem', borderRadius: '6px', px: 2, '&:hover': { bgcolor: 'rgba(27,107,81,0.15)' } }}
+                        >
+                          Approve
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )) : (
+                    <TableRow>
+                      <TableCell colSpan={5} sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
+                        No pending approvals at the moment.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        )
+      )}
+
+      {/* Analytics */}
+      {tab === 6 && (
         <Box>
           <Grid container spacing={3}>
+            {/* User Breakdown */}
             <Grid item xs={12} md={4}>
               <Box sx={{ bgcolor: 'background.paper', borderRadius: '12px', p: 4, border: '1px solid rgba(169,180,185,0.12)', boxShadow: '0px 2px 8px 0px rgba(42,52,57,0.04)', height: '100%' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 4 }}>
@@ -760,10 +834,11 @@ function ManagementSection() {
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     {[
                       { label: 'Students', count: usersByRole.student, color: '#1b6b51' },
-                      { label: 'Teachers', count: usersByRole.teacher, color: '#475569' },
+                      { label: 'Kid Tutors', count: usersByRole.kid_tutor, color: '#c47a1e' },
+                      { label: 'Professionals', count: usersByRole.professional, color: '#475569' },
                       { label: 'Admins', count: usersByRole.admin, color: '#9f403d' },
                     ].map(({ label, count, color }) => {
-                      const total = usersByRole.student + usersByRole.teacher + usersByRole.admin || 1;
+                      const total = usersByRole.student + usersByRole.kid_tutor + usersByRole.professional + usersByRole.admin || 1;
                       const pct = Math.round((count / total) * 100);
                       return (
                         <Box key={label}>
@@ -787,6 +862,7 @@ function ManagementSection() {
               </Box>
             </Grid>
 
+            {/* Top Courses */}
             <Grid item xs={12} md={8}>
               <Box sx={{ bgcolor: 'background.paper', borderRadius: '12px', p: 4, border: '1px solid rgba(169,180,185,0.12)', boxShadow: '0px 2px 8px 0px rgba(42,52,57,0.04)' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 4 }}>
@@ -808,9 +884,7 @@ function ManagementSection() {
                         <Box key={course.id}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
-                              <Typography sx={{ fontSize: '0.75rem', fontWeight: 800, color: index === 0 ? 'primary.main' : 'text.secondary', minWidth: 20 }}>
-                                #{index + 1}
-                              </Typography>
+                              <Typography sx={{ fontSize: '0.75rem', fontWeight: 800, color: index === 0 ? 'primary.main' : 'text.secondary', minWidth: 20 }}>#{index + 1}</Typography>
                               <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: 'text.primary' }} noWrap>{course.title}</Typography>
                             </Box>
                             <Chip label={`${course.clicks.toLocaleString()} views`} size="small" sx={{ bgcolor: 'rgba(27,107,81,0.08)', color: 'primary.main', fontWeight: 700, flexShrink: 0, ml: 2 }} />
@@ -826,6 +900,73 @@ function ManagementSection() {
               </Box>
             </Grid>
 
+            {/* Private School Analytics */}
+            {stats && stats.privateSchoolStats && (
+              <Grid item xs={12} md={6}>
+                <Box sx={{ bgcolor: 'background.paper', borderRadius: '12px', p: 4, border: '1px solid rgba(169,180,185,0.12)', boxShadow: '0px 2px 8px 0px rgba(42,52,57,0.04)' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 4 }}>
+                    <Box sx={{ bgcolor: 'rgba(27,107,81,0.1)', borderRadius: '8px', p: 1, display: 'flex' }}>
+                      <SchoolRoundedIcon sx={{ color: 'primary.main', fontSize: '1.125rem' }} />
+                    </Box>
+                    <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', color: 'text.primary' }}>Private School Breakdown</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    {stats.privateSchoolStats.map(({ school, students, kidTutors }) => (
+                      <Box key={school} sx={{ p: 2.5, borderRadius: '10px', bgcolor: '#f7f9fb', border: '1px solid rgba(169,180,185,0.12)' }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: 'text.primary', mb: 1.5 }}>{school}</Typography>
+                        <Box sx={{ display: 'flex', gap: 2 }}>
+                          <Box sx={{ flex: 1, textAlign: 'center', p: 1.5, bgcolor: 'rgba(27,107,81,0.06)', borderRadius: '8px' }}>
+                            <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', color: 'primary.main', lineHeight: 1 }}>{students}</Typography>
+                            <Typography sx={{ fontWeight: 600, fontSize: '0.6875rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'text.secondary', mt: 0.5 }}>Students</Typography>
+                          </Box>
+                          <Box sx={{ flex: 1, textAlign: 'center', p: 1.5, bgcolor: 'rgba(196,122,30,0.08)', borderRadius: '8px' }}>
+                            <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', color: '#c47a1e', lineHeight: 1 }}>{kidTutors}</Typography>
+                            <Typography sx={{ fontWeight: 600, fontSize: '0.6875rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'text.secondary', mt: 0.5 }}>Kid Tutors</Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              </Grid>
+            )}
+
+            {/* Madristi Click Analytics */}
+            {stats && stats.madristiClicks && (
+              <Grid item xs={12} md={6}>
+                <Box sx={{ bgcolor: 'background.paper', borderRadius: '12px', p: 4, border: '1px solid rgba(169,180,185,0.12)', boxShadow: '0px 2px 8px 0px rgba(42,52,57,0.04)' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 4 }}>
+                    <Box sx={{ bgcolor: 'rgba(27,107,81,0.1)', borderRadius: '8px', p: 1, display: 'flex' }}>
+                      <BarChartRoundedIcon sx={{ color: 'primary.main', fontSize: '1.125rem' }} />
+                    </Box>
+                    <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', color: 'text.primary' }}>Madristi Clicks by School</Typography>
+                  </Box>
+                  {stats.madristiClicks.length === 0 ? (
+                    <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 4, fontSize: '0.875rem' }}>No Madristi clicks recorded yet.</Typography>
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                      {stats.madristiClicks.map(({ school, clicks }, index) => {
+                        const maxClicks = stats.madristiClicks[0]?.clicks || 1;
+                        const pct = Math.max(4, Math.round((clicks / maxClicks) * 100));
+                        return (
+                          <Box key={school}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                              <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, color: 'text.primary' }}>{school}</Typography>
+                              <Chip label={`${clicks.toLocaleString()} clicks`} size="small" sx={{ bgcolor: 'rgba(27,107,81,0.08)', color: 'primary.main', fontWeight: 700 }} />
+                            </Box>
+                            <Box sx={{ height: 6, bgcolor: '#f0f4f7', borderRadius: '3px', overflow: 'hidden' }}>
+                              <Box sx={{ height: '100%', width: `${pct}%`, bgcolor: 'primary.main', borderRadius: '3px', opacity: index === 0 ? 1 : 0.45 + (0.55 / (index + 1)) }} />
+                            </Box>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  )}
+                </Box>
+              </Grid>
+            )}
+
+            {/* Platform Summary */}
             {stats && (
               <Grid item xs={12}>
                 <Box sx={{ background: 'linear-gradient(135deg, #1b6b51 0%, #035d45 100%)', borderRadius: '12px', p: { xs: 3, md: 4 } }}>
@@ -836,7 +977,7 @@ function ManagementSection() {
                     {[
                       { label: 'Engagement Rate', value: stats.totalVisitors > 0 ? `${Math.round((stats.totalCourseClicks / stats.totalVisitors) * 100)}%` : '—' },
                       { label: 'Avg. Views / Course', value: stats.totalCourses > 0 ? Math.round(stats.totalCourseClicks / stats.totalCourses).toLocaleString() : '0' },
-                      { label: 'Teacher : Student', value: stats.totalTeachers > 0 ? `1:${Math.round((stats.totalUsers - stats.totalTeachers) / stats.totalTeachers)}` : '—' },
+                      { label: 'Professional : Student', value: stats.totalProfessionals > 0 ? `1:${Math.round((stats.totalUsers - stats.totalProfessionals) / stats.totalProfessionals)}` : '—' },
                       { label: 'Total Activity', value: (stats.totalCourseClicks + stats.totalVisitors).toLocaleString() },
                     ].map(({ label, value }) => (
                       <Grid item xs={6} md={3} key={label}>

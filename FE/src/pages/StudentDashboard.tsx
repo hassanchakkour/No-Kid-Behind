@@ -129,10 +129,62 @@ export default function StudentDashboard() {
           </Box>
         </Box>
 
+        {/* ── Kid Tutor status banner ── */}
+        {user?.role === 'kid_tutor' && (
+          <Box
+            sx={{
+              mx: { xs: 4, md: 8 },
+              mt: 3,
+              px: 3,
+              py: 2.5,
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              ...(user.kidTutorApproved
+                ? {
+                    background: 'linear-gradient(135deg, #1b6b51 0%, #035d45 100%)',
+                    border: '1px solid rgba(166,242,209,0.25)',
+                  }
+                : {
+                    background: 'linear-gradient(135deg, #7c5a0a 0%, #a37412 100%)',
+                    border: '1px solid rgba(255,220,130,0.25)',
+                  }),
+            }}
+          >
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '10px',
+                bgcolor: 'rgba(255,255,255,0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <ChildCareRoundedIcon sx={{ color: user.kidTutorApproved ? '#a6f2d1' : '#ffd97a', fontSize: '1.25rem' }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', color: '#e0ffee', lineHeight: 1.3 }}>
+                {user.kidTutorApproved
+                  ? `You have been approved by ${user.school || 'your school'}`
+                  : `Your account is being reviewed by ${user.school || 'your school'}`}
+              </Typography>
+              <Typography sx={{ fontSize: '0.8125rem', color: 'rgba(224,255,238,0.65)', mt: 0.25 }}>
+                {user.kidTutorApproved
+                  ? 'You can now upload courses in the Kid to Kid section.'
+                  : 'This usually takes a short while. You can still browse all content while waiting.'}
+              </Typography>
+            </Box>
+          </Box>
+        )}
+
         <Box sx={{ px: { xs: 4, md: 8 }, py: 4 }}>
 
-          {/* ── Kid to Kid toggle ── */}
-          <Box
+          {/* ── Kid to Kid toggle — only for plain students ── */}
+          {user?.role === 'student' && <Box
             sx={{
               mb: 6,
               p: 3,
@@ -195,7 +247,7 @@ export default function StudentDashboard() {
                 sx={{ mr: 0 }}
               />
             </Box>
-          </Box>
+          </Box>}
 
           {/* ── Recommended ── */}
           {recommendedCourses.length > 0 && (

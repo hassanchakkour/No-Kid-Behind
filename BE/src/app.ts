@@ -5,6 +5,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import authRoutes from './routes/auth.routes';
 import courseRoutes from './routes/course.routes';
 import adminRoutes from './routes/admin.routes';
+import analyticsRoutes from './routes/analytics.routes';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 export const prisma = new PrismaClient({ adapter });
@@ -26,6 +27,7 @@ app.use(async (req, res, next) => {
 app.use('/auth', authRoutes);
 app.use('/courses', courseRoutes);
 app.use('/admin', adminRoutes);
+app.use('/analytics', analyticsRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 

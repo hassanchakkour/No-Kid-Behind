@@ -1,12 +1,14 @@
 import { AxiosResponse } from 'axios';
 import client from './client';
 
+export type UserRole = 'student' | 'professional' | 'kid_tutor' | 'admin';
+
 export interface RegisterPayload {
   username: string;
   name: string;
   email?: string;
   password: string;
-  role: 'student' | 'teacher';
+  role: 'student' | 'professional' | 'kid_tutor';
   grade?: string;
   school?: string;
   isDisplaced?: boolean;
@@ -22,10 +24,11 @@ export interface AuthUser {
   id: string;
   username: string;
   name: string;
-  role: 'student' | 'teacher' | 'admin';
+  role: UserRole;
   grade?: string;
   school?: string;
   likesToTeach?: boolean;
+  kidTutorApproved?: boolean;
 }
 
 export interface AuthResponse {

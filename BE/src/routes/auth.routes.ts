@@ -13,7 +13,7 @@ router.post(
     body('username').trim().isLength({ min: 3, max: 30 }).matches(/^[a-zA-Z0-9_]+$/),
     body('name').trim().isLength({ min: 2, max: 100 }),
     body('password').isLength({ min: 6 }),
-    body('role').optional().isIn(['student', 'teacher']),
+    body('role').optional().isIn(['student', 'professional', 'kid_tutor']),
     body('email').optional({ nullable: true }).isEmail().normalizeEmail(),
     body('grade').optional().trim(),
     body('school').optional().trim(),
