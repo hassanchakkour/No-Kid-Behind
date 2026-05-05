@@ -53,7 +53,7 @@ export default function Sidebar({ title, subtitle, links, actionLabel, onAction 
         minWidth: 230,
         background: 'linear-gradient(180deg, #f0f4f7 0%, #eaf0f4 100%)',
         minHeight: '100vh',
-        display: 'flex',
+        display: { xs: 'none', md: 'flex' },
         flexDirection: 'column',
         borderRight: '1px solid rgba(169,180,185,0.12)',
         position: 'sticky',

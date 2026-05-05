@@ -125,6 +125,28 @@ function OverviewSection() {
         )}
       </Box>
 
+      {/* ── Mobile section nav (xs only) ───────────────────────── */}
+      <Box sx={{ display: { xs: 'flex', md: 'none' }, overflowX: 'auto', px: 3, py: 1.5, gap: 1, borderBottom: '1px solid rgba(169,180,185,0.1)', bgcolor: 'background.paper', '&::-webkit-scrollbar': { display: 'none' } }}>
+        {[
+          { label: 'Users', path: '/admin/users' },
+          { label: 'Courses', path: '/admin/courses' },
+          { label: 'Wellbeing', path: '/admin/health' },
+          { label: 'Difficulties', path: '/admin/special-needs' },
+          { label: 'Kid to Kid', path: '/admin/kid-to-kid' },
+          { label: 'Pending', path: '/admin/pending' },
+          { label: 'Analytics', path: '/admin/analytics' },
+        ].map(({ label, path }) => (
+          <Button
+            key={path}
+            onClick={() => navigate(path)}
+            size="small"
+            sx={{ flexShrink: 0, bgcolor: '#f0f4f7', color: 'text.secondary', fontWeight: 600, fontSize: '0.75rem', borderRadius: '20px', px: 2, py: 0.75, '&:hover': { bgcolor: 'rgba(27,107,81,0.08)', color: 'primary.main' } }}
+          >
+            {label}
+          </Button>
+        ))}
+      </Box>
+
       {/* ── Content area ───────────────────────────────────────── */}
       <Box sx={{ px: { xs: 3, md: 6 }, py: 4 }}>
         <Grid container spacing={3}>
@@ -516,18 +538,20 @@ function ManagementSection() {
       <Tabs
         value={tab}
         onChange={handleTabChange}
+        variant="scrollable"
+        scrollButtons="auto"
         sx={{
           mb: 4,
           borderBottom: '1px solid rgba(169,180,185,0.15)',
           '& .MuiTabs-indicator': { backgroundColor: 'primary.main', height: 2, borderRadius: '1px' },
-          '& .MuiTab-root': { fontFamily: "'Public Sans', sans-serif", fontWeight: 600, textTransform: 'none', color: 'text.secondary', fontSize: '0.9375rem', px: 0, mr: 4, minWidth: 'auto' },
+          '& .MuiTab-root': { fontFamily: "'Public Sans', sans-serif", fontWeight: 600, textTransform: 'none', color: 'text.secondary', fontSize: { xs: '0.8125rem', md: '0.9375rem' }, px: { xs: 1.5, md: 0 }, mr: { xs: 0, md: 4 }, minWidth: 'auto' },
           '& .Mui-selected': { color: 'primary.main !important' },
         }}
       >
         <Tab label="Users" />
         <Tab label="Courses" />
         <Tab label="Wellbeing" />
-        <Tab label="Learning Difficulties" />
+        <Tab label="Difficulties" />
         <Tab label="Kid to Kid" />
         <Tab label={`Pending${pendingKidTutors?.length ? ` (${pendingKidTutors.length})` : ''}`} />
         <Tab label="Analytics" />

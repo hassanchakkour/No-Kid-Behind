@@ -169,7 +169,7 @@ export default function TeacherDashboard() {
         <Box
           sx={{
             background: "linear-gradient(135deg, #f0f4f7 0%, #e8f4f0 100%)",
-            px: { xs: 4, md: 6 },
+            px: { xs: 2.5, md: 6 },
             pt: 4,
             pb: 4,
             borderBottom: "1px solid rgba(169,180,185,0.1)",
@@ -322,7 +322,7 @@ export default function TeacherDashboard() {
         {isKidTutor && (
           <Box
             sx={{
-              mx: { xs: 4, md: 6 },
+              mx: { xs: 2.5, md: 6 },
               mt: 3,
               px: 3,
               py: 2.5,
@@ -366,7 +366,7 @@ export default function TeacherDashboard() {
         )}
 
         {/* ── Course List ── */}
-        <Box sx={{ px: { xs: 4, md: 6 }, py: 4, flex: 1 }}>
+        <Box sx={{ px: { xs: 2.5, md: 6 }, py: 4, flex: 1 }}>
           <Box
             sx={{
               display: "flex",
@@ -439,11 +439,12 @@ export default function TeacherDashboard() {
                   sx={{
                     bgcolor: "background.paper",
                     borderRadius: "10px",
-                    px: 3,
+                    px: { xs: 2, md: 3 },
                     py: 2.5,
                     display: "flex",
-                    alignItems: "center",
+                    alignItems: { xs: 'flex-start', sm: "center" },
                     justifyContent: "space-between",
+                    flexDirection: { xs: 'column', sm: 'row' },
                     border: "1px solid rgba(169,180,185,0.1)",
                     boxShadow: "0px 2px 8px 0px rgba(42,52,57,0.04)",
                     transition: "box-shadow 0.15s",
@@ -453,6 +454,8 @@ export default function TeacherDashboard() {
                     gap: 2,
                   }}
                 >
+                  {/* Thumbnail + Info row (always horizontal) */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, minWidth: 0, width: '100%' }}>
                   {/* Thumbnail */}
                   <Box sx={{ position: "relative", flexShrink: 0 }}>
                     <Box
@@ -549,9 +552,10 @@ export default function TeacherDashboard() {
                       </Box>
                     </Box>
                   </Box>
+                  </Box>{/* end Thumbnail + Info row */}
 
                   {/* Actions */}
-                  <Box sx={{ display: "flex", gap: 1, flexShrink: 0, ...(isKidTutor && !user?.kidTutorApproved && { display: 'none' }) }}>
+                  <Box sx={{ display: isKidTutor && !user?.kidTutorApproved ? 'none' : 'flex', gap: 1, flexShrink: 0, alignSelf: { xs: 'flex-end', sm: 'auto' } }}>
                     <Button
                       startIcon={
                         <EditRoundedIcon
