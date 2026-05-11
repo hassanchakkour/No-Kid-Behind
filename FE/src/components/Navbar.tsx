@@ -19,13 +19,15 @@ interface NavLink {
   label: string;
   path: string;
   description: string;
+  scrollTo?: string;
 }
 
 const NAV_DESCRIPTIONS: Record<string, string> = {
-  '/courses': 'Browse our full catalog of free educational courses for every grade and subject.',
-  '/health': 'Mental health and wellness resources to support student wellbeing.',
-  '/special-needs': 'Specialized content and support for students with learning differences.',
-  '/kid-to-kid': 'Courses created by students, for students — peer-to-peer learning.',
+  '/national-curriculum': 'Access Lebanese Ministry of education e-learning platform - Madristi.',
+  '/courses': 'Access General educational videos for all grade levels.',
+  '/health': 'Feel your best, heart and mind videos by professionals.',
+  '/extra-steps': 'Learn your way: Educational Videos made easy by professionals.',
+  '/kid-to-kid': 'study with me, Educational videos made easy - by kids for kids.',
   '/dashboard': 'Your personal learning dashboard and progress tracker.',
   '/teacher': 'Create and manage your courses for students.',
 };
@@ -68,11 +70,25 @@ export default function Navbar() {
     user?.role === 'kid_tutor' ||
     (user?.role === 'student' && user?.likesToTeach);
 
+  const handleNavClick = (link: NavLink) => {
+    if (link.scrollTo) {
+      if (location.pathname === '/') {
+        document.getElementById(link.scrollTo)?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        navigate('/');
+        setTimeout(() => document.getElementById(link.scrollTo!)?.scrollIntoView({ behavior: 'smooth' }), 120);
+      }
+    } else {
+      navigate(link.path);
+    }
+  };
+
   const navLinks: NavLink[] = [
-    { label: 'Explore', path: '/courses', description: NAV_DESCRIPTIONS['/courses'] },
+    { label: 'National Curriculum', path: '/', scrollTo: 'national-curriculum', description: NAV_DESCRIPTIONS['/national-curriculum'] },
+    { label: 'Learning Corner', path: '/courses', description: NAV_DESCRIPTIONS['/courses'] },
+    { label: 'Learning with extra steps', path: '/extra-steps', description: NAV_DESCRIPTIONS['/extra-steps'] },
+    { label: 'Kid to Kid Tutoring', path: '/kid-to-kid', description: NAV_DESCRIPTIONS['/kid-to-kid'] },
     { label: 'Wellbeing', path: '/health', description: NAV_DESCRIPTIONS['/health'] },
-    { label: 'Learning Difficulties', path: '/special-needs', description: NAV_DESCRIPTIONS['/special-needs'] },
-    { label: 'Kid to Kid', path: '/kid-to-kid', description: NAV_DESCRIPTIONS['/kid-to-kid'] },
     ...(canTeach
       ? [{ label: 'Teaching', path: '/teacher', description: NAV_DESCRIPTIONS['/teacher'] }]
       : [{ label: 'My Learning', path: '/dashboard', description: NAV_DESCRIPTIONS['/dashboard'] }]),
@@ -114,11 +130,11 @@ export default function Navbar() {
             {/* Desktop nav links */}
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 3 }}>
               {navLinks.map((link) => {
-                const isActive = location.pathname === link.path;
+                const isActive = link.scrollTo ? false : location.pathname === link.path;
                 return (
-                  <Box key={link.path} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Box key={link.label} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     <Box
-                      onClick={() => navigate(link.path)}
+                      onClick={() => handleNavClick(link)}
                       sx={{
                         cursor: 'pointer',
                         pb: isActive ? '6px' : 0,
@@ -328,11 +344,11 @@ export default function Navbar() {
           </Typography>
           <List disablePadding>
             {navLinks.map((link) => {
-              const isActive = location.pathname === link.path;
+              const isActive = link.scrollTo ? false : location.pathname === link.path;
               return (
                 <ListItemButton
-                  key={link.path}
-                  onClick={() => { navigate(link.path); handleDrawerClose(); }}
+                  key={link.label}
+                  onClick={() => { handleNavClick(link); handleDrawerClose(); }}
                   sx={{
                     px: 2.5,
                     py: 1.5,

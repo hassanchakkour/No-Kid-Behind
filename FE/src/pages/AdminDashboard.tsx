@@ -27,7 +27,7 @@ const SIDEBAR_LINKS = [
   { label: 'Users', path: '/admin/users' },
   { label: 'Courses', path: '/admin/courses' },
   { label: 'Wellbeing', path: '/admin/health' },
-  { label: 'Learning Difficulties', path: '/admin/special-needs' },
+  { label: 'Extra Steps', path: '/admin/extra-steps' },
   { label: 'Kid to Kid', path: '/admin/kid-to-kid' },
   { label: 'Pending Approvals', path: '/admin/pending' },
   { label: 'Analytics', path: '/admin/analytics' },
@@ -36,7 +36,7 @@ const SIDEBAR_LINKS = [
 function getTabFromPath(pathname: string): number {
   if (pathname.startsWith('/admin/courses')) return 1;
   if (pathname.startsWith('/admin/health')) return 2;
-  if (pathname.startsWith('/admin/special-needs')) return 3;
+  if (pathname.startsWith('/admin/extra-steps')) return 3;
   if (pathname.startsWith('/admin/kid-to-kid')) return 4;
   if (pathname.startsWith('/admin/pending')) return 5;
   if (pathname.startsWith('/admin/analytics')) return 6;
@@ -131,7 +131,7 @@ function OverviewSection() {
           { label: 'Users', path: '/admin/users' },
           { label: 'Courses', path: '/admin/courses' },
           { label: 'Wellbeing', path: '/admin/health' },
-          { label: 'Difficulties', path: '/admin/special-needs' },
+          { label: 'Extra Steps', path: '/admin/extra-steps' },
           { label: 'Kid to Kid', path: '/admin/kid-to-kid' },
           { label: 'Pending', path: '/admin/pending' },
           { label: 'Analytics', path: '/admin/analytics' },
@@ -513,7 +513,7 @@ function ManagementSection() {
   const approveKidTutor = useApproveKidTutor();
 
   const handleTabChange = (_: unknown, newValue: number) => {
-    navigate(['/admin/users', '/admin/courses', '/admin/health', '/admin/special-needs', '/admin/kid-to-kid', '/admin/pending', '/admin/analytics'][newValue]);
+    navigate(['/admin/users', '/admin/courses', '/admin/health', '/admin/extra-steps', '/admin/kid-to-kid', '/admin/pending', '/admin/analytics'][newValue]);
   };
 
   const handleDelete = async () => {
@@ -703,15 +703,15 @@ function ManagementSection() {
         />
       )}
 
-      {/* Special Needs */}
+      {/* Extra Steps */}
       {tab === 3 && (
         <VideoSection
-          label="Special Needs Videos"
+          label="Extra Steps Videos"
           icon={AccessibilityNewRoundedIcon}
           color="#6b3e8e"
           filter={{ isSpecialNeeds: true }}
-          dialogTitle="Add Special Needs Video"
-          dialogDesc="Add a YouTube video tailored for students with special learning needs."
+          dialogTitle="Add Extra Steps Video"
+          dialogDesc="Add a YouTube video tailored for students who learn with extra steps."
         />
       )}
 

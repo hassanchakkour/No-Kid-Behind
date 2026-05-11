@@ -4,8 +4,6 @@ import {
   Typography,
   Button,
   Alert,
-  Checkbox,
-  FormControlLabel,
   TextField,
   MenuItem,
   InputAdornment,
@@ -50,7 +48,7 @@ const GRADE_OPTIONS = [
   { value: "Professional", label: "Professional" },
 ];
 
-const PRIVATE_SCHOOLS = ["IC", "ACS", "College"];
+const PRIVATE_SCHOOLS = ["IC", "ACS", "CPF"];
 
 const registerSchema = Yup.object({
   username: Yup.string()
@@ -115,7 +113,7 @@ const inputSx = {
 };
 
 const FEATURES = [
-  { icon: LockOpenRoundedIcon, text: "Completely free — no paywalls ever" },
+  { icon: LockOpenRoundedIcon, text: "Completely free, no paywalls ever" },
   { icon: PublicRoundedIcon, text: "Accessible anywhere in the world" },
   { icon: AutoStoriesRoundedIcon, text: "Curated courses by verified educators" },
 ];
@@ -130,13 +128,13 @@ const ROLE_CONFIG = [
   {
     value: "kid_tutor",
     label: "Kid Tutor",
-    subtitle: "Learn & teach peers",
+    subtitle: "teach your peers/upload videos",
     Icon: ChildCareRoundedIcon,
   },
   {
     value: "professional",
     label: "Professional",
-    subtitle: "Create content",
+    subtitle: "upload content",
     Icon: WorkOutlineRoundedIcon,
   },
 ] as const;
@@ -167,7 +165,6 @@ export default function AuthPage() {
     caza: "",
     area: "",
     school: "",
-    isDisplaced: false,
     syndicateNumber: "",
   };
   const loginInitial = { username: "", password: "" };
@@ -181,7 +178,6 @@ export default function AuthPage() {
       role: values.role,
       grade: (values.role === "student" || values.role === "kid_tutor") ? values.grade : undefined,
       school: values.school || undefined,
-      isDisplaced: values.isDisplaced,
       syndicateNumber: values.role === "professional" ? values.syndicateNumber : undefined,
     });
     login(data.token, data.user);
@@ -238,7 +234,7 @@ export default function AuthPage() {
             <Box component="span" sx={{ display: "block", color: "#a6f2d1" }}>great equalizer.</Box>
           </Typography>
           <Typography sx={{ fontSize: "1rem", color: "rgba(224,255,238,0.65)", lineHeight: 1.65, maxWidth: 380, mb: 8 }}>
-            Join thousands of students and educators on a platform built to make quality education accessible to everyone — free, forever.
+            Join thousands of students and educators on a platform built to make quality education accessible to everyone, free, forever.
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
@@ -350,7 +346,7 @@ export default function AuthPage() {
                             Welcome aboard
                           </Typography>
                           <Typography sx={{ fontSize: "0.9375rem", color: "text.secondary" }}>
-                            Create your free account to start learning.
+                            Create your free account.
                           </Typography>
                         </Box>
 
@@ -570,18 +566,6 @@ export default function AuthPage() {
                               </Box>
                             )}
 
-                            {/* Displaced checkbox */}
-                            <FormControlLabel
-                              control={
-                                <Checkbox
-                                  checked={values.isDisplaced}
-                                  onChange={(e) => setFieldValue("isDisplaced", e.target.checked)}
-                                  size="small"
-                                  sx={{ color: "#a9b4b9", "&.Mui-checked": { color: "primary.main" } }}
-                                />
-                              }
-                              label={<Typography sx={{ fontSize: "0.875rem", color: "text.secondary" }}>I am a displaced student</Typography>}
-                            />
                           </Box>
                         )}
 

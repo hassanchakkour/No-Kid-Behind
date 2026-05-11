@@ -214,7 +214,7 @@ export default function StudentDashboard() {
               </Box>
               <Box>
                 <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: user?.likesToTeach ? '#fff8ec' : 'text.primary', lineHeight: 1.3 }}>
-                  I like to teach — Kid to Kid
+                  I like to teach: Kid to Kid
                 </Typography>
                 <Typography sx={{ fontSize: '0.8125rem', color: user?.likesToTeach ? 'rgba(255,248,236,0.7)' : 'text.secondary', mt: 0.25 }}>
                   {user?.likesToTeach
@@ -261,7 +261,7 @@ export default function StudentDashboard() {
                     Recommended for You
                   </Typography>
                   <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
-                    Based on your grade — {user?.grade ?? 'all levels'}
+                    Based on your grade: {user?.grade ?? 'all levels'}
                   </Typography>
                 </Box>
               </Box>

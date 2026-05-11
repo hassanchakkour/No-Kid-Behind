@@ -3,8 +3,6 @@ import { Box, Typography, Grid, TextField, MenuItem, InputAdornment, CircularPro
 import SearchIcon from '@mui/icons-material/Search';
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 import AutoStoriesRoundedIcon from '@mui/icons-material/AutoStoriesRounded';
-import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
-import PublicRoundedIcon from '@mui/icons-material/PublicRounded';
 import Navbar from '../components/Navbar';
 import CourseCard from '../components/CourseCard';
 import { useCourses } from '../hooks/useCourses';
@@ -13,8 +11,6 @@ import schoolData from '../data/public_schools_lebanon.json';
 
 type SchoolEntry = { Caza: string; Area: string; 'School Name': string };
 const SCHOOL_DATA = schoolData as SchoolEntry[];
-
-const PRIVATE_SCHOOLS = ['IC', 'ACS', 'College'];
 
 const GRADES = [
   'All', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6',
@@ -27,7 +23,6 @@ export default function CoursesPage() {
   const [subject, setSubject] = useState('');
   const [search, setSearch] = useState('');
   const [school, setSchool] = useState('');
-  const [madristiSchool, setMadristiSchool] = useState('');
   const [pubCaza, setPubCaza] = useState('');
   const [pubArea, setPubArea] = useState('');
   const [pubSchool, setPubSchool] = useState('');
@@ -36,8 +31,8 @@ export default function CoursesPage() {
   const areas = useMemo(() => pubCaza ? [...new Set(SCHOOL_DATA.filter((s) => s.Caza === pubCaza).map((s) => s.Area))].sort() : [], [pubCaza]);
   const publicSchools = useMemo(() => pubArea ? SCHOOL_DATA.filter((s) => s.Caza === pubCaza && s.Area === pubArea).map((s) => s['School Name']).sort() : [], [pubCaza, pubArea]);
 
-  const analyticsSchool = madristiSchool === 'Public School' ? (pubSchool || 'Public School') : madristiSchool;
-  const canVisit = madristiSchool === 'Public School' ? !!pubSchool : !!madristiSchool;
+  const analyticsSchool = pubSchool;
+  const canVisit = !!pubSchool;
 
   const { data: rawCourses, isLoading } = useCourses();
 
@@ -120,82 +115,39 @@ export default function CoursesPage() {
 
       {/* ── Ministry Section ── */}
       <Box sx={{ px: { xs: 4, md: 8 }, pt: 5, pb: 0, maxWidth: 1280, mx: 'auto' }}>
-        {/* School picker cards */}
-        <Box sx={{ mb: madristiSchool === 'Public School' ? 2 : 3 }}>
-          <Typography sx={{ fontWeight: 700, fontSize: '0.6875rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'text.secondary', mb: 2 }}>
-            Access Madristi — select your school
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            {[...PRIVATE_SCHOOLS, 'Public School'].map((s) => {
-              const active = madristiSchool === s;
-              const isPublic = s === 'Public School';
-              return (
-                <Box
-                  key={s}
-                  onClick={() => {
-                    if (active) { setMadristiSchool(''); setPubCaza(''); setPubArea(''); setPubSchool(''); }
-                    else { setMadristiSchool(s); setPubCaza(''); setPubArea(''); setPubSchool(''); }
-                  }}
-                  sx={{
-                    flex: '1 1 120px',
-                    minWidth: 120,
-                    maxWidth: 220,
-                    py: 2.5,
-                    px: 3,
-                    borderRadius: '12px',
-                    border: '2px solid',
-                    borderColor: active ? 'primary.main' : 'rgba(169,180,185,0.25)',
-                    bgcolor: active ? 'rgba(27,107,81,0.06)' : 'background.paper',
-                    cursor: 'pointer',
-                    textAlign: 'center',
-                    transition: 'all 0.15s',
-                    boxShadow: active ? '0px 4px 16px rgba(27,107,81,0.15)' : '0px 2px 8px rgba(0,0,0,0.04)',
-                    '&:hover': { borderColor: 'primary.main', bgcolor: 'rgba(27,107,81,0.04)' },
-                  }}
-                >
-                  <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: active ? 'primary.main' : 'rgba(169,180,185,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 1, transition: 'all 0.15s' }}>
-                    {isPublic
-                      ? <PublicRoundedIcon sx={{ fontSize: '1.1rem', color: active ? '#a6f2d1' : 'text.secondary' }} />
-                      : <SchoolOutlinedIcon sx={{ fontSize: '1.1rem', color: active ? '#a6f2d1' : 'text.secondary' }} />}
-                  </Box>
-                  <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', color: active ? 'primary.main' : 'text.primary' }}>{s}</Typography>
-                </Box>
-              );
-            })}
-          </Box>
-        </Box>
+        <Typography sx={{ fontWeight: 700, fontSize: '0.6875rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'text.secondary', mb: 2 }}>
+          National Curriculum: select your public school
+        </Typography>
 
         {/* Public school cascade */}
-        {madristiSchool === 'Public School' && (
-          <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-            <TextField
-              select label="Caza" value={pubCaza}
-              onChange={(e) => { setPubCaza(e.target.value); setPubArea(''); setPubSchool(''); }}
-              size="small" sx={{ minWidth: 160, flex: 1, '& .MuiOutlinedInput-root': { bgcolor: 'background.paper', borderRadius: '8px' } }}
-            >
-              <MenuItem value="" disabled><em style={{ color: '#a9b4b9' }}>Select caza</em></MenuItem>
-              {cazas.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
-            </TextField>
-            <TextField
-              select label="Area" value={pubArea}
-              onChange={(e) => { setPubArea(e.target.value); setPubSchool(''); }}
-              size="small" disabled={!pubCaza}
-              sx={{ minWidth: 160, flex: 1, '& .MuiOutlinedInput-root': { bgcolor: 'background.paper', borderRadius: '8px' } }}
-            >
-              <MenuItem value="" disabled><em style={{ color: '#a9b4b9' }}>Select area</em></MenuItem>
-              {areas.map((a) => <MenuItem key={a} value={a}>{a}</MenuItem>)}
-            </TextField>
-            <TextField
-              select label="School" value={pubSchool}
-              onChange={(e) => setPubSchool(e.target.value)}
-              size="small" disabled={!pubArea}
-              sx={{ minWidth: 200, flex: 2, '& .MuiOutlinedInput-root': { bgcolor: 'background.paper', borderRadius: '8px' } }}
-            >
-              <MenuItem value="" disabled><em style={{ color: '#a9b4b9' }}>Select school</em></MenuItem>
-              {publicSchools.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
-            </TextField>
-          </Box>
-        )}
+        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+          <TextField
+            select label="Caza" value={pubCaza}
+            onChange={(e) => { setPubCaza(e.target.value); setPubArea(''); setPubSchool(''); }}
+            size="small" sx={{ minWidth: 160, flex: 1, '& .MuiOutlinedInput-root': { bgcolor: 'background.paper', borderRadius: '8px' } }}
+          >
+            <MenuItem value="" disabled><em style={{ color: '#a9b4b9' }}>Select caza</em></MenuItem>
+            {cazas.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+          </TextField>
+          <TextField
+            select label="Area" value={pubArea}
+            onChange={(e) => { setPubArea(e.target.value); setPubSchool(''); }}
+            size="small" disabled={!pubCaza}
+            sx={{ minWidth: 160, flex: 1, '& .MuiOutlinedInput-root': { bgcolor: 'background.paper', borderRadius: '8px' } }}
+          >
+            <MenuItem value="" disabled><em style={{ color: '#a9b4b9' }}>Select area</em></MenuItem>
+            {areas.map((a) => <MenuItem key={a} value={a}>{a}</MenuItem>)}
+          </TextField>
+          <TextField
+            select label="School" value={pubSchool}
+            onChange={(e) => setPubSchool(e.target.value)}
+            size="small" disabled={!pubArea}
+            sx={{ minWidth: 200, flex: 2, '& .MuiOutlinedInput-root': { bgcolor: 'background.paper', borderRadius: '8px' } }}
+          >
+            <MenuItem value="" disabled><em style={{ color: '#a9b4b9' }}>Select school</em></MenuItem>
+            {publicSchools.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+          </TextField>
+        </Box>
 
         {/* Banner */}
         <Box
@@ -220,7 +172,7 @@ export default function CoursesPage() {
             </Box>
             <Box>
               <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', color: '#e0ffee', lineHeight: 1.3 }}>
-                Lebanese Ministry of Education — Madristi Platform
+                Lebanese Ministry of Education, Madristi Platform
               </Typography>
               <Typography sx={{ fontSize: '0.75rem', color: 'rgba(224,255,238,0.6)', mt: 0.25 }}>
                 {canVisit ? `Visiting as: ${analyticsSchool}` : 'Select your school above to continue'}

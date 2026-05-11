@@ -641,7 +641,7 @@ export default function TeacherDashboard() {
                     <Box sx={{ display: "flex", gap: 1.5 }}>
                       {[
                         { value: "health", label: "Wellbeing" },
-                        { value: "specialNeeds", label: "Learning Difficulties" },
+                        { value: "specialNeeds", label: "Learning with Extra Steps" },
                       ].map(({ value, label }) => (
                         <Box
                           key={value}

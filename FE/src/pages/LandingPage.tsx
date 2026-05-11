@@ -20,16 +20,12 @@ import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismR
 import LockOpenRoundedIcon from "@mui/icons-material/LockOpenRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
-import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import LebanonMapImg from "../public/lebanon-map-nkb.png";
 
 type SchoolEntry = { Caza: string; Area: string; "School Name": string };
 const SCHOOL_DATA = schoolData as SchoolEntry[];
-const PRIVATE_SCHOOLS = ["IC", "ACS", "College"];
 
 const STATS = [
-  { value: "50k+", label: "Active Learners" },
-  { value: "1.2k", label: "Expert Courses" },
   { value: "100%", label: "Always Free" },
   { value: "24/7", label: "Global Access" },
 ];
@@ -38,41 +34,30 @@ const FEATURES = [
   {
     icon: LockOpenRoundedIcon,
     title: "Free Forever",
-    body: "Every course, every resource — no paywalls, no subscriptions. Quality education should never come with a price tag.",
+    body: "Every course, every resource. No paywalls, no subscriptions. Quality education should never come with a price tag.",
   },
   {
     icon: PublicRoundedIcon,
     title: "Built for Everyone",
-    body: "Designed for displaced learners, under-served communities, and anyone who needs access to quality content.",
+    body: "Designed for all learners who need to access quality content.",
   },
   {
     icon: AutoStoriesRoundedIcon,
-    title: "Curated Curriculum",
-    body: "Courses are submitted by verified Professionals and organized by grade, subject, and institution for clarity.",
+    title: "Curated Courses",
+    body: "Videos are presented by students and professionals ; organized by grade and subjects.",
   },
   {
     icon: VolunteerActivismRoundedIcon,
     title: "Community Driven",
-    body: "Educators contribute because they believe in the mission. Every course is an act of generosity.",
+    body: "Students and professionals contribute because they believe that education and wellbeing are rights for every child.",
   },
 ];
 
-const FOOTER_PLATFORM = [
-  "Explore Courses",
-  "Study Guides",
-  "Certification",
-  "Scholarships",
-];
-const FOOTER_COMMUNITY = [
-  "Student Forum",
-  "Become a Professional",
-  "Donations",
-  "Support",
-];
+const FOOTER_PLATFORM = ["Explore Courses", "Learners", "Tutors", "Professionals"];
+const FOOTER_COMMUNITY = ["Support"];
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const [madristiSchool, setMadristiSchool] = useState("");
   const [pubCaza, setPubCaza] = useState("");
   const [pubArea, setPubArea] = useState("");
   const [pubSchool, setPubSchool] = useState("");
@@ -102,12 +87,8 @@ export default function LandingPage() {
     [pubCaza, pubArea],
   );
 
-  const analyticsSchool =
-    madristiSchool === "Public School"
-      ? pubSchool || "Public School"
-      : madristiSchool;
-  const canVisit =
-    madristiSchool === "Public School" ? !!pubSchool : !!madristiSchool;
+  const analyticsSchool = pubSchool;
+  const canVisit = !!pubSchool;
   const { data: rawCourses } = useCourses();
   const courses = (Array.isArray(rawCourses) ? rawCourses : []).filter(
     (c) => !c.isKidToKid && !c.isHealthContent && !c.isSpecialNeeds,
@@ -228,7 +209,7 @@ export default function LandingPage() {
                   color: "#a6f2d1",
                 }}
               >
-                Free Learning for Lebanon
+                Free Learning for All
               </Typography>
             </Box>
 
@@ -259,8 +240,7 @@ export default function LandingPage() {
                 mb: 5,
               }}
             >
-              Access hundreds of free, curated courses. Built for every student
-              — especially those who need it most.
+              Access hundreds of free, curated courses. Built for every student, especially those who need it most.
             </Typography>
 
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 6 }}>
@@ -345,201 +325,44 @@ export default function LandingPage() {
       </Box>
 
       {/* ─── Ministry Section ─── */}
-      <Box sx={{ px: { xs: 4, md: 8 }, pt: 8, pb: 0, bgcolor: "#edf2f5" }}>
+      <Box id="national-curriculum" sx={{ px: { xs: 4, md: 8 }, pt: 8, pb: 0, bgcolor: "#edf2f5" }}>
         <Box sx={{ maxWidth: 1280, mx: "auto" }}>
-          {/* School picker cards */}
-          <Box sx={{ mb: madristiSchool === "Public School" ? 2 : 3 }}>
-            <Typography
-              sx={{
-                fontWeight: 700,
-                fontSize: "0.6875rem",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: "text.secondary",
-                mb: 2,
-              }}
-            >
-              Access Madristi — select your school
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              {[...PRIVATE_SCHOOLS, "Public School"].map((s) => {
-                const active = madristiSchool === s;
-                const isPublic = s === "Public School";
-                return (
-                  <Box
-                    key={s}
-                    onClick={() => {
-                      if (active) {
-                        setMadristiSchool("");
-                        setPubCaza("");
-                        setPubArea("");
-                        setPubSchool("");
-                      } else {
-                        setMadristiSchool(s);
-                        setPubCaza("");
-                        setPubArea("");
-                        setPubSchool("");
-                      }
-                    }}
-                    sx={{
-                      flex: "1 1 120px",
-                      minWidth: 120,
-                      maxWidth: 220,
-                      py: 2.5,
-                      px: 3,
-                      borderRadius: "12px",
-                      border: "2px solid",
-                      borderColor: active
-                        ? "primary.main"
-                        : "rgba(169,180,185,0.25)",
-                      bgcolor: active
-                        ? "rgba(27,107,81,0.06)"
-                        : "background.paper",
-                      cursor: "pointer",
-                      textAlign: "center",
-                      transition: "all 0.15s",
-                      boxShadow: active
-                        ? "0px 4px 16px rgba(27,107,81,0.15)"
-                        : "0px 2px 8px rgba(0,0,0,0.04)",
-                      "&:hover": {
-                        borderColor: "primary.main",
-                        bgcolor: "rgba(27,107,81,0.04)",
-                      },
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: "10px",
-                        bgcolor: active
-                          ? "primary.main"
-                          : "rgba(169,180,185,0.12)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        mx: "auto",
-                        mb: 1,
-                        transition: "all 0.15s",
-                      }}
-                    >
-                      {isPublic ? (
-                        <PublicRoundedIcon
-                          sx={{
-                            fontSize: "1.1rem",
-                            color: active ? "#a6f2d1" : "text.secondary",
-                          }}
-                        />
-                      ) : (
-                        <SchoolOutlinedIcon
-                          sx={{
-                            fontSize: "1.1rem",
-                            color: active ? "#a6f2d1" : "text.secondary",
-                          }}
-                        />
-                      )}
-                    </Box>
-                    <Typography
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: "0.9375rem",
-                        color: active ? "primary.main" : "text.primary",
-                      }}
-                    >
-                      {s}
-                    </Typography>
-                  </Box>
-                );
-              })}
-            </Box>
-          </Box>
+          <Typography
+            sx={{ fontWeight: 700, fontSize: "0.6875rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "text.secondary", mb: 2 }}
+          >
+            National Curriculum: select your public school
+          </Typography>
 
           {/* Public school cascade */}
-          {madristiSchool === "Public School" && (
-            <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
-              <TextField
-                select
-                label="Caza"
-                value={pubCaza}
-                onChange={(e) => {
-                  setPubCaza(e.target.value);
-                  setPubArea("");
-                  setPubSchool("");
-                }}
-                size="small"
-                sx={{
-                  minWidth: 160,
-                  flex: 1,
-                  "& .MuiOutlinedInput-root": {
-                    bgcolor: "background.paper",
-                    borderRadius: "8px",
-                  },
-                }}
-              >
-                <MenuItem value="" disabled>
-                  <em style={{ color: "#a9b4b9" }}>Select caza</em>
-                </MenuItem>
-                {cazas.map((c) => (
-                  <MenuItem key={c} value={c}>
-                    {c}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                select
-                label="Area"
-                value={pubArea}
-                onChange={(e) => {
-                  setPubArea(e.target.value);
-                  setPubSchool("");
-                }}
-                size="small"
-                disabled={!pubCaza}
-                sx={{
-                  minWidth: 160,
-                  flex: 1,
-                  "& .MuiOutlinedInput-root": {
-                    bgcolor: "background.paper",
-                    borderRadius: "8px",
-                  },
-                }}
-              >
-                <MenuItem value="" disabled>
-                  <em style={{ color: "#a9b4b9" }}>Select area</em>
-                </MenuItem>
-                {areas.map((a) => (
-                  <MenuItem key={a} value={a}>
-                    {a}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                select
-                label="School"
-                value={pubSchool}
-                onChange={(e) => setPubSchool(e.target.value)}
-                size="small"
-                disabled={!pubArea}
-                sx={{
-                  minWidth: 200,
-                  flex: 2,
-                  "& .MuiOutlinedInput-root": {
-                    bgcolor: "background.paper",
-                    borderRadius: "8px",
-                  },
-                }}
-              >
-                <MenuItem value="" disabled>
-                  <em style={{ color: "#a9b4b9" }}>Select school</em>
-                </MenuItem>
-                {publicSchools.map((s) => (
-                  <MenuItem key={s} value={s}>
-                    {s}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Box>
-          )}
+          <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
+            <TextField
+              select label="Caza" value={pubCaza}
+              onChange={(e) => { setPubCaza(e.target.value); setPubArea(""); setPubSchool(""); }}
+              size="small"
+              sx={{ minWidth: 160, flex: 1, "& .MuiOutlinedInput-root": { bgcolor: "background.paper", borderRadius: "8px" } }}
+            >
+              <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>Select caza</em></MenuItem>
+              {cazas.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+            </TextField>
+            <TextField
+              select label="Area" value={pubArea}
+              onChange={(e) => { setPubArea(e.target.value); setPubSchool(""); }}
+              size="small" disabled={!pubCaza}
+              sx={{ minWidth: 160, flex: 1, "& .MuiOutlinedInput-root": { bgcolor: "background.paper", borderRadius: "8px" } }}
+            >
+              <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>Select area</em></MenuItem>
+              {areas.map((a) => <MenuItem key={a} value={a}>{a}</MenuItem>)}
+            </TextField>
+            <TextField
+              select label="School" value={pubSchool}
+              onChange={(e) => setPubSchool(e.target.value)}
+              size="small" disabled={!pubArea}
+              sx={{ minWidth: 200, flex: 2, "& .MuiOutlinedInput-root": { bgcolor: "background.paper", borderRadius: "8px" } }}
+            >
+              <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>Select school</em></MenuItem>
+              {publicSchools.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+            </TextField>
+          </Box>
 
           {/* Banner */}
           <Box
@@ -588,7 +411,7 @@ export default function LandingPage() {
                     lineHeight: 1.3,
                   }}
                 >
-                  Lebanese Ministry of Education — Madristi Platform
+                  Lebanese Ministry of Education, Madristi Platform
                 </Typography>
                 <Typography
                   sx={{
@@ -654,18 +477,6 @@ export default function LandingPage() {
             <Box>
               <Typography
                 sx={{
-                  fontWeight: 700,
-                  fontSize: "0.625rem",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: "primary.main",
-                  mb: 1,
-                }}
-              >
-                Curated Catalog
-              </Typography>
-              <Typography
-                sx={{
                   fontWeight: 800,
                   fontSize: { xs: "2rem", md: "2.5rem" },
                   letterSpacing: "-0.025em",
@@ -673,7 +484,7 @@ export default function LandingPage() {
                   lineHeight: 1,
                 }}
               >
-                Featured Courses
+                Explore Courses
               </Typography>
             </Box>
             <Box
@@ -940,9 +751,9 @@ export default function LandingPage() {
               Trusted by students across Lebanon
             </Typography>
           </Box>
-          <Grid container spacing={4}>
+          <Grid container spacing={4} justifyContent="center">
             {STATS.map((stat) => (
-              <Grid item xs={6} md={3} key={stat.label}>
+              <Grid item xs={12} sm={6} md={4} key={stat.label}>
                 <Box
                   sx={{
                     textAlign: "center",
@@ -1045,7 +856,7 @@ export default function LandingPage() {
               }}
             >
               Join thousands of students who already have access to free,
-              quality education — no matter where they are.
+              quality education, no matter where they are.
             </Typography>
           </Box>
           <Box
@@ -1123,9 +934,8 @@ export default function LandingPage() {
                   mb: 3,
                 }}
               >
-                A non-profit learning platform dedicated to providing
-                high-quality educational content to anyone, anywhere, at no
-                cost.
+                a learning platform dedicated to providing quality educational
+                content to anyone, anywhere, at no cost.
               </Typography>
               <Button
                 variant="contained"
@@ -1173,18 +983,6 @@ export default function LandingPage() {
               ))}
             </Grid>
             <Grid item xs={6} md={3}>
-              <Typography
-                sx={{
-                  fontWeight: 700,
-                  fontSize: "0.625rem",
-                  letterSpacing: "0.15em",
-                  textTransform: "uppercase",
-                  color: "#a6f2d1",
-                  mb: 3,
-                }}
-              >
-                Community
-              </Typography>
               {FOOTER_COMMUNITY.map((item) => (
                 <Typography
                   key={item}
@@ -1215,7 +1013,7 @@ export default function LandingPage() {
             <Typography
               sx={{ fontSize: "0.8125rem", color: "rgba(224,255,238,0.35)" }}
             >
-              © 2026 No Kid Behind. Built for accessibility and resilience.
+              © 2026 No Kid Behind. Built to grow great minds through learning.
             </Typography>
             <Box sx={{ display: "flex", gap: 4 }}>
               {["Terms", "Privacy", "Contact"].map((item) => (

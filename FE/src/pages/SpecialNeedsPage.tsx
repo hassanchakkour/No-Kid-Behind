@@ -54,10 +54,10 @@ export default function SpecialNeedsPage() {
                 component="h1"
                 sx={{ fontWeight: 800, fontSize: { xs: '2.25rem', md: '3rem' }, letterSpacing: '-0.035em', color: '#f3e8ff', lineHeight: 1.05, mb: 1.5 }}
               >
-                Special Needs Resources
+                Learning with Extra Steps
               </Typography>
               <Typography sx={{ fontSize: '1rem', color: 'rgba(243,232,255,0.7)', maxWidth: 480, lineHeight: 1.6 }}>
-                Specially curated content designed to support students with diverse learning needs.
+                Educational videos made easy by professionals, learning at your own pace, your own way.
               </Typography>
             </Box>
 
@@ -160,7 +160,7 @@ export default function SpecialNeedsPage() {
           >
             <AccessibilityNewRoundedIcon sx={{ fontSize: '3rem', color: 'text.disabled', mb: 2 }} />
             <Typography sx={{ color: 'text.secondary', fontSize: '1.0625rem', mb: 1 }}>
-              No special needs videos found.
+              No videos found.
             </Typography>
             <Typography sx={{ color: 'text.disabled', fontSize: '0.875rem' }}>
               {activeFilters > 0 ? 'Try adjusting your filters.' : 'Content is being added. Check back soon.'}

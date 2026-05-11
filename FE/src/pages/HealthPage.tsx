@@ -58,7 +58,7 @@ export default function HealthPage() {
                 Health Resources
               </Typography>
               <Typography sx={{ fontSize: '1rem', color: 'rgba(232,244,255,0.7)', maxWidth: 480, lineHeight: 1.6 }}>
-                Curated videos on mental health, emotional wellbeing, and resilience — for every student.
+                Curated videos on mental health, emotional wellbeing, and resilience, for every student.
               </Typography>
             </Box>
 
@@ -165,7 +165,7 @@ export default function HealthPage() {
               No health videos found.
             </Typography>
             <Typography sx={{ color: 'text.disabled', fontSize: '0.875rem' }}>
-              {activeFilters > 0 ? 'Try adjusting your filters.' : 'Check back soon — content is being added.'}
+              {activeFilters > 0 ? 'Try adjusting your filters.' : 'Check back soon, content is being added.'}
             </Typography>
           </Box>
         ) : (

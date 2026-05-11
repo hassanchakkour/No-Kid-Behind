@@ -46,7 +46,7 @@ export default function App() {
       <Route path="/courses" element={<CoursesPage />} />
       <Route path="/courses/:id" element={<CourseDetailPage />} />
       <Route path="/health" element={<HealthPage />} />
-      <Route path="/special-needs" element={<SpecialNeedsPage />} />
+      <Route path="/extra-steps" element={<SpecialNeedsPage />} />
       <Route path="/kid-to-kid" element={<KidToKidPage />} />
 
       <Route
@@ -84,7 +84,7 @@ export default function App() {
       <Route path="/admin/users" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
       <Route path="/admin/courses" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
       <Route path="/admin/health" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
-      <Route path="/admin/special-needs" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
+      <Route path="/admin/extra-steps" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
       <Route path="/admin/kid-to-kid" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
       <Route path="/admin/analytics" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
       <Route path="/admin/pending" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
