@@ -1,4 +1,4 @@
-import { Box, Typography, CircularProgress, Chip, Button, Divider, Stack } from '@mui/material';
+import { Box, Typography, CircularProgress, Chip, Button, Divider } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -62,7 +62,7 @@ export default function CourseDetailPage() {
             >
               <Box
                 component="iframe"
-                src={`https://www.youtube.com/embed/${course.youtubeVideoId}?rel=0`}
+                src={`https://www.youtube.com/embed/${course.youtubeVideoId}?rel=0&modestbranding=1`}
                 title={course.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -173,25 +173,6 @@ export default function CourseDetailPage() {
                 </Box>
               ))}
 
-              <Divider sx={{ my: 3, borderColor: 'divider' }} />
-
-              <Button
-                href={`https://www.youtube.com/watch?v=${course.youtubeVideoId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="outlined"
-                fullWidth
-                sx={{
-                  borderColor: 'primary.main',
-                  color: 'primary.main',
-                  borderRadius: '6px',
-                  py: 1.5,
-                  fontWeight: 700,
-                  '&:hover': { bgcolor: 'rgba(27,107,81,0.05)' },
-                }}
-              >
-                Open on YouTube ↗
-              </Button>
             </Box>
           </Box>
         </Box>

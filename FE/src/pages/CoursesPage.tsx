@@ -367,7 +367,8 @@ export default function CoursesPage() {
                   lineHeight: 1.3,
                 }}
               >
-                Lebanese Ministry of Education, Madristi Platform
+                Lebanese Ministry of Education & Higher Education, Madristi
+                Platform
               </Typography>
               <Typography
                 sx={{

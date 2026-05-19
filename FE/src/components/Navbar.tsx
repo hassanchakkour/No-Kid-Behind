@@ -37,13 +37,13 @@ interface NavLink {
 
 const NAV_DESCRIPTIONS: Record<string, string> = {
   "/national-curriculum":
-    "Access Lebanese Ministry of education e-learning platform - Madristi.",
-  "/courses": "Access General educational videos for all grade levels.",
+    "Access Lebanese Ministry of Education & Higher Education e-learning platform - Madristi.",
+  "/courses": "Access general educational videos for all grade levels.",
   "/health": "Feel your best, heart and mind videos by professionals.",
   "/extra-steps":
-    "Learn your way: Educational Videos made easy by professionals.",
+    "Learn your way: Educational videos made easy by professionals.",
   "/kid-to-kid":
-    "study with me, Educational videos made easy - by kids for kids.",
+    "Study with me: Educational videos made easy - by kids for kids.",
   "/dashboard": "Your personal learning dashboard and progress tracker.",
   "/teacher": "Create and manage your courses for students.",
 };
@@ -123,7 +123,7 @@ export default function Navbar() {
       description: NAV_DESCRIPTIONS["/courses"],
     },
     {
-      label: "Learning with extra Help",
+      label: "Learning With Extra Help",
       path: "/extra-steps",
       description: NAV_DESCRIPTIONS["/extra-steps"],
     },

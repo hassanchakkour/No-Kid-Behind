@@ -11,6 +11,7 @@ import HealthPage from './pages/HealthPage';
 import SpecialNeedsPage from './pages/SpecialNeedsPage';
 import KidToKidPage from './pages/KidToKidPage';
 import SettingsPage from './pages/SettingsPage';
+import LegalPage from './pages/LegalPage';
 
 function RequireAuth({ children, role }: { children: JSX.Element; role?: string | string[] }) {
   const { isAuthenticated, user } = useAuth();
@@ -90,6 +91,7 @@ export default function App() {
       <Route path="/admin/pending" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
 
       <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
+      <Route path="/legal" element={<LegalPage />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

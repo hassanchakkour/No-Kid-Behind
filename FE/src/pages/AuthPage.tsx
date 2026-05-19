@@ -601,9 +601,9 @@ export default function AuthPage() {
 
                         <Typography sx={{ textAlign: "center", fontSize: "0.75rem", color: "text.secondary" }}>
                           By registering, you agree to our{" "}
-                          <Box component="span" sx={{ color: "primary.main", cursor: "pointer", fontWeight: 600 }}>Terms of Service</Box>{" "}
+                          <Box component="span" onClick={() => navigate("/legal#terms")} sx={{ color: "primary.main", cursor: "pointer", fontWeight: 600, "&:hover": { textDecoration: "underline" } }}>Terms of Service</Box>{" "}
                           and{" "}
-                          <Box component="span" sx={{ color: "primary.main", cursor: "pointer", fontWeight: 600 }}>Privacy Policy</Box>.
+                          <Box component="span" onClick={() => navigate("/legal#privacy")} sx={{ color: "primary.main", cursor: "pointer", fontWeight: 600, "&:hover": { textDecoration: "underline" } }}>Privacy Policy</Box>.
                         </Typography>
                       </Box>
                     </Form>
@@ -685,9 +685,13 @@ export default function AuthPage() {
 
         {/* Footer */}
         <Box sx={{ px: { xs: 4, md: 8 }, pb: 4, display: "flex", justifyContent: "center", gap: 4 }}>
-          {["Terms of Service", "Privacy Policy", "Support"].map((item) => (
-            <Typography key={item} sx={{ fontSize: "0.75rem", color: "text.secondary", cursor: "default", "&:hover": { color: "text.primary" }, transition: "color 0.15s" }}>
-              {item}
+          {[
+            { label: "Terms of Service", href: "/legal#terms" },
+            { label: "Privacy Policy", href: "/legal#privacy" },
+            { label: "Support", href: null },
+          ].map(({ label, href }) => (
+            <Typography key={label} onClick={() => href && navigate(href)} sx={{ fontSize: "0.75rem", color: "text.secondary", cursor: href ? "pointer" : "default", "&:hover": { color: "text.primary" }, transition: "color 0.15s" }}>
+              {label}
             </Typography>
           ))}
         </Box>
