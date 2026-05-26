@@ -1,24 +1,13 @@
 import { useState } from "react";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  Box,
-  Avatar,
-  Menu,
-  MenuItem,
-  Divider,
-  ListItemIcon,
-  Tooltip,
-  Drawer,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemText,
+  AppBar, Toolbar, Typography, Button, Box, Avatar,
+  Menu, MenuItem, Divider, ListItemIcon, Tooltip,
+  Drawer, IconButton, List, ListItemButton, ListItemText,
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../i18n/translations";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
@@ -35,28 +24,17 @@ interface NavLink {
   scrollTo?: string;
 }
 
-const NAV_DESCRIPTIONS: Record<string, string> = {
-  "/national-curriculum":
-    "Access Lebanese Ministry of Education & Higher Education e-learning platform - Madristi.",
-  "/courses": "Access general educational videos for all grade levels.",
-  "/health": "Feel your best, heart and mind videos by professionals.",
-  "/extra-steps":
-    "Learn your way: Educational videos made easy by professionals.",
-  "/kid-to-kid":
-    "Study with me: Educational videos made easy - by kids for kids.",
-  "/dashboard": "Your personal learning dashboard and progress tracker.",
-  "/teacher": "Create and manage your courses for students.",
-};
-
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
+  const { lang, toggleLang } = useLanguage();
+  const t = translations[lang].nav;
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleAvatarClick = (e: React.MouseEvent<HTMLElement>) =>
-    setAnchorEl(e.currentTarget);
+  const handleAvatarClick = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
   const handleDrawerClose = () => setMobileOpen(false);
 
@@ -70,16 +48,14 @@ export default function Navbar() {
   const getDashboardPath = () => {
     if (!user) return "/auth";
     if (user.role === "admin") return "/admin";
-    if (user.role === "professional" || user.role === "kid_tutor")
-      return "/teacher";
+    if (user.role === "professional" || user.role === "kid_tutor") return "/teacher";
     return "/dashboard";
   };
 
   const getDashboardLabel = () => {
     if (!user) return "Dashboard";
     if (user.role === "admin") return "Admin Panel";
-    if (user.role === "professional" || user.role === "kid_tutor")
-      return "My Courses";
+    if (user.role === "professional" || user.role === "kid_tutor") return "My Courses";
     return "Dashboard";
   };
 
@@ -92,18 +68,10 @@ export default function Navbar() {
   const handleNavClick = (link: NavLink) => {
     if (link.scrollTo) {
       if (location.pathname === "/") {
-        document
-          .getElementById(link.scrollTo)
-          ?.scrollIntoView({ behavior: "smooth" });
+        document.getElementById(link.scrollTo)?.scrollIntoView({ behavior: "smooth" });
       } else {
         navigate("/");
-        setTimeout(
-          () =>
-            document
-              .getElementById(link.scrollTo!)
-              ?.scrollIntoView({ behavior: "smooth" }),
-          120,
-        );
+        setTimeout(() => document.getElementById(link.scrollTo!)?.scrollIntoView({ behavior: "smooth" }), 120);
       }
     } else {
       navigate(link.path);
@@ -111,120 +79,106 @@ export default function Navbar() {
   };
 
   const navLinks: NavLink[] = [
-    {
-      label: "National Curriculum",
-      path: "/",
-      scrollTo: "national-curriculum",
-      description: NAV_DESCRIPTIONS["/national-curriculum"],
-    },
-    {
-      label: "Learning Corner",
-      path: "/courses",
-      description: NAV_DESCRIPTIONS["/courses"],
-    },
-    {
-      label: "Learning With Extra Help",
-      path: "/extra-steps",
-      description: NAV_DESCRIPTIONS["/extra-steps"],
-    },
-    {
-      label: "Kid to Kid Tutoring",
-      path: "/kid-to-kid",
-      description: NAV_DESCRIPTIONS["/kid-to-kid"],
-    },
-    {
-      label: "Wellbeing",
-      path: "/health",
-      description: NAV_DESCRIPTIONS["/health"],
-    },
+    { label: t.links[0].label, path: "/",            scrollTo: "national-curriculum", description: t.links[0].description },
+    { label: t.links[1].label, path: "/courses",                                       description: t.links[1].description },
+    { label: t.links[2].label, path: "/extra-steps",                                   description: t.links[2].description },
+    { label: t.links[3].label, path: "/kid-to-kid",                                    description: t.links[3].description },
+    { label: t.links[4].label, path: "/health",                                         description: t.links[4].description },
     ...(canTeach
-      ? [
-          {
-            label: "Teaching",
-            path: "/teacher",
-            description: NAV_DESCRIPTIONS["/teacher"],
-          },
-        ]
-      : [
-          {
-            label: "My Learning",
-            path: "/dashboard",
-            description: NAV_DESCRIPTIONS["/dashboard"],
-          },
-        ]),
+      ? [{ label: t.teaching,   path: "/teacher",   description: t.teachingDesc }]
+      : [{ label: t.myLearning, path: "/dashboard", description: t.myLearningDesc }]),
   ];
 
   const initials = user?.name
-    ? user.name
-        .split(" ")
-        .map((w) => w[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
+    ? user.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)
     : "?";
+
+  /* ── Language toggle pill ── */
+  const FLAGS: Record<"en" | "ar", string> = {
+    en: "https://flagcdn.com/w40/gb.png",
+    ar: "https://flagcdn.com/w40/lb.png",
+  };
+
+  const LangToggle = () => (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 0.75,
+        border: "1px solid",
+        borderColor: "rgba(169,180,185,0.3)",
+        borderRadius: "20px",
+        px: 1,
+        py: 0.4,
+        cursor: "pointer",
+        userSelect: "none",
+        "&:hover": { borderColor: "primary.main" },
+        transition: "border-color 0.15s",
+      }}
+      onClick={toggleLang}
+    >
+      {(["en", "ar"] as const).map((l, i) => (
+        <Box key={l} sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+          {i === 1 && (
+            <Typography sx={{ fontSize: "0.7rem", color: "text.disabled", lineHeight: 1 }}>|</Typography>
+          )}
+          <Box
+            component="img"
+            src={FLAGS[l]}
+            alt={l === "en" ? "English" : "Arabic"}
+            sx={{
+              width: 20,
+              height: 14,
+              objectFit: "cover",
+              borderRadius: "2px",
+              opacity: lang === l ? 1 : 0.3,
+              filter: lang === l ? "none" : "grayscale(80%)",
+              transition: "opacity 0.15s, filter 0.15s",
+            }}
+          />
+        </Box>
+      ))}
+    </Box>
+  );
 
   return (
     <>
       <AppBar
         position="sticky"
         elevation={0}
-        sx={{
-          bgcolor: "background.default",
-          borderBottom: "1px solid",
-          borderColor: "divider",
-          zIndex: 100,
-        }}
+        sx={{ bgcolor: "background.default", borderBottom: "1px solid", borderColor: "divider", zIndex: 100 }}
       >
-        <Toolbar
-          sx={{
-            justifyContent: "space-between",
-            px: { xs: 2.5, md: 6 },
-            minHeight: "60px !important",
-          }}
-        >
-          {/* Brand */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <Typography
-              onClick={() => navigate("/")}
-              sx={{
-                fontWeight: 800,
-                fontSize: "1.125rem",
-                letterSpacing: "-0.04em",
-                color: "text.primary",
-                cursor: "pointer",
-                userSelect: "none",
-              }}
-            >
-              No Kid Behind
-            </Typography>
+        <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2.5, md: 6 }, minHeight: "60px !important" }}>
 
-            {/* Desktop nav links */}
+          {/* Brand + desktop nav */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <Box onClick={() => navigate("/")} sx={{ cursor: "pointer", userSelect: "none" }}>
+              <Typography sx={{ fontWeight: 800, fontSize: "1.125rem", letterSpacing: "-0.04em", color: "text.primary", lineHeight: 1.2 }}>
+                No Kid Behind
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.6, mt: 0.2 }}>
+                <Box
+                  component="img"
+                  src="https://flagcdn.com/w40/lb.png"
+                  alt="Lebanon"
+                  sx={{ width: 14, height: 10, objectFit: "cover", borderRadius: "1px" }}
+                />
+                <Typography sx={{ fontSize: "0.625rem", fontWeight: 600, letterSpacing: "0.08em", color: "text.disabled", textTransform: "uppercase" }}>
+                  Lebanon
+                </Typography>
+              </Box>
+            </Box>
+
             <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3 }}>
               {navLinks.map((link) => {
-                const isActive = link.scrollTo
-                  ? false
-                  : location.pathname === link.path;
+                const isActive = link.scrollTo ? false : location.pathname === link.path;
                 return (
-                  <Box
-                    key={link.label}
-                    sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                  >
+                  <Box key={link.label} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                     <Box
                       onClick={() => handleNavClick(link)}
-                      sx={{
-                        cursor: "pointer",
-                        pb: isActive ? "6px" : 0,
-                        borderBottom: isActive ? "2px solid" : "none",
-                        borderColor: "primary.main",
-                      }}
+                      sx={{ cursor: "pointer", pb: isActive ? "6px" : 0, borderBottom: isActive ? "2px solid" : "none", borderColor: "primary.main" }}
                     >
-                      <Typography
-                        sx={{
-                          fontWeight: isActive ? 600 : 400,
-                          fontSize: "0.875rem",
-                          color: isActive ? "primary.main" : "text.secondary",
-                        }}
-                      >
+                      <Typography sx={{ fontWeight: isActive ? 600 : 400, fontSize: "0.875rem", color: isActive ? "primary.main" : "text.secondary" }}>
                         {link.label}
                       </Typography>
                     </Box>
@@ -234,30 +188,11 @@ export default function Navbar() {
                       arrow
                       enterDelay={300}
                       componentsProps={{
-                        tooltip: {
-                          sx: {
-                            bgcolor: "text.primary",
-                            color: "background.paper",
-                            fontSize: "0.75rem",
-                            maxWidth: 220,
-                            borderRadius: "8px",
-                            px: 1.5,
-                            py: 1,
-                          },
-                        },
+                        tooltip: { sx: { bgcolor: "text.primary", color: "background.paper", fontSize: "0.75rem", maxWidth: 220, borderRadius: "8px", px: 1.5, py: 1 } },
                         arrow: { sx: { color: "text.primary" } },
                       }}
                     >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          cursor: "default",
-                          color: "text.disabled",
-                          "&:hover": { color: "text.secondary" },
-                          transition: "color 0.15s",
-                        }}
-                      >
+                      <Box sx={{ display: "flex", alignItems: "center", cursor: "default", color: "text.disabled", "&:hover": { color: "text.secondary" }, transition: "color 0.15s" }}>
                         <HelpOutlineRoundedIcon sx={{ fontSize: "0.875rem" }} />
                       </Box>
                     </Tooltip>
@@ -269,30 +204,13 @@ export default function Navbar() {
 
           {/* Right side */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            {/* Desktop auth */}
+            <LangToggle />
+
             {isAuthenticated ? (
-              <Box
-                sx={{
-                  display: { xs: "none", md: "flex" },
-                  alignItems: "center",
-                  gap: 1.5,
-                }}
-              >
+              <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 1.5 }}>
                 <Avatar
                   onClick={handleAvatarClick}
-                  sx={{
-                    width: 34,
-                    height: 34,
-                    bgcolor: "primary.main",
-                    color: "#a6f2d1",
-                    fontSize: "0.8125rem",
-                    fontWeight: 800,
-                    cursor: "pointer",
-                    letterSpacing: "-0.02em",
-                    border: "2px solid transparent",
-                    transition: "border-color 0.15s",
-                    "&:hover": { borderColor: "rgba(27,107,81,0.3)" },
-                  }}
+                  sx={{ width: 34, height: 34, bgcolor: "primary.main", color: "#a6f2d1", fontSize: "0.8125rem", fontWeight: 800, cursor: "pointer", letterSpacing: "-0.02em", border: "2px solid transparent", transition: "border-color 0.15s", "&:hover": { borderColor: "rgba(27,107,81,0.3)" } }}
                 >
                   {initials}
                 </Avatar>
@@ -302,204 +220,51 @@ export default function Navbar() {
                   onClose={handleMenuClose}
                   transformOrigin={{ horizontal: "right", vertical: "top" }}
                   anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                  PaperProps={{
-                    sx: {
-                      mt: 1,
-                      minWidth: 200,
-                      borderRadius: "10px",
-                      boxShadow: "0px 8px 32px 0px rgba(42,52,57,0.12)",
-                      border: "1px solid rgba(169,180,185,0.12)",
-                      overflow: "visible",
-                    },
-                  }}
+                  PaperProps={{ sx: { mt: 1, minWidth: 200, borderRadius: "10px", boxShadow: "0px 8px 32px 0px rgba(42,52,57,0.12)", border: "1px solid rgba(169,180,185,0.12)", overflow: "visible" } }}
                 >
                   <Box sx={{ px: 2, pt: 2, pb: 1.5 }}>
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
-                    >
-                      <Avatar
-                        sx={{
-                          width: 36,
-                          height: 36,
-                          bgcolor: "primary.main",
-                          color: "#a6f2d1",
-                          fontSize: "0.8125rem",
-                          fontWeight: 800,
-                        }}
-                      >
-                        {initials}
-                      </Avatar>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                      <Avatar sx={{ width: 36, height: 36, bgcolor: "primary.main", color: "#a6f2d1", fontSize: "0.8125rem", fontWeight: 800 }}>{initials}</Avatar>
                       <Box>
-                        <Typography
-                          sx={{
-                            fontWeight: 700,
-                            fontSize: "0.875rem",
-                            color: "text.primary",
-                            lineHeight: 1.3,
-                          }}
-                        >
-                          {user?.name}
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: "0.75rem",
-                            color: "text.secondary",
-                            textTransform: "capitalize",
-                          }}
-                        >
-                          {user?.role === "kid_tutor"
-                            ? "Kid Tutor"
-                            : user?.role}
+                        <Typography sx={{ fontWeight: 700, fontSize: "0.875rem", color: "text.primary", lineHeight: 1.3 }}>{user?.name}</Typography>
+                        <Typography sx={{ fontSize: "0.75rem", color: "text.secondary", textTransform: "capitalize" }}>
+                          {user?.role === "kid_tutor" ? "Kid Tutor" : user?.role}
                         </Typography>
                       </Box>
                     </Box>
                   </Box>
                   <Divider sx={{ borderColor: "rgba(169,180,185,0.15)" }} />
-                  <MenuItem
-                    onClick={() => {
-                      navigate(getDashboardPath());
-                      handleMenuClose();
-                    }}
-                    sx={{
-                      px: 2,
-                      py: 1.25,
-                      gap: 1.5,
-                      "&:hover": { bgcolor: "rgba(27,107,81,0.05)" },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: "auto" }}>
-                      <DashboardRoundedIcon
-                        sx={{ fontSize: "1rem", color: "text.secondary" }}
-                      />
-                    </ListItemIcon>
-                    <Typography
-                      sx={{
-                        fontSize: "0.875rem",
-                        fontWeight: 500,
-                        color: "text.primary",
-                      }}
-                    >
-                      {getDashboardLabel()}
-                    </Typography>
+                  <MenuItem onClick={() => { navigate(getDashboardPath()); handleMenuClose(); }} sx={{ px: 2, py: 1.25, gap: 1.5, "&:hover": { bgcolor: "rgba(27,107,81,0.05)" } }}>
+                    <ListItemIcon sx={{ minWidth: "auto" }}><DashboardRoundedIcon sx={{ fontSize: "1rem", color: "text.secondary" }} /></ListItemIcon>
+                    <Typography sx={{ fontSize: "0.875rem", fontWeight: 500, color: "text.primary" }}>{getDashboardLabel()}</Typography>
                   </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      navigate("/courses");
-                      handleMenuClose();
-                    }}
-                    sx={{
-                      px: 2,
-                      py: 1.25,
-                      gap: 1.5,
-                      "&:hover": { bgcolor: "rgba(27,107,81,0.05)" },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: "auto" }}>
-                      <PersonRoundedIcon
-                        sx={{ fontSize: "1rem", color: "text.secondary" }}
-                      />
-                    </ListItemIcon>
-                    <Typography
-                      sx={{
-                        fontSize: "0.875rem",
-                        fontWeight: 500,
-                        color: "text.primary",
-                      }}
-                    >
-                      Browse Courses
-                    </Typography>
+                  <MenuItem onClick={() => { navigate("/courses"); handleMenuClose(); }} sx={{ px: 2, py: 1.25, gap: 1.5, "&:hover": { bgcolor: "rgba(27,107,81,0.05)" } }}>
+                    <ListItemIcon sx={{ minWidth: "auto" }}><PersonRoundedIcon sx={{ fontSize: "1rem", color: "text.secondary" }} /></ListItemIcon>
+                    <Typography sx={{ fontSize: "0.875rem", fontWeight: 500, color: "text.primary" }}>Browse Courses</Typography>
                   </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      navigate("/settings");
-                      handleMenuClose();
-                    }}
-                    sx={{
-                      px: 2,
-                      py: 1.25,
-                      gap: 1.5,
-                      "&:hover": { bgcolor: "rgba(27,107,81,0.05)" },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: "auto" }}>
-                      <SettingsRoundedIcon
-                        sx={{ fontSize: "1rem", color: "text.secondary" }}
-                      />
-                    </ListItemIcon>
-                    <Typography
-                      sx={{
-                        fontSize: "0.875rem",
-                        fontWeight: 500,
-                        color: "text.primary",
-                      }}
-                    >
-                      Settings
-                    </Typography>
+                  <MenuItem onClick={() => { navigate("/settings"); handleMenuClose(); }} sx={{ px: 2, py: 1.25, gap: 1.5, "&:hover": { bgcolor: "rgba(27,107,81,0.05)" } }}>
+                    <ListItemIcon sx={{ minWidth: "auto" }}><SettingsRoundedIcon sx={{ fontSize: "1rem", color: "text.secondary" }} /></ListItemIcon>
+                    <Typography sx={{ fontSize: "0.875rem", fontWeight: 500, color: "text.primary" }}>Settings</Typography>
                   </MenuItem>
                   <Divider sx={{ borderColor: "rgba(169,180,185,0.15)" }} />
-                  <MenuItem
-                    onClick={handleLogout}
-                    sx={{
-                      px: 2,
-                      py: 1.25,
-                      gap: 1.5,
-                      mb: 0.5,
-                      "&:hover": { bgcolor: "rgba(159,64,61,0.05)" },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: "auto" }}>
-                      <LogoutRoundedIcon
-                        sx={{ fontSize: "1rem", color: "#9f403d" }}
-                      />
-                    </ListItemIcon>
-                    <Typography
-                      sx={{
-                        fontSize: "0.875rem",
-                        fontWeight: 500,
-                        color: "#9f403d",
-                      }}
-                    >
-                      Logout
-                    </Typography>
+                  <MenuItem onClick={handleLogout} sx={{ px: 2, py: 1.25, gap: 1.5, mb: 0.5, "&:hover": { bgcolor: "rgba(159,64,61,0.05)" } }}>
+                    <ListItemIcon sx={{ minWidth: "auto" }}><LogoutRoundedIcon sx={{ fontSize: "1rem", color: "#9f403d" }} /></ListItemIcon>
+                    <Typography sx={{ fontSize: "0.875rem", fontWeight: 500, color: "#9f403d" }}>Logout</Typography>
                   </MenuItem>
                 </Menu>
               </Box>
             ) : (
               <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1 }}>
-                <Button
-                  onClick={() => navigate("/auth?tab=login")}
-                  sx={{
-                    color: "text.secondary",
-                    fontWeight: 500,
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  Sign In
+                <Button onClick={() => navigate("/auth?tab=login")} sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.875rem" }}>
+                  {t.signIn}
                 </Button>
-                <Button
-                  variant="contained"
-                  onClick={() => navigate("/auth?tab=register")}
-                  sx={{
-                    px: 3,
-                    py: 0.875,
-                    fontSize: "0.875rem",
-                    borderRadius: "8px",
-                  }}
-                >
-                  Register
+                <Button variant="contained" onClick={() => navigate("/auth?tab=register")} sx={{ px: 3, py: 0.875, fontSize: "0.875rem", borderRadius: "8px" }}>
+                  {t.createAccount}
                 </Button>
               </Box>
             )}
 
-            {/* Mobile hamburger */}
-            <IconButton
-              onClick={() => setMobileOpen(true)}
-              sx={{
-                display: { xs: "flex", md: "none" },
-                color: "text.primary",
-                p: 1,
-              }}
-            >
+            <IconButton onClick={() => setMobileOpen(true)} sx={{ display: { xs: "flex", md: "none" }, color: "text.primary", p: 1 }}>
               <MenuRoundedIcon />
             </IconButton>
           </Box>
@@ -511,106 +276,43 @@ export default function Navbar() {
         anchor="right"
         open={mobileOpen}
         onClose={handleDrawerClose}
-        PaperProps={{
-          sx: {
-            width: "85vw",
-            maxWidth: 320,
-            bgcolor: "background.default",
-            display: "flex",
-            flexDirection: "column",
-          },
-        }}
+        PaperProps={{ sx: { width: "85vw", maxWidth: 320, bgcolor: "background.default", display: "flex", flexDirection: "column" } }}
       >
-        {/* Drawer header */}
-        <Box
-          sx={{
-            px: 2.5,
-            pt: 2.5,
-            pb: 2,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderBottom: "1px solid",
-            borderColor: "divider",
-          }}
-        >
+        <Box sx={{ px: 2.5, pt: 2.5, pb: 2, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid", borderColor: "divider" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <Box
-              sx={{
-                width: 28,
-                height: 28,
-                bgcolor: "primary.main",
-                borderRadius: "7px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <AutoStoriesRoundedIcon
-                sx={{ fontSize: "0.875rem", color: "#a6f2d1" }}
-              />
+            <Box sx={{ width: 28, height: 28, bgcolor: "primary.main", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <AutoStoriesRoundedIcon sx={{ fontSize: "0.875rem", color: "#a6f2d1" }} />
             </Box>
-            <Typography
-              sx={{
-                fontWeight: 800,
-                fontSize: "1rem",
-                letterSpacing: "-0.03em",
-                color: "text.primary",
-              }}
-            >
-              No Kid Behind
-            </Typography>
+            <Box>
+              <Typography sx={{ fontWeight: 800, fontSize: "1rem", letterSpacing: "-0.03em", color: "text.primary", lineHeight: 1.2 }}>No Kid Behind</Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.15 }}>
+                <Box
+                  component="img"
+                  src="https://flagcdn.com/w40/lb.png"
+                  alt="Lebanon"
+                  sx={{ width: 13, height: 9, objectFit: "cover", borderRadius: "1px" }}
+                />
+                <Typography sx={{ fontSize: "0.5625rem", fontWeight: 600, letterSpacing: "0.08em", color: "text.disabled", textTransform: "uppercase" }}>
+                  Lebanon
+                </Typography>
+              </Box>
+            </Box>
           </Box>
-          <IconButton
-            onClick={handleDrawerClose}
-            sx={{ color: "text.secondary", p: 0.75 }}
-          >
-            <CloseRoundedIcon sx={{ fontSize: "1.25rem" }} />
-          </IconButton>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <LangToggle />
+            <IconButton onClick={handleDrawerClose} sx={{ color: "text.secondary", p: 0.75 }}>
+              <CloseRoundedIcon sx={{ fontSize: "1.25rem" }} />
+            </IconButton>
+          </Box>
         </Box>
 
-        {/* User info (if authenticated) */}
         {isAuthenticated && (
-          <Box
-            sx={{
-              px: 2.5,
-              py: 2,
-              borderBottom: "1px solid",
-              borderColor: "divider",
-              bgcolor: "rgba(27,107,81,0.04)",
-            }}
-          >
+          <Box sx={{ px: 2.5, py: 2, borderBottom: "1px solid", borderColor: "divider", bgcolor: "rgba(27,107,81,0.04)" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Avatar
-                sx={{
-                  width: 40,
-                  height: 40,
-                  bgcolor: "primary.main",
-                  color: "#a6f2d1",
-                  fontSize: "0.9375rem",
-                  fontWeight: 800,
-                }}
-              >
-                {initials}
-              </Avatar>
+              <Avatar sx={{ width: 40, height: 40, bgcolor: "primary.main", color: "#a6f2d1", fontSize: "0.9375rem", fontWeight: 800 }}>{initials}</Avatar>
               <Box>
-                <Typography
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: "0.9375rem",
-                    color: "text.primary",
-                    lineHeight: 1.2,
-                  }}
-                >
-                  {user?.name}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: "0.75rem",
-                    color: "text.secondary",
-                    textTransform: "capitalize",
-                  }}
-                >
+                <Typography sx={{ fontWeight: 700, fontSize: "0.9375rem", color: "text.primary", lineHeight: 1.2 }}>{user?.name}</Typography>
+                <Typography sx={{ fontSize: "0.75rem", color: "text.secondary", textTransform: "capitalize" }}>
                   {user?.role === "kid_tutor" ? "Kid Tutor" : user?.role}
                 </Typography>
               </Box>
@@ -618,147 +320,45 @@ export default function Navbar() {
           </Box>
         )}
 
-        {/* Nav links */}
         <Box sx={{ flex: 1, overflowY: "auto", py: 1.5 }}>
-          <Typography
-            sx={{
-              px: 2.5,
-              pb: 1,
-              fontWeight: 700,
-              fontSize: "0.625rem",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "text.disabled",
-            }}
-          >
+          <Typography sx={{ px: 2.5, pb: 1, fontWeight: 700, fontSize: "0.625rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "text.disabled" }}>
             Navigation
           </Typography>
           <List disablePadding>
             {navLinks.map((link) => {
-              const isActive = link.scrollTo
-                ? false
-                : location.pathname === link.path;
+              const isActive = link.scrollTo ? false : location.pathname === link.path;
               return (
                 <ListItemButton
                   key={link.label}
-                  onClick={() => {
-                    handleNavClick(link);
-                    handleDrawerClose();
-                  }}
-                  sx={{
-                    px: 2.5,
-                    py: 1.5,
-                    mx: 1,
-                    borderRadius: "10px",
-                    mb: 0.5,
-                    bgcolor: isActive ? "rgba(27,107,81,0.08)" : "transparent",
-                    "&:hover": {
-                      bgcolor: isActive
-                        ? "rgba(27,107,81,0.12)"
-                        : "rgba(27,107,81,0.04)",
-                    },
-                  }}
+                  onClick={() => { handleNavClick(link); handleDrawerClose(); }}
+                  sx={{ px: 2.5, py: 1.5, mx: 1, borderRadius: "10px", mb: 0.5, bgcolor: isActive ? "rgba(27,107,81,0.08)" : "transparent", "&:hover": { bgcolor: isActive ? "rgba(27,107,81,0.12)" : "rgba(27,107,81,0.04)" } }}
                 >
                   <ListItemText
                     primary={link.label}
                     secondary={link.description}
-                    primaryTypographyProps={{
-                      fontWeight: isActive ? 700 : 500,
-                      fontSize: "0.9375rem",
-                      color: isActive ? "primary.main" : "text.primary",
-                      fontFamily: "'Public Sans', sans-serif",
-                    }}
-                    secondaryTypographyProps={{
-                      fontSize: "0.75rem",
-                      color: "text.secondary",
-                      mt: 0.25,
-                      fontFamily: "'Public Sans', sans-serif",
-                      sx: {
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      },
-                    }}
+                    primaryTypographyProps={{ fontWeight: isActive ? 700 : 500, fontSize: "0.9375rem", color: isActive ? "primary.main" : "text.primary", fontFamily: "'Public Sans', sans-serif" }}
+                    secondaryTypographyProps={{ fontSize: "0.75rem", color: "text.secondary", mt: 0.25, fontFamily: "'Public Sans', sans-serif" }}
                   />
-                  {isActive && (
-                    <Box
-                      sx={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        bgcolor: "primary.main",
-                        ml: 1,
-                        flexShrink: 0,
-                      }}
-                    />
-                  )}
+                  {isActive && <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "primary.main", ml: 1, flexShrink: 0 }} />}
                 </ListItemButton>
               );
             })}
           </List>
 
-          {/* Authenticated quick actions */}
           {isAuthenticated && (
             <>
               <Divider sx={{ my: 1.5, borderColor: "divider" }} />
-              <Typography
-                sx={{
-                  px: 2.5,
-                  pb: 1,
-                  fontWeight: 700,
-                  fontSize: "0.625rem",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: "text.disabled",
-                }}
-              >
+              <Typography sx={{ px: 2.5, pb: 1, fontWeight: 700, fontSize: "0.625rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "text.disabled" }}>
                 Account
               </Typography>
               <List disablePadding>
                 {[
-                  {
-                    label: getDashboardLabel(),
-                    path: getDashboardPath(),
-                    Icon: DashboardRoundedIcon,
-                  },
-                  {
-                    label: "Settings",
-                    path: "/settings",
-                    Icon: SettingsRoundedIcon,
-                  },
+                  { label: getDashboardLabel(), path: getDashboardPath(), Icon: DashboardRoundedIcon },
+                  { label: "Settings", path: "/settings", Icon: SettingsRoundedIcon },
                 ].map(({ label, path, Icon }) => (
-                  <ListItemButton
-                    key={path}
-                    onClick={() => {
-                      navigate(path);
-                      handleDrawerClose();
-                    }}
-                    sx={{
-                      px: 2.5,
-                      py: 1.25,
-                      mx: 1,
-                      borderRadius: "10px",
-                      mb: 0.5,
-                      "&:hover": { bgcolor: "rgba(27,107,81,0.04)" },
-                    }}
-                  >
-                    <Icon
-                      sx={{
-                        fontSize: "1rem",
-                        color: "text.secondary",
-                        mr: 1.5,
-                      }}
-                    />
-                    <ListItemText
-                      primary={label}
-                      primaryTypographyProps={{
-                        fontSize: "0.9375rem",
-                        fontWeight: 500,
-                        color: "text.primary",
-                        fontFamily: "'Public Sans', sans-serif",
-                      }}
-                    />
+                  <ListItemButton key={path} onClick={() => { navigate(path); handleDrawerClose(); }} sx={{ px: 2.5, py: 1.25, mx: 1, borderRadius: "10px", mb: 0.5, "&:hover": { bgcolor: "rgba(27,107,81,0.04)" } }}>
+                    <Icon sx={{ fontSize: "1rem", color: "text.secondary", mr: 1.5 }} />
+                    <ListItemText primary={label} primaryTypographyProps={{ fontSize: "0.9375rem", fontWeight: 500, color: "text.primary", fontFamily: "'Public Sans', sans-serif" }} />
                   </ListItemButton>
                 ))}
               </List>
@@ -766,69 +366,18 @@ export default function Navbar() {
           )}
         </Box>
 
-        {/* Bottom auth actions */}
-        <Box
-          sx={{
-            px: 2,
-            pb: 3,
-            pt: 1.5,
-            borderTop: "1px solid",
-            borderColor: "divider",
-          }}
-        >
+        <Box sx={{ px: 2, pb: 3, pt: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
           {isAuthenticated ? (
-            <Button
-              fullWidth
-              onClick={handleLogout}
-              startIcon={<LogoutRoundedIcon />}
-              sx={{
-                py: 1.25,
-                borderRadius: "10px",
-                color: "#9f403d",
-                bgcolor: "rgba(159,64,61,0.06)",
-                fontWeight: 600,
-                fontSize: "0.9375rem",
-                textTransform: "none",
-                "&:hover": { bgcolor: "rgba(159,64,61,0.1)" },
-              }}
-            >
+            <Button fullWidth onClick={handleLogout} startIcon={<LogoutRoundedIcon />} sx={{ py: 1.25, borderRadius: "10px", color: "#9f403d", bgcolor: "rgba(159,64,61,0.06)", fontWeight: 600, fontSize: "0.9375rem", textTransform: "none", "&:hover": { bgcolor: "rgba(159,64,61,0.1)" } }}>
               Logout
             </Button>
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={() => {
-                  navigate("/auth?tab=register");
-                  handleDrawerClose();
-                }}
-                sx={{
-                  py: 1.25,
-                  borderRadius: "10px",
-                  fontWeight: 700,
-                  fontSize: "0.9375rem",
-                  textTransform: "none",
-                }}
-              >
-                Create Free Account
+              <Button fullWidth variant="contained" onClick={() => { navigate("/auth?tab=register"); handleDrawerClose(); }} sx={{ py: 1.25, borderRadius: "10px", fontWeight: 700, fontSize: "0.9375rem", textTransform: "none" }}>
+                {t.createAccount}
               </Button>
-              <Button
-                fullWidth
-                onClick={() => {
-                  navigate("/auth?tab=login");
-                  handleDrawerClose();
-                }}
-                sx={{
-                  py: 1.25,
-                  borderRadius: "10px",
-                  fontWeight: 600,
-                  fontSize: "0.9375rem",
-                  textTransform: "none",
-                  color: "text.secondary",
-                }}
-              >
-                Sign In
+              <Button fullWidth onClick={() => { navigate("/auth?tab=login"); handleDrawerClose(); }} sx={{ py: 1.25, borderRadius: "10px", fontWeight: 600, fontSize: "0.9375rem", textTransform: "none", color: "text.secondary" }}>
+                {t.signIn}
               </Button>
             </Box>
           )}

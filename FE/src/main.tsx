@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 import theme from './theme/theme';
 import App from './App';
 import SiteGate from './components/SiteGate';
@@ -23,12 +24,14 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <SiteGate>
-              <App />
-            </SiteGate>
-          </ThemeProvider>
+          <LanguageProvider>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <SiteGate>
+                <App />
+              </SiteGate>
+            </ThemeProvider>
+          </LanguageProvider>
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>

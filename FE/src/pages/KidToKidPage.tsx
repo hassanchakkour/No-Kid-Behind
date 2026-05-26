@@ -15,9 +15,17 @@ import ChildCareRoundedIcon from "@mui/icons-material/ChildCareRounded";
 import Navbar from "../components/Navbar";
 import CourseCard from "../components/CourseCard";
 import { useCourses } from "../hooks/useCourses";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../i18n/translations";
 
 const GRADES = [
   "All",
+  "Grade 1",
+  "Grade 2",
+  "Grade 3",
+  "Grade 4",
+  "Grade 5",
+  "Grade 6",
   "Grade 7",
   "Grade 8",
   "Grade 9",
@@ -30,6 +38,10 @@ const GRADES = [
 ];
 
 export default function KidToKidPage() {
+  const { lang } = useLanguage();
+  const t = translations[lang].kidToKid;
+  const isRtl = lang === "ar";
+
   const [grade, setGrade] = useState("");
   const [subject, setSubject] = useState("");
   const [search, setSearch] = useState("");
@@ -50,7 +62,7 @@ export default function KidToKidPage() {
   const activeFilters = [grade, subject, search].filter(Boolean).length;
 
   return (
-    <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }} dir={isRtl ? "rtl" : "ltr"}>
       <Navbar />
 
       {/* ── Header Banner ── */}
@@ -64,45 +76,13 @@ export default function KidToKidPage() {
           overflow: "hidden",
         }}
       >
-        <Box
-          sx={{
-            position: "absolute",
-            top: -40,
-            right: 80,
-            width: 200,
-            height: 200,
-            borderRadius: "50%",
-            bgcolor: "rgba(255,255,255,0.04)",
-          }}
-        />
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: -60,
-            right: -30,
-            width: 240,
-            height: 240,
-            borderRadius: "50%",
-            bgcolor: "rgba(255,255,255,0.03)",
-          }}
-        />
+        <Box sx={{ position: "absolute", top: -40, right: 80, width: 200, height: 200, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.04)" }} />
+        <Box sx={{ position: "absolute", bottom: -60, right: -30, width: 240, height: 240, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.03)" }} />
 
-        <Box
-          sx={{ maxWidth: 1280, mx: "auto", position: "relative", zIndex: 1 }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: 4,
-            }}
-          >
+        <Box sx={{ maxWidth: 1280, mx: "auto", position: "relative", zIndex: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 4 }}>
             <Box>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-              >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                 <Typography
                   sx={{
                     fontWeight: 700,
@@ -112,7 +92,7 @@ export default function KidToKidPage() {
                     color: "rgba(255,220,130,0.8)",
                   }}
                 >
-                  Student-Led Learning
+                  {t.overline}
                 </Typography>
               </Box>
               <Typography
@@ -126,17 +106,10 @@ export default function KidToKidPage() {
                   mb: 1.5,
                 }}
               >
-                Kid to Kid Tutoring
+                {t.title}
               </Typography>
-              <Typography
-                sx={{
-                  fontSize: "1rem",
-                  color: "rgba(255,248,236,0.75)",
-                  maxWidth: 480,
-                  lineHeight: 1.6,
-                }}
-              >
-                study with me, Educational videos made easy - by kids for kids
+              <Typography sx={{ fontSize: "1rem", color: "rgba(255,248,236,0.75)", maxWidth: 480, lineHeight: 1.6 }}>
+                {t.subtitle}
               </Typography>
             </Box>
 
@@ -152,28 +125,11 @@ export default function KidToKidPage() {
                 minWidth: 140,
               }}
             >
-              <Typography
-                sx={{
-                  fontWeight: 800,
-                  fontSize: "2.5rem",
-                  letterSpacing: "-0.05em",
-                  color: "#fff8ec",
-                  lineHeight: 1,
-                }}
-              >
+              <Typography sx={{ fontWeight: 800, fontSize: "2.5rem", letterSpacing: "-0.05em", color: "#fff8ec", lineHeight: 1 }}>
                 {isLoading ? "…" : (allCourses?.length ?? 0)}
               </Typography>
-              <Typography
-                sx={{
-                  fontWeight: 700,
-                  fontSize: "0.625rem",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: "rgba(255,220,130,0.6)",
-                  mt: 0.5,
-                }}
-              >
-                Courses Available
+              <Typography sx={{ fontWeight: 700, fontSize: "0.625rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,220,130,0.6)", mt: 0.5 }}>
+                {t.countLabel}
               </Typography>
             </Box>
           </Box>
@@ -192,47 +148,17 @@ export default function KidToKidPage() {
           zIndex: 50,
         }}
       >
-        <Box
-          sx={{
-            maxWidth: 1280,
-            mx: "auto",
-            display: "flex",
-            gap: 2,
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              color: "text.secondary",
-              flexShrink: 0,
-            }}
-          >
+        <Box sx={{ maxWidth: 1280, mx: "auto", display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "text.secondary", flexShrink: 0 }}>
             <TuneRoundedIcon sx={{ fontSize: "1rem" }} />
-            <Typography sx={{ fontWeight: 600, fontSize: "0.8125rem" }}>
-              Filters
-            </Typography>
+            <Typography sx={{ fontWeight: 600, fontSize: "0.8125rem" }}>{t.filters}</Typography>
             {activeFilters > 0 && (
-              <Chip
-                label={activeFilters}
-                size="small"
-                sx={{
-                  bgcolor: "#c47a1e",
-                  color: "#fff8ec",
-                  fontWeight: 700,
-                  fontSize: "0.625rem",
-                  height: 18,
-                  ml: 0.5,
-                }}
-              />
+              <Chip label={activeFilters} size="small" sx={{ bgcolor: "#c47a1e", color: "#fff8ec", fontWeight: 700, fontSize: "0.625rem", height: 18, ml: 0.5 }} />
             )}
           </Box>
 
           <TextField
-            placeholder="Search by title or subject…"
+            placeholder={t.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             size="small"
@@ -240,58 +166,31 @@ export default function KidToKidPage() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon
-                    fontSize="small"
-                    sx={{ color: "text.secondary" }}
-                  />
+                  <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
                 </InputAdornment>
               ),
-              sx: {
-                bgcolor: "#f7f9fb",
-                borderRadius: "8px",
-                fontFamily: "'Public Sans', sans-serif",
-              },
+              sx: { bgcolor: "#f7f9fb", borderRadius: "8px", fontFamily: "'Public Sans', sans-serif" },
             }}
             sx={{ minWidth: 260, flex: 2 }}
           />
           <TextField
             select
-            label="Grade"
+            label={t.gradePlaceholder}
             value={grade}
-            onChange={(e) =>
-              setGrade(e.target.value === "All" ? "" : e.target.value)
-            }
+            onChange={(e) => setGrade(e.target.value === "All" ? "" : e.target.value)}
             size="small"
             variant="outlined"
-            sx={{
-              minWidth: 150,
-              flex: 1,
-              "& .MuiOutlinedInput-root": {
-                bgcolor: "#f7f9fb",
-                borderRadius: "8px",
-              },
-            }}
+            sx={{ minWidth: 150, flex: 1, "& .MuiOutlinedInput-root": { bgcolor: "#f7f9fb", borderRadius: "8px" } }}
           >
-            {GRADES.map((g) => (
-              <MenuItem key={g} value={g}>
-                {g}
-              </MenuItem>
-            ))}
+            {GRADES.map((g) => <MenuItem key={g} value={g}>{g}</MenuItem>)}
           </TextField>
           <TextField
-            placeholder="Subject…"
+            placeholder={t.subjectPlaceholder}
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             size="small"
             variant="outlined"
-            sx={{
-              minWidth: 140,
-              flex: 1,
-              "& .MuiOutlinedInput-root": {
-                bgcolor: "#f7f9fb",
-                borderRadius: "8px",
-              },
-            }}
+            sx={{ minWidth: 140, flex: 1, "& .MuiOutlinedInput-root": { bgcolor: "#f7f9fb", borderRadius: "8px" } }}
           />
         </Box>
       </Box>
@@ -300,32 +199,15 @@ export default function KidToKidPage() {
       <Box sx={{ px: { xs: 4, md: 8 }, py: 8, maxWidth: 1280, mx: "auto" }}>
         {!isLoading && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 5 }}>
-            <Typography
-              sx={{
-                fontWeight: 600,
-                fontSize: "0.9375rem",
-                color: "text.primary",
-              }}
-            >
-              {filtered.length} {filtered.length === 1 ? "course" : "courses"}{" "}
-              found
+            <Typography sx={{ fontWeight: 600, fontSize: "0.9375rem", color: "text.primary" }}>
+              {filtered.length} {filtered.length === 1 ? t.resultSingular : t.resultPlural} {t.resultFound}
             </Typography>
             {activeFilters > 0 && (
               <Typography
-                onClick={() => {
-                  setGrade("");
-                  setSubject("");
-                  setSearch("");
-                }}
-                sx={{
-                  fontSize: "0.8125rem",
-                  color: "#c47a1e",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                }}
+                onClick={() => { setGrade(""); setSubject(""); setSearch(""); }}
+                sx={{ fontSize: "0.8125rem", color: "#c47a1e", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}
               >
-                Clear filters
+                {t.clearFilters}
               </Typography>
             )}
           </Box>
@@ -345,18 +227,12 @@ export default function KidToKidPage() {
               border: "2px dashed rgba(169,180,185,0.3)",
             }}
           >
-            <ChildCareRoundedIcon
-              sx={{ fontSize: "3rem", color: "text.disabled", mb: 2 }}
-            />
-            <Typography
-              sx={{ color: "text.secondary", fontSize: "1.0625rem", mb: 1 }}
-            >
-              No kid-to-kid courses yet.
+            <ChildCareRoundedIcon sx={{ fontSize: "3rem", color: "text.disabled", mb: 2 }} />
+            <Typography sx={{ color: "text.secondary", fontSize: "1.0625rem", mb: 1 }}>
+              {t.emptyTitle}
             </Typography>
             <Typography sx={{ color: "text.disabled", fontSize: "0.875rem" }}>
-              {activeFilters > 0
-                ? "Try adjusting your filters."
-                : "Student teachers will start sharing soon!"}
+              {activeFilters > 0 ? t.emptySubtitleFiltered : t.emptySubtitleDefault}
             </Typography>
           </Box>
         ) : (

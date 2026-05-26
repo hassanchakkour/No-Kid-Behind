@@ -18,6 +18,8 @@ import CourseCard from "../components/CourseCard";
 import { useCourses } from "../hooks/useCourses";
 import client from "../api/client";
 import schoolData from "../data/public_schools_lebanon.json";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../i18n/translations";
 
 type SchoolEntry = { Caza: string; Area: string; "School Name": string };
 const SCHOOL_DATA = schoolData as SchoolEntry[];
@@ -42,6 +44,11 @@ const GRADES = [
 ];
 
 export default function CoursesPage() {
+  const { lang } = useLanguage();
+  const t = translations[lang].courses;
+  const tc = translations[lang].landing.curriculum;
+  const isRtl = lang === "ar";
+
   const [grade, setGrade] = useState("");
   const [subject, setSubject] = useState("");
   const [search, setSearch] = useState("");
@@ -101,7 +108,7 @@ export default function CoursesPage() {
   const activeFilters = [grade, subject, school, search].filter(Boolean).length;
 
   return (
-    <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }} dir={isRtl ? "rtl" : "ltr"}>
       <Navbar />
 
       {/* ── Header Banner ── */}
@@ -115,7 +122,6 @@ export default function CoursesPage() {
           overflow: "hidden",
         }}
       >
-        {/* decorative shapes */}
         <Box
           sx={{
             position: "absolute",
@@ -163,7 +169,7 @@ export default function CoursesPage() {
                   mb: 1.5,
                 }}
               >
-                Learning Corner
+                {t.title}
               </Typography>
               <Typography
                 sx={{
@@ -173,11 +179,10 @@ export default function CoursesPage() {
                   lineHeight: 1.6,
                 }}
               >
-                Access General educational videos for all grade levels
+                {t.subtitle}
               </Typography>
             </Box>
 
-            {/* Live count */}
             <Box
               sx={{
                 bgcolor: "rgba(255,255,255,0.08)",
@@ -211,7 +216,7 @@ export default function CoursesPage() {
                   mt: 0.5,
                 }}
               >
-                Courses Available
+                {t.countLabel}
               </Typography>
             </Box>
           </Box>
@@ -232,14 +237,13 @@ export default function CoursesPage() {
             mb: 2,
           }}
         >
-          National Curriculum: select your public school
+          {tc.label}
         </Typography>
 
-        {/* Public school cascade */}
         <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
           <TextField
             select
-            label="Caza"
+            label={tc.caza}
             value={pubCaza}
             onChange={(e) => {
               setPubCaza(e.target.value);
@@ -250,52 +254,35 @@ export default function CoursesPage() {
             sx={{
               minWidth: 160,
               flex: 1,
-              "& .MuiOutlinedInput-root": {
-                bgcolor: "background.paper",
-                borderRadius: "8px",
-              },
+              "& .MuiOutlinedInput-root": { bgcolor: "background.paper", borderRadius: "8px" },
             }}
           >
             <MenuItem value="" disabled>
-              <em style={{ color: "#a9b4b9" }}>Select caza</em>
+              <em style={{ color: "#a9b4b9" }}>{tc.caza}</em>
             </MenuItem>
-            {cazas.map((c) => (
-              <MenuItem key={c} value={c}>
-                {c}
-              </MenuItem>
-            ))}
+            {cazas.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
           </TextField>
           <TextField
             select
-            label="Area"
+            label={tc.area}
             value={pubArea}
-            onChange={(e) => {
-              setPubArea(e.target.value);
-              setPubSchool("");
-            }}
+            onChange={(e) => { setPubArea(e.target.value); setPubSchool(""); }}
             size="small"
             disabled={!pubCaza}
             sx={{
               minWidth: 160,
               flex: 1,
-              "& .MuiOutlinedInput-root": {
-                bgcolor: "background.paper",
-                borderRadius: "8px",
-              },
+              "& .MuiOutlinedInput-root": { bgcolor: "background.paper", borderRadius: "8px" },
             }}
           >
             <MenuItem value="" disabled>
-              <em style={{ color: "#a9b4b9" }}>Select area</em>
+              <em style={{ color: "#a9b4b9" }}>{tc.area}</em>
             </MenuItem>
-            {areas.map((a) => (
-              <MenuItem key={a} value={a}>
-                {a}
-              </MenuItem>
-            ))}
+            {areas.map((a) => <MenuItem key={a} value={a}>{a}</MenuItem>)}
           </TextField>
           <TextField
             select
-            label="School"
+            label={tc.school}
             value={pubSchool}
             onChange={(e) => setPubSchool(e.target.value)}
             size="small"
@@ -303,24 +290,16 @@ export default function CoursesPage() {
             sx={{
               minWidth: 200,
               flex: 2,
-              "& .MuiOutlinedInput-root": {
-                bgcolor: "background.paper",
-                borderRadius: "8px",
-              },
+              "& .MuiOutlinedInput-root": { bgcolor: "background.paper", borderRadius: "8px" },
             }}
           >
             <MenuItem value="" disabled>
-              <em style={{ color: "#a9b4b9" }}>Select school</em>
+              <em style={{ color: "#a9b4b9" }}>{tc.school}</em>
             </MenuItem>
-            {publicSchools.map((s) => (
-              <MenuItem key={s} value={s}>
-                {s}
-              </MenuItem>
-            ))}
+            {publicSchools.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
           </TextField>
         </Box>
 
-        {/* Banner */}
         <Box
           sx={{
             display: "flex",
@@ -355,45 +334,23 @@ export default function CoursesPage() {
                   color: "#a6f2d1",
                 }}
               >
-                Official
+                {tc.official}
               </Typography>
             </Box>
             <Box>
-              <Typography
-                sx={{
-                  fontWeight: 700,
-                  fontSize: "0.9375rem",
-                  color: "#e0ffee",
-                  lineHeight: 1.3,
-                }}
-              >
-                Lebanese Ministry of Education & Higher Education, Madristi
-                Platform
+              <Typography sx={{ fontWeight: 700, fontSize: "0.9375rem", color: "#e0ffee", lineHeight: 1.3 }}>
+                {tc.bannerTitle}
               </Typography>
-              <Typography
-                sx={{
-                  fontSize: "0.75rem",
-                  color: "rgba(224,255,238,0.6)",
-                  mt: 0.25,
-                }}
-              >
-                {canVisit
-                  ? `Visiting as: ${analyticsSchool}`
-                  : "Select your school above to continue"}
+              <Typography sx={{ fontSize: "0.75rem", color: "rgba(224,255,238,0.6)", mt: 0.25 }}>
+                {canVisit ? `${tc.visitingAs} ${analyticsSchool}` : tc.hint}
               </Typography>
             </Box>
           </Box>
           <Box
             onClick={() => {
               if (!canVisit) return;
-              client
-                .post("/analytics/madristi-click", { school: analyticsSchool })
-                .catch(() => {});
-              window.open(
-                "https://madristi.mehe.gov.lb",
-                "_blank",
-                "noopener,noreferrer",
-              );
+              client.post("/analytics/madristi-click", { school: analyticsSchool }).catch(() => {});
+              window.open("https://madristi.mehe.gov.lb", "_blank", "noopener,noreferrer");
             }}
             sx={{
               bgcolor: canVisit ? "#a6f2d1" : "rgba(166,242,209,0.2)",
@@ -407,12 +364,10 @@ export default function CoursesPage() {
               fontFamily: "'Public Sans', sans-serif",
               cursor: canVisit ? "pointer" : "not-allowed",
               transition: "all 0.2s",
-              "&:hover": {
-                bgcolor: canVisit ? "#8de8be" : "rgba(166,242,209,0.2)",
-              },
+              "&:hover": { bgcolor: canVisit ? "#8de8be" : "rgba(166,242,209,0.2)" },
             }}
           >
-            Visit Madristi →
+            {tc.visitBtn}
           </Box>
         </Box>
       </Box>
@@ -439,37 +394,20 @@ export default function CoursesPage() {
             flexWrap: "wrap",
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              color: "text.secondary",
-              flexShrink: 0,
-            }}
-          >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "text.secondary", flexShrink: 0 }}>
             <TuneRoundedIcon sx={{ fontSize: "1rem" }} />
-            <Typography sx={{ fontWeight: 600, fontSize: "0.8125rem" }}>
-              Filters
-            </Typography>
+            <Typography sx={{ fontWeight: 600, fontSize: "0.8125rem" }}>{t.filters}</Typography>
             {activeFilters > 0 && (
               <Chip
                 label={activeFilters}
                 size="small"
-                sx={{
-                  bgcolor: "primary.main",
-                  color: "#e0ffee",
-                  fontWeight: 700,
-                  fontSize: "0.625rem",
-                  height: 18,
-                  ml: 0.5,
-                }}
+                sx={{ bgcolor: "primary.main", color: "#e0ffee", fontWeight: 700, fontSize: "0.625rem", height: 18, ml: 0.5 }}
               />
             )}
           </Box>
 
           <TextField
-            placeholder="Search by title or subject…"
+            placeholder={t.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             size="small"
@@ -477,109 +415,56 @@ export default function CoursesPage() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon
-                    fontSize="small"
-                    sx={{ color: "text.secondary" }}
-                  />
+                  <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
                 </InputAdornment>
               ),
-              sx: {
-                bgcolor: "#f7f9fb",
-                borderRadius: "8px",
-                fontFamily: "'Public Sans', sans-serif",
-              },
+              sx: { bgcolor: "#f7f9fb", borderRadius: "8px", fontFamily: "'Public Sans', sans-serif" },
             }}
             sx={{ minWidth: 260, flex: 2 }}
           />
           <TextField
             select
-            label="Grade"
+            label={t.gradePlaceholder}
             value={grade}
-            onChange={(e) =>
-              setGrade(e.target.value === "All" ? "" : e.target.value)
-            }
+            onChange={(e) => setGrade(e.target.value === "All" ? "" : e.target.value)}
             size="small"
             variant="outlined"
-            sx={{
-              minWidth: 150,
-              flex: 1,
-              "& .MuiOutlinedInput-root": {
-                bgcolor: "#f7f9fb",
-                borderRadius: "8px",
-              },
-            }}
+            sx={{ minWidth: 150, flex: 1, "& .MuiOutlinedInput-root": { bgcolor: "#f7f9fb", borderRadius: "8px" } }}
           >
-            {GRADES.map((g) => (
-              <MenuItem key={g} value={g}>
-                {g}
-              </MenuItem>
-            ))}
+            {GRADES.map((g) => <MenuItem key={g} value={g}>{g}</MenuItem>)}
           </TextField>
           <TextField
-            placeholder="Subject…"
+            placeholder={t.subjectPlaceholder}
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             size="small"
             variant="outlined"
-            sx={{
-              minWidth: 140,
-              flex: 1,
-              "& .MuiOutlinedInput-root": {
-                bgcolor: "#f7f9fb",
-                borderRadius: "8px",
-              },
-            }}
+            sx={{ minWidth: 140, flex: 1, "& .MuiOutlinedInput-root": { bgcolor: "#f7f9fb", borderRadius: "8px" } }}
           />
           <TextField
-            placeholder="School…"
+            placeholder={t.schoolPlaceholder}
             value={school}
             onChange={(e) => setSchool(e.target.value)}
             size="small"
             variant="outlined"
-            sx={{
-              minWidth: 140,
-              flex: 1,
-              "& .MuiOutlinedInput-root": {
-                bgcolor: "#f7f9fb",
-                borderRadius: "8px",
-              },
-            }}
+            sx={{ minWidth: 140, flex: 1, "& .MuiOutlinedInput-root": { bgcolor: "#f7f9fb", borderRadius: "8px" } }}
           />
         </Box>
       </Box>
 
       {/* ── Results ── */}
       <Box sx={{ px: { xs: 4, md: 8 }, py: 8, maxWidth: 1280, mx: "auto" }}>
-        {/* Result count */}
         {!isLoading && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 5 }}>
-            <Typography
-              sx={{
-                fontWeight: 600,
-                fontSize: "0.9375rem",
-                color: "text.primary",
-              }}
-            >
-              {filtered.length} {filtered.length === 1 ? "course" : "courses"}{" "}
-              found
+            <Typography sx={{ fontWeight: 600, fontSize: "0.9375rem", color: "text.primary" }}>
+              {filtered.length} {filtered.length === 1 ? t.resultSingular : t.resultPlural} {t.resultFound}
             </Typography>
             {activeFilters > 0 && (
               <Typography
-                onClick={() => {
-                  setGrade("");
-                  setSubject("");
-                  setSchool("");
-                  setSearch("");
-                }}
-                sx={{
-                  fontSize: "0.8125rem",
-                  color: "primary.main",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                }}
+                onClick={() => { setGrade(""); setSubject(""); setSchool(""); setSearch(""); }}
+                sx={{ fontSize: "0.8125rem", color: "primary.main", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}
               >
-                Clear filters
+                {t.clearFilters}
               </Typography>
             )}
           </Box>
@@ -599,16 +484,12 @@ export default function CoursesPage() {
               border: "2px dashed rgba(169,180,185,0.3)",
             }}
           >
-            <AutoStoriesRoundedIcon
-              sx={{ fontSize: "3rem", color: "text.disabled", mb: 2 }}
-            />
-            <Typography
-              sx={{ color: "text.secondary", fontSize: "1.0625rem", mb: 1 }}
-            >
-              No courses match your search.
+            <AutoStoriesRoundedIcon sx={{ fontSize: "3rem", color: "text.disabled", mb: 2 }} />
+            <Typography sx={{ color: "text.secondary", fontSize: "1.0625rem", mb: 1 }}>
+              {t.emptyTitle}
             </Typography>
             <Typography sx={{ color: "text.disabled", fontSize: "0.875rem" }}>
-              Try adjusting your filters or search term.
+              {t.emptySubtitle}
             </Typography>
           </Box>
         ) : (

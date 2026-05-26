@@ -32,3 +32,8 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #566166;
 }
+
+/* Arabic / RTL: letter-spacing breaks character connections in Arabic script */
+[dir="rtl"] * {
+  letter-spacing: 0 !important;
+}

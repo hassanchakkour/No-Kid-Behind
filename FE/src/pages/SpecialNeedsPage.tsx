@@ -13,8 +13,14 @@ import AccessibilityNewRoundedIcon from "@mui/icons-material/AccessibilityNewRou
 import Navbar from "../components/Navbar";
 import CourseCard from "../components/CourseCard";
 import { useCourses } from "../hooks/useCourses";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../i18n/translations";
 
 export default function SpecialNeedsPage() {
+  const { lang } = useLanguage();
+  const t = translations[lang].extraSteps;
+  const isRtl = lang === "ar";
+
   const [subject, setSubject] = useState("");
   const [search, setSearch] = useState("");
 
@@ -33,7 +39,7 @@ export default function SpecialNeedsPage() {
   const activeFilters = [subject, search].filter(Boolean).length;
 
   return (
-    <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }} dir={isRtl ? "rtl" : "ltr"}>
       <Navbar />
 
       {/* ── Header Banner ── */}
@@ -47,48 +53,14 @@ export default function SpecialNeedsPage() {
           overflow: "hidden",
         }}
       >
-        <Box
-          sx={{
-            position: "absolute",
-            top: -40,
-            right: 80,
-            width: 200,
-            height: 200,
-            borderRadius: "50%",
-            bgcolor: "rgba(255,255,255,0.04)",
-          }}
-        />
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: -60,
-            right: -30,
-            width: 240,
-            height: 240,
-            borderRadius: "50%",
-            bgcolor: "rgba(255,255,255,0.03)",
-          }}
-        />
+        <Box sx={{ position: "absolute", top: -40, right: 80, width: 200, height: 200, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.04)" }} />
+        <Box sx={{ position: "absolute", bottom: -60, right: -30, width: 240, height: 240, borderRadius: "50%", bgcolor: "rgba(255,255,255,0.03)" }} />
 
-        <Box
-          sx={{ maxWidth: 1280, mx: "auto", position: "relative", zIndex: 1 }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: 4,
-            }}
-          >
+        <Box sx={{ maxWidth: 1280, mx: "auto", position: "relative", zIndex: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 4 }}>
             <Box>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-              >
-                <AccessibilityNewRoundedIcon
-                  sx={{ color: "rgba(220,180,255,0.7)", fontSize: "0.875rem" }}
-                />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                <AccessibilityNewRoundedIcon sx={{ color: "rgba(220,180,255,0.7)", fontSize: "0.875rem" }} />
               </Box>
               <Typography
                 component="h1"
@@ -101,17 +73,10 @@ export default function SpecialNeedsPage() {
                   mb: 1.5,
                 }}
               >
-                Learning with Extra Help
+                {t.title}
               </Typography>
-              <Typography
-                sx={{
-                  fontSize: "1rem",
-                  color: "rgba(243,232,255,0.7)",
-                  maxWidth: 480,
-                  lineHeight: 1.6,
-                }}
-              >
-                Learn your way: Educational Videos made easy by professionals.
+              <Typography sx={{ fontSize: "1rem", color: "rgba(243,232,255,0.7)", maxWidth: 480, lineHeight: 1.6 }}>
+                {t.subtitle}
               </Typography>
             </Box>
 
@@ -127,28 +92,11 @@ export default function SpecialNeedsPage() {
                 minWidth: 140,
               }}
             >
-              <Typography
-                sx={{
-                  fontWeight: 800,
-                  fontSize: "2.5rem",
-                  letterSpacing: "-0.05em",
-                  color: "#f3e8ff",
-                  lineHeight: 1,
-                }}
-              >
+              <Typography sx={{ fontWeight: 800, fontSize: "2.5rem", letterSpacing: "-0.05em", color: "#f3e8ff", lineHeight: 1 }}>
                 {isLoading ? "…" : (allVideos?.length ?? 0)}
               </Typography>
-              <Typography
-                sx={{
-                  fontWeight: 700,
-                  fontSize: "0.625rem",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: "rgba(220,180,255,0.6)",
-                  mt: 0.5,
-                }}
-              >
-                Videos Available
+              <Typography sx={{ fontWeight: 700, fontSize: "0.625rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(220,180,255,0.6)", mt: 0.5 }}>
+                {t.countLabel}
               </Typography>
             </Box>
           </Box>
@@ -167,47 +115,17 @@ export default function SpecialNeedsPage() {
           zIndex: 50,
         }}
       >
-        <Box
-          sx={{
-            maxWidth: 1280,
-            mx: "auto",
-            display: "flex",
-            gap: 2,
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              color: "text.secondary",
-              flexShrink: 0,
-            }}
-          >
+        <Box sx={{ maxWidth: 1280, mx: "auto", display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "text.secondary", flexShrink: 0 }}>
             <AccessibilityNewRoundedIcon sx={{ fontSize: "1rem" }} />
-            <Typography sx={{ fontWeight: 600, fontSize: "0.8125rem" }}>
-              Filter
-            </Typography>
+            <Typography sx={{ fontWeight: 600, fontSize: "0.8125rem" }}>{t.filters}</Typography>
             {activeFilters > 0 && (
-              <Chip
-                label={activeFilters}
-                size="small"
-                sx={{
-                  bgcolor: "#6b3e8e",
-                  color: "#f3e8ff",
-                  fontWeight: 700,
-                  fontSize: "0.625rem",
-                  height: 18,
-                  ml: 0.5,
-                }}
-              />
+              <Chip label={activeFilters} size="small" sx={{ bgcolor: "#6b3e8e", color: "#f3e8ff", fontWeight: 700, fontSize: "0.625rem", height: 18, ml: 0.5 }} />
             )}
           </Box>
 
           <TextField
-            placeholder="Search by title or topic…"
+            placeholder={t.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             size="small"
@@ -215,34 +133,20 @@ export default function SpecialNeedsPage() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon
-                    fontSize="small"
-                    sx={{ color: "text.secondary" }}
-                  />
+                  <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
                 </InputAdornment>
               ),
-              sx: {
-                bgcolor: "#f7f9fb",
-                borderRadius: "8px",
-                fontFamily: "'Public Sans', sans-serif",
-              },
+              sx: { bgcolor: "#f7f9fb", borderRadius: "8px", fontFamily: "'Public Sans', sans-serif" },
             }}
             sx={{ minWidth: 260, flex: 2 }}
           />
           <TextField
-            placeholder="Topic…"
+            placeholder={t.topicPlaceholder}
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             size="small"
             variant="outlined"
-            sx={{
-              minWidth: 180,
-              flex: 1,
-              "& .MuiOutlinedInput-root": {
-                bgcolor: "#f7f9fb",
-                borderRadius: "8px",
-              },
-            }}
+            sx={{ minWidth: 180, flex: 1, "& .MuiOutlinedInput-root": { bgcolor: "#f7f9fb", borderRadius: "8px" } }}
           />
         </Box>
       </Box>
@@ -251,31 +155,15 @@ export default function SpecialNeedsPage() {
       <Box sx={{ px: { xs: 4, md: 8 }, py: 8, maxWidth: 1280, mx: "auto" }}>
         {!isLoading && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 5 }}>
-            <Typography
-              sx={{
-                fontWeight: 600,
-                fontSize: "0.9375rem",
-                color: "text.primary",
-              }}
-            >
-              {filtered.length} {filtered.length === 1 ? "video" : "videos"}{" "}
-              found
+            <Typography sx={{ fontWeight: 600, fontSize: "0.9375rem", color: "text.primary" }}>
+              {filtered.length} {filtered.length === 1 ? t.resultSingular : t.resultPlural} {t.resultFound}
             </Typography>
             {activeFilters > 0 && (
               <Typography
-                onClick={() => {
-                  setSubject("");
-                  setSearch("");
-                }}
-                sx={{
-                  fontSize: "0.8125rem",
-                  color: "#6b3e8e",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                }}
+                onClick={() => { setSubject(""); setSearch(""); }}
+                sx={{ fontSize: "0.8125rem", color: "#6b3e8e", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}
               >
-                Clear filters
+                {t.clearFilters}
               </Typography>
             )}
           </Box>
@@ -295,18 +183,12 @@ export default function SpecialNeedsPage() {
               border: "2px dashed rgba(169,180,185,0.3)",
             }}
           >
-            <AccessibilityNewRoundedIcon
-              sx={{ fontSize: "3rem", color: "text.disabled", mb: 2 }}
-            />
-            <Typography
-              sx={{ color: "text.secondary", fontSize: "1.0625rem", mb: 1 }}
-            >
-              No videos found.
+            <AccessibilityNewRoundedIcon sx={{ fontSize: "3rem", color: "text.disabled", mb: 2 }} />
+            <Typography sx={{ color: "text.secondary", fontSize: "1.0625rem", mb: 1 }}>
+              {t.emptyTitle}
             </Typography>
             <Typography sx={{ color: "text.disabled", fontSize: "0.875rem" }}>
-              {activeFilters > 0
-                ? "Try adjusting your filters."
-                : "Content is being added. Check back soon."}
+              {activeFilters > 0 ? t.emptySubtitleFiltered : t.emptySubtitleDefault}
             </Typography>
           </Box>
         ) : (

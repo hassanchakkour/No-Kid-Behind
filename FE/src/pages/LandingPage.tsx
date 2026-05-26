@@ -21,48 +21,25 @@ import LockOpenRoundedIcon from "@mui/icons-material/LockOpenRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import LebanonMapImg from "../public/lebanon-map-nkb.png";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../i18n/translations";
 
 type SchoolEntry = { Caza: string; Area: string; "School Name": string };
 const SCHOOL_DATA = schoolData as SchoolEntry[];
 
-const STATS = [
-  { value: "100%", label: "Always Free" },
-  { value: "24/7", label: "Global Access" },
+const FEATURE_ICONS = [
+  LockOpenRoundedIcon,
+  PublicRoundedIcon,
+  AutoStoriesRoundedIcon,
+  VolunteerActivismRoundedIcon,
 ];
-
-const FEATURES = [
-  {
-    icon: LockOpenRoundedIcon,
-    title: "Always Free",
-    body: "No paywalls, no subscriptions ever. Learning should never come with a price tag.",
-  },
-  {
-    icon: PublicRoundedIcon,
-    title: "Built for Everyone",
-    body: "All learners are granted access to quality content.",
-  },
-  {
-    icon: AutoStoriesRoundedIcon,
-    title: "Curated Videos",
-    body: "Videos are made by students and professionals ; organized by grade and subjects.",
-  },
-  {
-    icon: VolunteerActivismRoundedIcon,
-    title: "Community Driven",
-    body: "Students and professionals contribute because they believe that education and wellbeing are rights for every child.",
-  },
-];
-
-const FOOTER_PLATFORM = [
-  "Explore Videos",
-  "Learners",
-  "Kid Tutors",
-  "Professionals",
-];
-const FOOTER_COMMUNITY = ["Support"];
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
+  const t = translations[lang].landing;
+  const isRtl = lang === "ar";
+
   const [pubCaza, setPubCaza] = useState("");
   const [pubArea, setPubArea] = useState("");
   const [pubSchool, setPubSchool] = useState("");
@@ -101,7 +78,10 @@ export default function LandingPage() {
   const sample = courses.slice(0, 3);
 
   return (
-    <Box sx={{ bgcolor: "#edf2f5", minHeight: "100vh" }}>
+    <Box
+      sx={{ bgcolor: "#edf2f5", minHeight: "100vh" }}
+      dir={isRtl ? "rtl" : "ltr"}
+    >
       <Navbar />
 
       {/* ─── Hero ─── */}
@@ -214,7 +194,7 @@ export default function LandingPage() {
                   color: "#a6f2d1",
                 }}
               >
-                Free Learning for All
+                {t.hero.pill}
               </Typography>
             </Box>
 
@@ -229,9 +209,9 @@ export default function LandingPage() {
                 mb: 3,
               }}
             >
-              Knowledge is the
+              {t.hero.titleLine1}
               <Box component="span" sx={{ color: "#a6f2d1", display: "block" }}>
-                great equalizer.
+                {t.hero.titleLine2}
               </Box>
             </Typography>
 
@@ -245,8 +225,7 @@ export default function LandingPage() {
                 mb: 5,
               }}
             >
-              Access free, curated educational videos. Built for learners,
-              especially those who need it most.
+              {t.hero.subtitle}
             </Typography>
 
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 6 }}>
@@ -269,7 +248,7 @@ export default function LandingPage() {
                   },
                 }}
               >
-                Start Learning Free →
+                {t.hero.cta1}
               </Button>
               <Button
                 size="large"
@@ -286,13 +265,13 @@ export default function LandingPage() {
                   "&:hover": { bgcolor: "rgba(255,255,255,0.14)" },
                 }}
               >
-                Browse Videos
+                {t.hero.cta2}
               </Button>
             </Box>
 
             {/* Trust row */}
             <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
-              {["No credit card", "No ads ever", "Always free"].map((item) => (
+              {t.hero.trust.map((item) => (
                 <Box
                   key={item}
                   sx={{ display: "flex", alignItems: "center", gap: 0.75 }}
@@ -346,14 +325,14 @@ export default function LandingPage() {
               mb: 2,
             }}
           >
-            National Curriculum: select your public school
+            {t.curriculum.label}
           </Typography>
 
           {/* Public school cascade */}
           <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
             <TextField
               select
-              label="Caza"
+              label={t.curriculum.caza}
               value={pubCaza}
               onChange={(e) => {
                 setPubCaza(e.target.value);
@@ -371,7 +350,7 @@ export default function LandingPage() {
               }}
             >
               <MenuItem value="" disabled>
-                <em style={{ color: "#a9b4b9" }}>Select caza</em>
+                <em style={{ color: "#a9b4b9" }}>{t.curriculum.caza}</em>
               </MenuItem>
               {cazas.map((c) => (
                 <MenuItem key={c} value={c}>
@@ -381,7 +360,7 @@ export default function LandingPage() {
             </TextField>
             <TextField
               select
-              label="Area"
+              label={t.curriculum.area}
               value={pubArea}
               onChange={(e) => {
                 setPubArea(e.target.value);
@@ -399,7 +378,7 @@ export default function LandingPage() {
               }}
             >
               <MenuItem value="" disabled>
-                <em style={{ color: "#a9b4b9" }}>Select area</em>
+                <em style={{ color: "#a9b4b9" }}>{t.curriculum.area}</em>
               </MenuItem>
               {areas.map((a) => (
                 <MenuItem key={a} value={a}>
@@ -409,7 +388,7 @@ export default function LandingPage() {
             </TextField>
             <TextField
               select
-              label="School"
+              label={t.curriculum.school}
               value={pubSchool}
               onChange={(e) => setPubSchool(e.target.value)}
               size="small"
@@ -424,7 +403,7 @@ export default function LandingPage() {
               }}
             >
               <MenuItem value="" disabled>
-                <em style={{ color: "#a9b4b9" }}>Select school</em>
+                <em style={{ color: "#a9b4b9" }}>{t.curriculum.school}</em>
               </MenuItem>
               {publicSchools.map((s) => (
                 <MenuItem key={s} value={s}>
@@ -469,7 +448,7 @@ export default function LandingPage() {
                     color: "#a6f2d1",
                   }}
                 >
-                  Official
+                  {t.curriculum.official}
                 </Typography>
               </Box>
               <Box>
@@ -481,8 +460,7 @@ export default function LandingPage() {
                     lineHeight: 1.3,
                   }}
                 >
-                  Lebanese Ministry of Education & Higher Education, Madristi
-                  Platform
+                  {t.curriculum.bannerTitle}
                 </Typography>
                 <Typography
                   sx={{
@@ -492,8 +470,8 @@ export default function LandingPage() {
                   }}
                 >
                   {canVisit
-                    ? `Visiting as: ${analyticsSchool}`
-                    : "Select your school above to continue"}
+                    ? `${t.curriculum.visitingAs} ${analyticsSchool}`
+                    : t.curriculum.hint}
                 </Typography>
               </Box>
             </Box>
@@ -528,7 +506,7 @@ export default function LandingPage() {
                 },
               }}
             >
-              Visit Madristi →
+              {t.curriculum.visitBtn}
             </Box>
           </Box>
         </Box>
@@ -555,7 +533,7 @@ export default function LandingPage() {
                   lineHeight: 1,
                 }}
               >
-                Explore Educational Videos
+                {t.courses.heading}
               </Typography>
             </Box>
             <Box
@@ -574,7 +552,7 @@ export default function LandingPage() {
                   color: "primary.main",
                 }}
               >
-                View All Videos
+                {t.courses.viewAll}
               </Typography>
               <ArrowForwardRoundedIcon
                 sx={{ fontSize: "1rem", color: "primary.main" }}
@@ -607,14 +585,14 @@ export default function LandingPage() {
                 sx={{ fontSize: "3rem", color: "text.disabled", mb: 2 }}
               />
               <Typography sx={{ color: "text.secondary", fontSize: "1rem" }}>
-                No courses yet. Be the first Professional to add one!
+                {t.courses.noCoursesMsg}
               </Typography>
               <Button
                 variant="contained"
                 onClick={() => navigate("/auth?tab=register")}
                 sx={{ mt: 3, borderRadius: "8px", px: 4 }}
               >
-                Register as Professional
+                {t.courses.registerBtn}
               </Button>
             </Box>
           )}
@@ -682,19 +660,30 @@ export default function LandingPage() {
               flexDirection: { xs: "column", md: "row" },
             }}
           >
-            {/* SDG image */}
+            {/* SDG image — wrapper crops the PNG's excess whitespace */}
             <Box
-              component="img"
-              src="/un-sdg.png"
-              alt="UN Sustainable Development Goal 4 - Quality Education"
               sx={{
-                width: { xs: 140, md: 180 },
-                height: { xs: 140, md: 180 },
-                objectFit: "contain",
+                width: { xs: 300, md: 480 },
+                height: { xs: 300, md: 480 },
                 flexShrink: 0,
-                mixBlendMode: "multiply",
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
-            />
+            >
+              <Box
+                component="img"
+                src="/Circle.png"
+                alt="UN Sustainable Development Goal 4 - Quality Education"
+                sx={{
+                  width: "135%",
+                  height: "135%",
+                  objectFit: "contain",
+                  mixBlendMode: "multiply",
+                }}
+              />
+            </Box>
 
             {/* Text */}
             <Box sx={{ textAlign: { xs: "center", md: "left" } }}>
@@ -708,7 +697,7 @@ export default function LandingPage() {
                   mb: 1.5,
                 }}
               >
-                Our Mission
+                {t.mission.label}
               </Typography>
               <Typography
                 sx={{
@@ -719,7 +708,7 @@ export default function LandingPage() {
                   lineHeight: 1.05,
                 }}
               >
-                Why No Kid Behind?
+                {t.mission.title}
               </Typography>
               <Typography
                 sx={{
@@ -730,72 +719,71 @@ export default function LandingPage() {
                   lineHeight: 1.65,
                 }}
               >
-                Our mission is to help Lebanese youth overcome their
-                circumstances by providing access to essential learning
-                materials and creating spaces where children can teach and
-                support one another, ensuring that no learner is left behind in
-                their education or personal wellbeing.
+                {t.mission.subtitle}
               </Typography>
             </Box>
           </Box>
 
           <Grid container spacing={3}>
-            {FEATURES.map(({ icon: Icon, title, body }) => (
-              <Grid item xs={12} sm={6} md={3} key={title}>
-                <Box
-                  sx={{
-                    bgcolor: "rgba(255,255,255,0.04)",
-                    backdropFilter: "blur(8px)",
-                    borderRadius: "16px",
-                    p: 4,
-                    height: "100%",
-                    border: "1px solid rgba(166,242,209,0.1)",
-                    transition:
-                      "transform 0.2s, border-color 0.2s, background 0.2s",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                      bgcolor: "rgba(255,255,255,0.07)",
-                      borderColor: "rgba(166,242,209,0.25)",
-                    },
-                  }}
-                >
+            {t.features.map(({ title, body }, i) => {
+              const Icon = FEATURE_ICONS[i];
+              return (
+                <Grid item xs={12} sm={6} md={3} key={title}>
                   <Box
                     sx={{
-                      bgcolor: "rgba(166,242,209,0.1)",
-                      border: "1px solid rgba(166,242,209,0.15)",
-                      borderRadius: "12px",
-                      width: 48,
-                      height: 48,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      mb: 3,
+                      bgcolor: "rgba(255,255,255,0.04)",
+                      backdropFilter: "blur(8px)",
+                      borderRadius: "16px",
+                      p: 4,
+                      height: "100%",
+                      border: "1px solid rgba(166,242,209,0.1)",
+                      transition:
+                        "transform 0.2s, border-color 0.2s, background 0.2s",
+                      "&:hover": {
+                        transform: "translateY(-4px)",
+                        bgcolor: "rgba(255,255,255,0.07)",
+                        borderColor: "rgba(166,242,209,0.25)",
+                      },
                     }}
                   >
-                    <Icon sx={{ color: "#a6f2d1", fontSize: "1.375rem" }} />
+                    <Box
+                      sx={{
+                        bgcolor: "rgba(166,242,209,0.1)",
+                        border: "1px solid rgba(166,242,209,0.15)",
+                        borderRadius: "12px",
+                        width: 48,
+                        height: 48,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mb: 3,
+                      }}
+                    >
+                      <Icon sx={{ color: "#a6f2d1", fontSize: "1.375rem" }} />
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: "1.0625rem",
+                        color: "#e0ffee",
+                        mb: 1.25,
+                      }}
+                    >
+                      {title}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: "0.875rem",
+                        color: "rgba(224,255,238,0.55)",
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      {body}
+                    </Typography>
                   </Box>
-                  <Typography
-                    sx={{
-                      fontWeight: 700,
-                      fontSize: "1.0625rem",
-                      color: "#e0ffee",
-                      mb: 1.25,
-                    }}
-                  >
-                    {title}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: "0.875rem",
-                      color: "rgba(224,255,238,0.55)",
-                      lineHeight: 1.7,
-                    }}
-                  >
-                    {body}
-                  </Typography>
-                </Box>
-              </Grid>
-            ))}
+                </Grid>
+              );
+            })}
           </Grid>
         </Box>
       </Box>
@@ -846,11 +834,11 @@ export default function LandingPage() {
                 color: "#e0ffee",
               }}
             >
-              Trusted by learners across Lebanon
+              {t.stats.heading}
             </Typography>
           </Box>
           <Grid container spacing={4} justifyContent="center">
-            {STATS.map((stat) => (
+            {t.stats.items.map((stat) => (
               <Grid item xs={12} sm={6} md={4} key={stat.label}>
                 <Box
                   sx={{
@@ -943,7 +931,7 @@ export default function LandingPage() {
                 mb: 1.5,
               }}
             >
-              Ready to start learning?
+              {t.cta.title}
             </Typography>
             <Typography
               sx={{
@@ -953,8 +941,7 @@ export default function LandingPage() {
                 maxWidth: 480,
               }}
             >
-              Join fellow students and learners who already have access to free
-              educational content no matter where they are.
+              {t.cta.subtitle}
             </Typography>
           </Box>
           <Box
@@ -984,7 +971,7 @@ export default function LandingPage() {
                 "&:hover": { bgcolor: "#bff7db" },
               }}
             >
-              Create Free Account
+              {t.cta.btn1}
             </Button>
             <Button
               size="large"
@@ -1000,7 +987,7 @@ export default function LandingPage() {
                 "&:hover": { bgcolor: "rgba(255,255,255,0.14)" },
               }}
             >
-              Browse First
+              {t.cta.btn2}
             </Button>
           </Box>
         </Box>
@@ -1032,8 +1019,7 @@ export default function LandingPage() {
                   mb: 3,
                 }}
               >
-                A learning platform dedicated to providing quality educational
-                content to Lebanese youth, anywhere, at no cost.
+                {t.footer.desc}
               </Typography>
               <Button
                 variant="contained"
@@ -1048,7 +1034,7 @@ export default function LandingPage() {
                   "&:hover": { bgcolor: "#bff7db" },
                 }}
               >
-                Join the Platform
+                {t.footer.joinBtn}
               </Button>
             </Grid>
             <Grid item xs={6} md={3}>
@@ -1062,9 +1048,9 @@ export default function LandingPage() {
                   mb: 3,
                 }}
               >
-                Platform
+                {t.footer.platformTitle}
               </Typography>
-              {FOOTER_PLATFORM.map((item) => (
+              {t.footer.platformLinks.map((item) => (
                 <Typography
                   key={item}
                   sx={{
@@ -1081,21 +1067,18 @@ export default function LandingPage() {
               ))}
             </Grid>
             <Grid item xs={6} md={3}>
-              {FOOTER_COMMUNITY.map((item) => (
-                <Typography
-                  key={item}
-                  sx={{
-                    fontSize: "0.875rem",
-                    color: "rgba(224,255,238,0.45)",
-                    mb: 2,
-                    cursor: "default",
-                    "&:hover": { color: "rgba(224,255,238,0.8)" },
-                    transition: "color 0.15s",
-                  }}
-                >
-                  {item}
-                </Typography>
-              ))}
+              <Typography
+                sx={{
+                  fontSize: "0.875rem",
+                  color: "rgba(224,255,238,0.45)",
+                  mb: 2,
+                  cursor: "default",
+                  "&:hover": { color: "rgba(224,255,238,0.8)" },
+                  transition: "color 0.15s",
+                }}
+              >
+                {t.footer.supportLink}
+              </Typography>
             </Grid>
           </Grid>
           <Divider sx={{ borderColor: "rgba(166,242,209,0.1)", mb: 4 }} />
@@ -1111,14 +1094,10 @@ export default function LandingPage() {
             <Typography
               sx={{ fontSize: "0.8125rem", color: "rgba(224,255,238,0.35)" }}
             >
-              © 2026 No Kid Behind. Built to grow great minds through learning.
+              {t.footer.copyright}
             </Typography>
             <Box sx={{ display: "flex", gap: 4 }}>
-              {[
-                { label: "Terms", href: "/legal#terms" },
-                { label: "Privacy", href: "/legal#privacy" },
-                { label: "Contact", href: null },
-              ].map(({ label, href }) => (
+              {t.footer.legalLinks.map(({ label, href }) => (
                 <Typography
                   key={label}
                   onClick={() => href && navigate(href)}
