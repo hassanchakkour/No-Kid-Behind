@@ -16,7 +16,10 @@ import * as Yup from "yup";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useRegister, useLogin } from "../hooks/useAuthMutations";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../i18n/translations";
 import schoolData from "../data/public_schools_lebanon.json";
+import arSchoolData from "../data/List_of_schools_arabic.json";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
@@ -112,32 +115,13 @@ const inputSx = {
   "& .MuiInputAdornment-root svg": { color: "#a9b4b9" },
 };
 
-const FEATURES = [
-  { icon: LockOpenRoundedIcon, text: "Completely free, no paywalls ever" },
-  { icon: PublicRoundedIcon, text: "Accessible anywhere in the world" },
-  { icon: AutoStoriesRoundedIcon, text: "Curated courses by verified educators" },
-];
+const FEATURE_ICONS = [LockOpenRoundedIcon, PublicRoundedIcon, AutoStoriesRoundedIcon] as const;
 
 const ROLE_CONFIG = [
-  {
-    value: "student",
-    label: "Student",
-    subtitle: "Browse & learn",
-    Icon: SchoolOutlinedIcon,
-  },
-  {
-    value: "kid_tutor",
-    label: "Kid Tutor",
-    subtitle: "teach your peers/upload videos",
-    Icon: ChildCareRoundedIcon,
-  },
-  {
-    value: "professional",
-    label: "Professional",
-    subtitle: "upload content",
-    Icon: WorkOutlineRoundedIcon,
-  },
-] as const;
+  { value: "student" as const, Icon: SchoolOutlinedIcon },
+  { value: "kid_tutor" as const, Icon: ChildCareRoundedIcon },
+  { value: "professional" as const, Icon: WorkOutlineRoundedIcon },
+];
 
 export default function AuthPage() {
   const [params] = useSearchParams();
@@ -149,6 +133,9 @@ export default function AuthPage() {
   const { login } = useAuth();
   const registerMutation = useRegister();
   const loginMutation = useLogin();
+  const { lang } = useLanguage();
+  const t = translations[lang].auth;
+  const isRtl = lang === "ar";
 
   useEffect(() => {
     setActiveTab(params.get("tab") === "login" ? "login" : "register");
@@ -201,7 +188,7 @@ export default function AuthPage() {
   };
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "background.default" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "background.default" }} dir={isRtl ? "rtl" : "ltr"}>
       {/* ── LEFT: Brand panel ── */}
       <Box
         sx={{
@@ -230,20 +217,20 @@ export default function AuthPage() {
           </Box>
 
           <Typography sx={{ fontWeight: 800, fontSize: { lg: "2.75rem", xl: "3.25rem" }, letterSpacing: "-0.04em", lineHeight: 1.08, color: "#e0ffee", mb: 3 }}>
-            Learning is the
-            <Box component="span" sx={{ display: "block", color: "#a6f2d1" }}>great equalizer.</Box>
+            {t.leftTitleLine1}
+            <Box component="span" sx={{ display: "block", color: "#a6f2d1" }}>{t.leftTitleLine2}</Box>
           </Typography>
           <Typography sx={{ fontSize: "1rem", color: "rgba(224,255,238,0.65)", lineHeight: 1.65, maxWidth: 380, mb: 8 }}>
-            Join thousands of students and educators on a platform built to make quality education accessible to everyone, free, forever.
+            {t.leftSubtitle}
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-            {FEATURES.map(({ icon: Icon, text }) => (
-              <Box key={text} sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            {FEATURE_ICONS.map((Icon, i) => (
+              <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <Box sx={{ width: 32, height: 32, bgcolor: "rgba(166,242,209,0.12)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <Icon sx={{ fontSize: "1rem", color: "#a6f2d1" }} />
                 </Box>
-                <Typography sx={{ fontSize: "0.9375rem", color: "rgba(224,255,238,0.8)", fontWeight: 400 }}>{text}</Typography>
+                <Typography sx={{ fontSize: "0.9375rem", color: "rgba(224,255,238,0.8)", fontWeight: 400 }}>{t.features[i]}</Typography>
               </Box>
             ))}
           </Box>
@@ -251,7 +238,7 @@ export default function AuthPage() {
 
         <Box sx={{ position: "relative", zIndex: 1 }}>
           <Box sx={{ bgcolor: "rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", border: "1px solid rgba(166,242,209,0.15)", borderRadius: "16px", p: 3, display: "flex", gap: 4 }}>
-            {[{ value: "50k+", label: "Learners" }, { value: "1.2k", label: "Courses" }, { value: "100%", label: "Free" }].map(({ value, label }) => (
+            {t.stats.map(({ value, label }) => (
               <Box key={label} sx={{ textAlign: "center", flex: 1 }}>
                 <Typography sx={{ fontWeight: 800, fontSize: "1.625rem", letterSpacing: "-0.04em", color: "#e0ffee", lineHeight: 1 }}>{value}</Typography>
                 <Typography sx={{ fontWeight: 600, fontSize: "0.6875rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(166,242,209,0.6)", mt: 0.5 }}>{label}</Typography>
@@ -275,13 +262,13 @@ export default function AuthPage() {
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography sx={{ fontSize: "0.875rem", color: "text.secondary" }}>
-              {activeTab === "register" ? "Already have an account?" : "Don't have an account?"}
+              {activeTab === "register" ? t.alreadyHaveAccount : t.dontHaveAccount}
             </Typography>
             <Typography
               onClick={() => setActiveTab(activeTab === "register" ? "login" : "register")}
               sx={{ fontSize: "0.875rem", fontWeight: 700, color: "primary.main", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
             >
-              {activeTab === "register" ? "Sign In" : "Register"}
+              {activeTab === "register" ? t.switchToSignIn : t.switchToRegister}
             </Typography>
           </Box>
         </Box>
@@ -303,7 +290,7 @@ export default function AuthPage() {
                   }}
                 >
                   <Typography sx={{ fontWeight: activeTab === tab ? 700 : 500, fontSize: "0.9375rem", color: activeTab === tab ? "text.primary" : "text.secondary", transition: "color 0.2s" }}>
-                    {tab === "register" ? "Create Account" : "Sign In"}
+                    {tab === "register" ? t.tabCreate : t.tabSignIn}
                   </Typography>
                 </Box>
               ))}
@@ -315,27 +302,25 @@ export default function AuthPage() {
                 {({ values, setFieldValue, isSubmitting, errors, touched }) => {
                   const isStudentLike = values.role === "student" || values.role === "kid_tutor";
 
-                  const cazas = [
-                    ...new Set(
-                      (schoolData as { Caza: string; Area: string; "School Name": string }[]).map((s) => s.Caza)
-                    ),
-                  ].sort();
+                  type EnEntry = { Caza: string; Area: string; "School Name": string };
+                  type ArEntry = { "القضاء": string; "المنطقة": string; "اسم المدرسة": string };
+                  const enData = schoolData as EnEntry[];
+                  const arData = arSchoolData as ArEntry[];
+
+                  const cazas = isRtl
+                    ? [...new Set(arData.map((s) => s["القضاء"]))].sort()
+                    : [...new Set(enData.map((s) => s.Caza))].sort();
 
                   const areas = values.caza
-                    ? [
-                        ...new Set(
-                          (schoolData as { Caza: string; Area: string; "School Name": string }[])
-                            .filter((s) => s.Caza === values.caza)
-                            .map((s) => s.Area)
-                        ),
-                      ].sort()
+                    ? isRtl
+                      ? [...new Set(arData.filter((s) => s["القضاء"] === values.caza).map((s) => s["المنطقة"]))].sort()
+                      : [...new Set(enData.filter((s) => s.Caza === values.caza).map((s) => s.Area))].sort()
                     : [];
 
                   const schools = values.area
-                    ? (schoolData as { Caza: string; Area: string; "School Name": string }[])
-                        .filter((s) => s.Caza === values.caza && s.Area === values.area)
-                        .map((s) => s["School Name"])
-                        .sort()
+                    ? isRtl
+                      ? arData.filter((s) => s["القضاء"] === values.caza && s["المنطقة"] === values.area).map((s) => s["اسم المدرسة"]).sort()
+                      : enData.filter((s) => s.Caza === values.caza && s.Area === values.area).map((s) => s["School Name"]).sort()
                     : [];
 
                   return (
@@ -343,17 +328,17 @@ export default function AuthPage() {
                       <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
                         <Box>
                           <Typography sx={{ fontWeight: 800, fontSize: "1.75rem", letterSpacing: "-0.03em", color: "text.primary", lineHeight: 1.2, mb: 0.5 }}>
-                            Welcome aboard
+                            {t.welcomeAboard}
                           </Typography>
                           <Typography sx={{ fontSize: "0.9375rem", color: "text.secondary" }}>
-                            Create your free account.
+                            {t.createSubtitle}
                           </Typography>
                         </Box>
 
                         {/* Name + Username */}
                         <Box sx={{ display: "flex", gap: 2 }}>
                           <TextField
-                            label="Full Name" placeholder="Jane Smith"
+                            label={t.fieldFullName} placeholder="Jane Smith"
                             value={values.name} onChange={(e) => setFieldValue("name", e.target.value)}
                             error={touched.name && !!errors.name} helperText={touched.name && errors.name}
                             variant="outlined" size="small" fullWidth
@@ -361,7 +346,7 @@ export default function AuthPage() {
                             sx={inputSx}
                           />
                           <TextField
-                            label="Username" placeholder="jane_s"
+                            label={t.fieldUsername} placeholder="jane_s"
                             value={values.username} onChange={(e) => setFieldValue("username", e.target.value)}
                             error={touched.username && !!errors.username} helperText={touched.username && errors.username}
                             variant="outlined" size="small" fullWidth
@@ -372,7 +357,7 @@ export default function AuthPage() {
 
                         {/* Email */}
                         <TextField
-                          label="Email (optional)" placeholder="you@example.com" type="email"
+                          label={t.fieldEmail} placeholder="you@example.com" type="email"
                           value={values.email} onChange={(e) => setFieldValue("email", e.target.value)}
                           error={touched.email && !!errors.email} helperText={touched.email && errors.email}
                           variant="outlined" size="small" fullWidth
@@ -382,7 +367,7 @@ export default function AuthPage() {
 
                         {/* Password */}
                         <TextField
-                          label="Password" placeholder="Min. 6 characters"
+                          label={t.fieldPassword} placeholder={t.fieldPasswordPlaceholder}
                           type={showPassword ? "text" : "password"}
                           value={values.password} onChange={(e) => setFieldValue("password", e.target.value)}
                           error={touched.password && !!errors.password} helperText={touched.password && errors.password}
@@ -403,11 +388,12 @@ export default function AuthPage() {
                         {/* Role selector — 3 cards */}
                         <Box>
                           <Typography sx={{ fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "text.secondary", mb: 1.5 }}>
-                            I am a…
+                            {t.iAmA}
                           </Typography>
                           <Box sx={{ display: "flex", gap: 1 }}>
-                            {ROLE_CONFIG.map(({ value, label, subtitle, Icon }) => {
+                            {ROLE_CONFIG.map(({ value, Icon }, i) => {
                               const active = values.role === value;
+                              const roleT = t.roles[i];
                               return (
                                 <Box
                                   key={value}
@@ -441,10 +427,10 @@ export default function AuthPage() {
                                   </Box>
                                   <Box sx={{ textAlign: "center" }}>
                                     <Typography sx={{ fontWeight: 700, fontSize: "0.8125rem", color: active ? "primary.main" : "text.primary", lineHeight: 1.2 }}>
-                                      {label}
+                                      {roleT.label}
                                     </Typography>
                                     <Typography sx={{ fontSize: "0.625rem", color: "text.secondary" }}>
-                                      {subtitle}
+                                      {roleT.subtitle}
                                     </Typography>
                                   </Box>
                                   {active && <CheckCircleRoundedIcon sx={{ position: "absolute", top: 6, right: 6, color: "primary.main", fontSize: "0.875rem" }} />}
@@ -459,19 +445,19 @@ export default function AuthPage() {
                           <Box sx={{ bgcolor: "#f7f9fb", borderRadius: "12px", p: 2.5, display: "flex", flexDirection: "column", gap: 2, border: "1px solid rgba(169,180,185,0.15)" }}>
                             {/* Grade */}
                             <TextField
-                              select label="Your Grade" value={values.grade}
+                              select label={t.fieldYourGrade} value={values.grade}
                               onChange={(e) => setFieldValue("grade", e.target.value)}
                               error={touched.grade && !!errors.grade} helperText={touched.grade && errors.grade}
                               variant="outlined" size="small" fullWidth sx={inputSx}
                             >
-                              <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>Select grade</em></MenuItem>
+                              <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>{t.selectGrade}</em></MenuItem>
                               {GRADE_OPTIONS.map((o) => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
                             </TextField>
 
                             {/* Public / Private toggle */}
                             <Box>
                               <Typography sx={{ fontWeight: 700, fontSize: "0.6875rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "text.secondary", mb: 1 }}>
-                                School type
+                                {t.schoolTypeLabel}
                               </Typography>
                               <ToggleButtonGroup
                                 value={values.schoolType}
@@ -505,8 +491,8 @@ export default function AuthPage() {
                                   gap: 1,
                                 }}
                               >
-                                <ToggleButton value="public">Public School</ToggleButton>
-                                <ToggleButton value="private">Private School</ToggleButton>
+                                <ToggleButton value="public">{t.publicSchool}</ToggleButton>
+                                <ToggleButton value="private">{t.privateSchool}</ToggleButton>
                               </ToggleButtonGroup>
                             </Box>
 
@@ -514,33 +500,33 @@ export default function AuthPage() {
                             {values.schoolType === "public" && (
                               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                                 <Typography sx={{ fontWeight: 700, fontSize: "0.6875rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "text.secondary" }}>
-                                  Your Public School
+                                  {t.yourPublicSchool}
                                 </Typography>
                                 <TextField
-                                  select label="Caza *" value={values.caza}
+                                  select label={`${t.fieldCaza} *`} value={values.caza}
                                   onChange={(e) => { setFieldValue("caza", e.target.value); setFieldValue("area", ""); setFieldValue("school", ""); }}
                                   error={touched.caza && !!errors.caza} helperText={touched.caza && errors.caza}
                                   variant="outlined" size="small" fullWidth sx={inputSx}
                                 >
-                                  <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>Select caza</em></MenuItem>
+                                  <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>{t.selectCaza}</em></MenuItem>
                                   {cazas.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
                                 </TextField>
                                 <TextField
-                                  select label="Area *" value={values.area}
+                                  select label={`${t.fieldArea} *`} value={values.area}
                                   onChange={(e) => { setFieldValue("area", e.target.value); setFieldValue("school", ""); }}
                                   error={touched.area && !!errors.area} helperText={touched.area && errors.area}
                                   variant="outlined" size="small" fullWidth disabled={!values.caza} sx={inputSx}
                                 >
-                                  <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>Select area</em></MenuItem>
+                                  <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>{t.selectArea}</em></MenuItem>
                                   {areas.map((a) => <MenuItem key={a} value={a}>{a}</MenuItem>)}
                                 </TextField>
                                 <TextField
-                                  select label="School *" value={values.school}
+                                  select label={`${t.fieldSchool} *`} value={values.school}
                                   onChange={(e) => setFieldValue("school", e.target.value)}
                                   error={touched.school && !!errors.school} helperText={touched.school && errors.school}
                                   variant="outlined" size="small" fullWidth disabled={!values.area} sx={inputSx}
                                 >
-                                  <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>Select school</em></MenuItem>
+                                  <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>{t.selectSchool}</em></MenuItem>
                                   {schools.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
                                 </TextField>
                               </Box>
@@ -550,17 +536,17 @@ export default function AuthPage() {
                             {values.schoolType === "private" && (
                               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                                 <Typography sx={{ fontWeight: 700, fontSize: "0.6875rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "text.secondary" }}>
-                                  Your Private School
+                                  {t.yourPrivateSchool}
                                 </Typography>
                                 <TextField
-                                  select label="School *" value={values.school}
+                                  select label={`${t.fieldSchool} *`} value={values.school}
                                   onChange={(e) => setFieldValue("school", e.target.value)}
                                   error={touched.school && !!errors.school} helperText={touched.school && errors.school}
                                   variant="outlined" size="small" fullWidth
                                   InputProps={{ startAdornment: <InputAdornment position="start"><SchoolOutlinedIcon sx={{ fontSize: "1rem" }} /></InputAdornment> }}
                                   sx={inputSx}
                                 >
-                                  <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>Select school</em></MenuItem>
+                                  <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>{t.selectSchool}</em></MenuItem>
                                   {PRIVATE_SCHOOLS.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
                                 </TextField>
                               </Box>
@@ -573,7 +559,7 @@ export default function AuthPage() {
                         {values.role === "professional" && (
                           <Box sx={{ bgcolor: "#f7f9fb", borderRadius: "12px", p: 2.5, border: "1px solid rgba(169,180,185,0.15)" }}>
                             <TextField
-                              label="Syndicate Number" placeholder="e.g. SYN-2024-001"
+                              label={t.fieldSyndicateNumber} placeholder="e.g. SYN-2024-001"
                               value={values.syndicateNumber}
                               onChange={(e) => setFieldValue("syndicateNumber", e.target.value)}
                               error={touched.syndicateNumber && !!errors.syndicateNumber}
@@ -587,7 +573,7 @@ export default function AuthPage() {
 
                         {registerMutation.isError && (
                           <Alert severity="error" sx={{ borderRadius: "10px" }}>
-                            {(registerMutation.error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Registration failed"}
+                            {(registerMutation.error as { response?: { data?: { error?: string } } })?.response?.data?.error || t.errorRegistrationFailed}
                           </Alert>
                         )}
 
@@ -596,14 +582,14 @@ export default function AuthPage() {
                           disabled={isSubmitting || registerMutation.isPending}
                           sx={{ py: 1.625, fontSize: "1rem", fontWeight: 700, borderRadius: "12px", mt: 0.5, boxShadow: "0px 6px 20px 0px rgba(27,107,81,0.25)", "&:hover": { boxShadow: "0px 8px 24px 0px rgba(27,107,81,0.35)" } }}
                         >
-                          {registerMutation.isPending ? "Creating account…" : "Create Free Account →"}
+                          {registerMutation.isPending ? t.creatingAccount : t.createFreeAccountBtn}
                         </Button>
 
                         <Typography sx={{ textAlign: "center", fontSize: "0.75rem", color: "text.secondary" }}>
-                          By registering, you agree to our{" "}
-                          <Box component="span" onClick={() => navigate("/legal#terms")} sx={{ color: "primary.main", cursor: "pointer", fontWeight: 600, "&:hover": { textDecoration: "underline" } }}>Terms of Service</Box>{" "}
-                          and{" "}
-                          <Box component="span" onClick={() => navigate("/legal#privacy")} sx={{ color: "primary.main", cursor: "pointer", fontWeight: 600, "&:hover": { textDecoration: "underline" } }}>Privacy Policy</Box>.
+                          {t.byRegistering}{" "}
+                          <Box component="span" onClick={() => navigate("/legal#terms")} sx={{ color: "primary.main", cursor: "pointer", fontWeight: 600, "&:hover": { textDecoration: "underline" } }}>{t.termsOfService}</Box>{" "}
+                          {t.and}{" "}
+                          <Box component="span" onClick={() => navigate("/legal#privacy")} sx={{ color: "primary.main", cursor: "pointer", fontWeight: 600, "&:hover": { textDecoration: "underline" } }}>{t.privacyPolicy}</Box>.
                         </Typography>
                       </Box>
                     </Form>
@@ -620,15 +606,15 @@ export default function AuthPage() {
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
                       <Box>
                         <Typography sx={{ fontWeight: 800, fontSize: "1.75rem", letterSpacing: "-0.03em", color: "text.primary", lineHeight: 1.2, mb: 0.5 }}>
-                          Welcome back
+                          {t.welcomeBack}
                         </Typography>
                         <Typography sx={{ fontSize: "0.9375rem", color: "text.secondary" }}>
-                          Sign in to continue your learning journey.
+                          {t.signInSubtitle}
                         </Typography>
                       </Box>
 
                       <TextField
-                        label="Username" placeholder="your_handle"
+                        label={t.fieldUsername} placeholder="your_handle"
                         value={values.username} onChange={(e) => setFieldValue("username", e.target.value)}
                         error={touched.username && !!errors.username} helperText={touched.username && errors.username}
                         variant="outlined" fullWidth
@@ -637,7 +623,7 @@ export default function AuthPage() {
                       />
 
                       <TextField
-                        label="Password" placeholder="••••••••"
+                        label={t.fieldPassword} placeholder="••••••••"
                         type={showPassword ? "text" : "password"}
                         value={values.password} onChange={(e) => setFieldValue("password", e.target.value)}
                         error={touched.password && !!errors.password} helperText={touched.password && errors.password}
@@ -657,7 +643,7 @@ export default function AuthPage() {
 
                       {loginMutation.isError && (
                         <Alert severity="error" sx={{ borderRadius: "10px" }}>
-                          {(loginMutation.error as { response?: { data?: { error?: string } } })?.response?.data?.error || "Invalid credentials"}
+                          {(loginMutation.error as { response?: { data?: { error?: string } } })?.response?.data?.error || t.errorInvalidCredentials}
                         </Alert>
                       )}
 
@@ -666,13 +652,13 @@ export default function AuthPage() {
                         disabled={isSubmitting || loginMutation.isPending}
                         sx={{ py: 1.625, fontSize: "1rem", fontWeight: 700, borderRadius: "12px", mt: 0.5, boxShadow: "0px 6px 20px 0px rgba(27,107,81,0.25)", "&:hover": { boxShadow: "0px 8px 24px 0px rgba(27,107,81,0.35)" } }}
                       >
-                        {loginMutation.isPending ? "Signing in…" : "Sign In →"}
+                        {loginMutation.isPending ? t.signingIn : t.signInBtn}
                       </Button>
 
                       <Box sx={{ textAlign: "center" }}>
-                        <Typography sx={{ fontSize: "0.875rem", color: "text.secondary", display: "inline" }}>New to No Kid Behind? </Typography>
+                        <Typography sx={{ fontSize: "0.875rem", color: "text.secondary", display: "inline" }}>{t.newToNkb} </Typography>
                         <Typography onClick={() => setActiveTab("register")} sx={{ fontSize: "0.875rem", fontWeight: 700, color: "primary.main", cursor: "pointer", display: "inline", "&:hover": { textDecoration: "underline" } }}>
-                          Create a free account
+                          {t.createFreeAccountLink}
                         </Typography>
                       </Box>
                     </Box>
@@ -685,11 +671,7 @@ export default function AuthPage() {
 
         {/* Footer */}
         <Box sx={{ px: { xs: 4, md: 8 }, pb: 4, display: "flex", justifyContent: "center", gap: 4 }}>
-          {[
-            { label: "Terms of Service", href: "/legal#terms" },
-            { label: "Privacy Policy", href: "/legal#privacy" },
-            { label: "Support", href: null },
-          ].map(({ label, href }) => (
+          {t.footerLinks.map(({ label, href }) => (
             <Typography key={label} onClick={() => href && navigate(href)} sx={{ fontSize: "0.75rem", color: "text.secondary", cursor: href ? "pointer" : "default", "&:hover": { color: "text.primary" }, transition: "color 0.15s" }}>
               {label}
             </Typography>

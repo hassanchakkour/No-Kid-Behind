@@ -12,6 +12,7 @@ export interface Course {
   isHealthContent: boolean;
   isSpecialNeeds: boolean;
   isKidToKid: boolean;
+  status: 'pending' | 'approved' | 'rejected';
   teacherId: string;
   teacher: { id: string; name: string; username: string };
   createdAt: string;
@@ -40,6 +41,8 @@ export interface CreateCoursePayload {
 export const coursesApi = {
   getAll: (filters?: CourseFilters) =>
     client.get<Course[]>('/courses', { params: filters }).then((r: AxiosResponse<Course[]>) => r.data),
+  getMine: () =>
+    client.get<Course[]>('/courses/mine').then((r: AxiosResponse<Course[]>) => r.data),
   getOne: (id: string) =>
     client.get<Course>(`/courses/${id}`).then((r: AxiosResponse<Course>) => r.data),
   create: (data: CreateCoursePayload) =>

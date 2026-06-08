@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { getCourses, getCourse, createCourse, updateCourse, deleteCourse } from '../controllers/course.controller';
+import { getCourses, getCourse, getMyCourses, createCourse, updateCourse, deleteCourse } from '../controllers/course.controller';
 import { authenticate, requireRole, requireTeacherOrStudentTeacher } from '../middleware/auth';
 import { courseCreateLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
 router.get('/', getCourses);
+router.get('/mine', authenticate, getMyCourses);
 router.get('/:id', getCourse);
 
 router.post(

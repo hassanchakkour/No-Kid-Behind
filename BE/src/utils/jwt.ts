@@ -6,6 +6,7 @@ export interface JwtPayload {
   userId: string;
   role: string;
   username: string;
+  school?: string | null;
   likesToTeach?: boolean;
   kidTutorApproved?: boolean;
 }

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   Box,
   Typography,
@@ -16,13 +16,8 @@ import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
 import Navbar from "../components/Navbar";
 import CourseCard from "../components/CourseCard";
 import { useCourses } from "../hooks/useCourses";
-import client from "../api/client";
-import schoolData from "../data/public_schools_lebanon.json";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../i18n/translations";
-
-type SchoolEntry = { Caza: string; Area: string; "School Name": string };
-const SCHOOL_DATA = schoolData as SchoolEntry[];
 
 const GRADES = [
   "All",
@@ -46,45 +41,12 @@ const GRADES = [
 export default function CoursesPage() {
   const { lang } = useLanguage();
   const t = translations[lang].courses;
-  const tc = translations[lang].landing.curriculum;
   const isRtl = lang === "ar";
 
   const [grade, setGrade] = useState("");
   const [subject, setSubject] = useState("");
   const [search, setSearch] = useState("");
   const [school, setSchool] = useState("");
-  const [pubCaza, setPubCaza] = useState("");
-  const [pubArea, setPubArea] = useState("");
-  const [pubSchool, setPubSchool] = useState("");
-
-  const cazas = useMemo(
-    () => [...new Set(SCHOOL_DATA.map((s) => s.Caza))].sort(),
-    [],
-  );
-  const areas = useMemo(
-    () =>
-      pubCaza
-        ? [
-            ...new Set(
-              SCHOOL_DATA.filter((s) => s.Caza === pubCaza).map((s) => s.Area),
-            ),
-          ].sort()
-        : [],
-    [pubCaza],
-  );
-  const publicSchools = useMemo(
-    () =>
-      pubArea
-        ? SCHOOL_DATA.filter((s) => s.Caza === pubCaza && s.Area === pubArea)
-            .map((s) => s["School Name"])
-            .sort()
-        : [],
-    [pubCaza, pubArea],
-  );
-
-  const analyticsSchool = pubSchool;
-  const canVisit = !!pubSchool;
-
   const { data: rawCourses, isLoading } = useCourses();
 
   const allCourses = (Array.isArray(rawCourses) ? rawCourses : []).filter(
@@ -219,155 +181,6 @@ export default function CoursesPage() {
                 {t.countLabel}
               </Typography>
             </Box>
-          </Box>
-        </Box>
-      </Box>
-
-      {/* ── Ministry Section ── */}
-      <Box
-        sx={{ px: { xs: 4, md: 8 }, pt: 5, pb: 0, maxWidth: 1280, mx: "auto" }}
-      >
-        <Typography
-          sx={{
-            fontWeight: 700,
-            fontSize: "0.6875rem",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "text.secondary",
-            mb: 2,
-          }}
-        >
-          {tc.label}
-        </Typography>
-
-        <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
-          <TextField
-            select
-            label={tc.caza}
-            value={pubCaza}
-            onChange={(e) => {
-              setPubCaza(e.target.value);
-              setPubArea("");
-              setPubSchool("");
-            }}
-            size="small"
-            sx={{
-              minWidth: 160,
-              flex: 1,
-              "& .MuiOutlinedInput-root": { bgcolor: "background.paper", borderRadius: "8px" },
-            }}
-          >
-            <MenuItem value="" disabled>
-              <em style={{ color: "#a9b4b9" }}>{tc.caza}</em>
-            </MenuItem>
-            {cazas.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
-          </TextField>
-          <TextField
-            select
-            label={tc.area}
-            value={pubArea}
-            onChange={(e) => { setPubArea(e.target.value); setPubSchool(""); }}
-            size="small"
-            disabled={!pubCaza}
-            sx={{
-              minWidth: 160,
-              flex: 1,
-              "& .MuiOutlinedInput-root": { bgcolor: "background.paper", borderRadius: "8px" },
-            }}
-          >
-            <MenuItem value="" disabled>
-              <em style={{ color: "#a9b4b9" }}>{tc.area}</em>
-            </MenuItem>
-            {areas.map((a) => <MenuItem key={a} value={a}>{a}</MenuItem>)}
-          </TextField>
-          <TextField
-            select
-            label={tc.school}
-            value={pubSchool}
-            onChange={(e) => setPubSchool(e.target.value)}
-            size="small"
-            disabled={!pubArea}
-            sx={{
-              minWidth: 200,
-              flex: 2,
-              "& .MuiOutlinedInput-root": { bgcolor: "background.paper", borderRadius: "8px" },
-            }}
-          >
-            <MenuItem value="" disabled>
-              <em style={{ color: "#a9b4b9" }}>{tc.school}</em>
-            </MenuItem>
-            {publicSchools.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
-          </TextField>
-        </Box>
-
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 3,
-            px: { xs: 3, md: 5 },
-            py: 3,
-            borderRadius: "14px",
-            background: "linear-gradient(135deg, #023d2e 0%, #1b6b51 100%)",
-            border: "1px solid rgba(166,242,209,0.18)",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2.5 }}>
-            <Box
-              sx={{
-                bgcolor: "rgba(166,242,209,0.12)",
-                border: "1px solid rgba(166,242,209,0.2)",
-                borderRadius: "8px",
-                px: 1.5,
-                py: 0.75,
-                flexShrink: 0,
-              }}
-            >
-              <Typography
-                sx={{
-                  fontWeight: 800,
-                  fontSize: "0.5625rem",
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "#a6f2d1",
-                }}
-              >
-                {tc.official}
-              </Typography>
-            </Box>
-            <Box>
-              <Typography sx={{ fontWeight: 700, fontSize: "0.9375rem", color: "#e0ffee", lineHeight: 1.3 }}>
-                {tc.bannerTitle}
-              </Typography>
-              <Typography sx={{ fontSize: "0.75rem", color: "rgba(224,255,238,0.6)", mt: 0.25 }}>
-                {canVisit ? `${tc.visitingAs} ${analyticsSchool}` : tc.hint}
-              </Typography>
-            </Box>
-          </Box>
-          <Box
-            onClick={() => {
-              if (!canVisit) return;
-              client.post("/analytics/madristi-click", { school: analyticsSchool }).catch(() => {});
-              window.open("https://madristi.mehe.gov.lb", "_blank", "noopener,noreferrer");
-            }}
-            sx={{
-              bgcolor: canVisit ? "#a6f2d1" : "rgba(166,242,209,0.2)",
-              color: canVisit ? "#023d2e" : "rgba(166,242,209,0.4)",
-              px: 3,
-              py: 1.25,
-              borderRadius: "8px",
-              fontWeight: 700,
-              fontSize: "0.875rem",
-              flexShrink: 0,
-              fontFamily: "'Public Sans', sans-serif",
-              cursor: canVisit ? "pointer" : "not-allowed",
-              transition: "all 0.2s",
-              "&:hover": { bgcolor: canVisit ? "#8de8be" : "rgba(166,242,209,0.2)" },
-            }}
-          >
-            {tc.visitBtn}
           </Box>
         </Box>
       </Box>

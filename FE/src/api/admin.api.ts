@@ -48,6 +48,18 @@ export interface PendingKidTutor {
   createdAt: string;
 }
 
+export interface SchoolUser {
+  id: string;
+  username: string;
+  name: string;
+  email: string | null;
+  role: string;
+  grade: string | null;
+  school: string | null;
+  kidTutorApproved: boolean;
+  createdAt: string;
+}
+
 export const adminApi = {
   getStats: () =>
     client.get<AdminStats>('/admin/stats').then((r: AxiosResponse<AdminStats>) => r.data),
@@ -65,4 +77,21 @@ export const adminApi = {
     client.get<PendingKidTutor[]>('/admin/pending-kid-tutors').then((r: AxiosResponse<PendingKidTutor[]>) => r.data),
   approveKidTutor: (id: string) =>
     client.patch<{ id: string; kidTutorApproved: boolean }>(`/admin/user/${id}/approve-kid-tutor`).then((r) => r.data),
+  createSchoolAdmin: (data: { username: string; name: string; password: string; school: string; email?: string }) =>
+    client.post('/admin/create-school-admin', data).then((r: AxiosResponse) => r.data),
+  // School-scoped endpoints (used by both admin and school_admin)
+  getSchoolUsers: () =>
+    client.get<SchoolUser[]>('/admin/school/users').then((r: AxiosResponse<SchoolUser[]>) => r.data),
+  getSchoolPendingKidTutors: () =>
+    client.get<PendingKidTutor[]>('/admin/school/pending-kid-tutors').then((r: AxiosResponse<PendingKidTutor[]>) => r.data),
+  schoolApproveKidTutor: (id: string) =>
+    client.patch<{ id: string; kidTutorApproved: boolean }>(`/admin/school/approve-kid-tutor/${id}`).then((r) => r.data),
+  resetUserPassword: (id: string, password: string) =>
+    client.patch(`/admin/user/${id}/password`, { password }).then((r: AxiosResponse) => r.data),
+  getPendingCourses: () =>
+    client.get<import('./courses.api').Course[]>('/admin/pending-courses').then((r) => r.data),
+  approveCourse: (id: string) =>
+    client.patch(`/admin/course/${id}/approve`).then((r: AxiosResponse) => r.data),
+  rejectCourse: (id: string) =>
+    client.patch(`/admin/course/${id}/reject`).then((r: AxiosResponse) => r.data),
 };

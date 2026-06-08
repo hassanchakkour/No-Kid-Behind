@@ -24,7 +24,8 @@ interface NavLink {
   scrollTo?: string;
 }
 
-export default function Navbar() {
+export default function Navbar({ compact = false }: { compact?: boolean }) {
+  const bp = compact ? 'xl' : 'lg';
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
@@ -48,6 +49,7 @@ export default function Navbar() {
   const getDashboardPath = () => {
     if (!user) return "/auth";
     if (user.role === "admin") return "/admin";
+    if (user.role === "school_admin") return "/school-admin";
     if (user.role === "professional" || user.role === "kid_tutor") return "/teacher";
     return "/dashboard";
   };
@@ -55,6 +57,7 @@ export default function Navbar() {
   const getDashboardLabel = () => {
     if (!user) return "Dashboard";
     if (user.role === "admin") return "Admin Panel";
+    if (user.role === "school_admin") return t.schoolPanel;
     if (user.role === "professional" || user.role === "kid_tutor") return "My Courses";
     return "Dashboard";
   };
@@ -84,7 +87,9 @@ export default function Navbar() {
     { label: t.links[2].label, path: "/extra-steps",                                   description: t.links[2].description },
     { label: t.links[3].label, path: "/kid-to-kid",                                    description: t.links[3].description },
     { label: t.links[4].label, path: "/health",                                         description: t.links[4].description },
-    ...(canTeach
+    ...(user?.role === "school_admin"
+      ? [{ label: t.schoolPanel, path: "/school-admin", description: t.schoolPanelDesc }]
+      : canTeach
       ? [{ label: t.teaching,   path: "/teacher",   description: t.teachingDesc }]
       : [{ label: t.myLearning, path: "/dashboard", description: t.myLearningDesc }]),
   ];
@@ -169,7 +174,7 @@ export default function Navbar() {
               </Box>
             </Box>
 
-            <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3 }}>
+            <Box sx={{ display: { xs: "none", [bp]: "flex" }, gap: { lg: 1.5, xl: 2.5 } }}>
               {navLinks.map((link) => {
                 const isActive = link.scrollTo ? false : location.pathname === link.path;
                 return (
@@ -207,7 +212,7 @@ export default function Navbar() {
             <LangToggle />
 
             {isAuthenticated ? (
-              <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 1.5 }}>
+              <Box sx={{ display: { xs: "none", [bp]: "flex" }, alignItems: "center", gap: 1.5 }}>
                 <Avatar
                   onClick={handleAvatarClick}
                   sx={{ width: 34, height: 34, bgcolor: "primary.main", color: "#a6f2d1", fontSize: "0.8125rem", fontWeight: 800, cursor: "pointer", letterSpacing: "-0.02em", border: "2px solid transparent", transition: "border-color 0.15s", "&:hover": { borderColor: "rgba(27,107,81,0.3)" } }}
@@ -254,7 +259,7 @@ export default function Navbar() {
                 </Menu>
               </Box>
             ) : (
-              <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1 }}>
+              <Box sx={{ display: { xs: "none", [bp]: "flex" }, gap: 1 }}>
                 <Button onClick={() => navigate("/auth?tab=login")} sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.875rem" }}>
                   {t.signIn}
                 </Button>
@@ -264,7 +269,7 @@ export default function Navbar() {
               </Box>
             )}
 
-            <IconButton onClick={() => setMobileOpen(true)} sx={{ display: { xs: "flex", md: "none" }, color: "text.primary", p: 1 }}>
+            <IconButton onClick={() => setMobileOpen(true)} sx={{ display: { xs: "flex", [bp]: "none" }, color: "text.primary", p: 1 }}>
               <MenuRoundedIcon />
             </IconButton>
           </Box>

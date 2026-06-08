@@ -40,7 +40,7 @@ export default function Sidebar({ title, subtitle, links, actionLabel, onAction 
   const { logout } = useAuth();
 
   const isActive = (path: string) => {
-    if (path === '/admin' || path === '/teacher') {
+    if (path === '/admin' || path === '/teacher' || path === '/school-admin') {
       return location.pathname === path;
     }
     return location.pathname.startsWith(path);

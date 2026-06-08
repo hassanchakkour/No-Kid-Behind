@@ -8,6 +8,13 @@ export function useCourses(filters?: CourseFilters) {
   });
 }
 
+export function useMyCourses() {
+  return useQuery({
+    queryKey: ['courses', 'mine'],
+    queryFn: coursesApi.getMine,
+  });
+}
+
 export function useCourse(id: string) {
   return useQuery({
     queryKey: ['courses', id],
@@ -20,7 +27,10 @@ export function useCreateCourse() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateCoursePayload) => coursesApi.create(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['courses'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['courses'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'pending-courses'] });
+    },
   });
 }
 
@@ -37,6 +47,9 @@ export function useDeleteCourse() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => coursesApi.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['courses'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['courses'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'pending-courses'] });
+    },
   });
 }

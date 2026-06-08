@@ -4,6 +4,23 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useCourse } from '../hooks/useCourses';
 
+function extractYouTubeId(raw: string): string {
+  if (!raw) return '';
+  // already a bare ID (no slashes or query strings)
+  if (!raw.includes('/') && !raw.includes('?')) return raw.trim();
+  try {
+    const url = new URL(raw);
+    // youtu.be/ID
+    if (url.hostname === 'youtu.be') return url.pathname.slice(1).split('?')[0];
+    // youtube.com/embed/ID
+    if (url.pathname.startsWith('/embed/')) return url.pathname.split('/embed/')[1].split('?')[0];
+    // youtube.com/watch?v=ID
+    return url.searchParams.get('v') ?? raw.trim();
+  } catch {
+    return raw.trim();
+  }
+}
+
 export default function CourseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -62,7 +79,7 @@ export default function CourseDetailPage() {
             >
               <Box
                 component="iframe"
-                src={`https://www.youtube.com/embed/${course.youtubeVideoId}?rel=0&modestbranding=1`}
+                src={`https://www.youtube.com/embed/${extractYouTubeId(course.youtubeVideoId)}?rel=0&modestbranding=1`}
                 title={course.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen

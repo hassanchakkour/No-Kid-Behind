@@ -34,7 +34,7 @@ import Sidebar from "../components/Sidebar";
 import InputField from "../components/InputField";
 import SelectField from "../components/SelectField";
 import {
-  useCourses,
+  useMyCourses,
   useCreateCourse,
   useUpdateCourse,
   useDeleteCourse,
@@ -67,8 +67,11 @@ const courseSchema = Yup.object({
   subject: Yup.string().min(2).required("Required"),
   grades: Yup.array()
     .of(Yup.string())
-    .min(1, "Select at least one grade")
-    .required("Required"),
+    .when('contentType', {
+      is: 'health',
+      then: (s) => s.min(0),
+      otherwise: (s) => s.min(1, "Select at least one grade").required("Required"),
+    }),
   school: Yup.string().optional(),
   youtubeUrl: Yup.string().required("Required"),
   contentType: Yup.string().optional(),
@@ -85,7 +88,7 @@ interface CourseFormValues {
 
 export default function TeacherDashboard() {
   const { user } = useAuth();
-  const { data: courses, isLoading } = useCourses();
+  const { data: courses, isLoading } = useMyCourses();
   const createCourse = useCreateCourse();
   const updateCourse = useUpdateCourse();
   const deleteCourse = useDeleteCourse();
@@ -94,7 +97,7 @@ export default function TeacherDashboard() {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const myCourses = (Array.isArray(courses) ? courses : []).filter((c) => c.teacherId === user?.id);
+  const myCourses = Array.isArray(courses) ? courses : [];
   const totalViews = myCourses.reduce((sum, c) => sum + c.clicks, 0);
   const avgViews =
     myCourses.length > 0 ? Math.round(totalViews / myCourses.length) : 0;
@@ -511,6 +514,12 @@ export default function TeacherDashboard() {
                         alignItems: "center",
                       }}
                     >
+                      {course.status === 'pending' && (
+                        <Chip label="Pending Review" size="small" sx={{ bgcolor: 'rgba(196,122,30,0.12)', color: '#c47a1e', fontWeight: 700, fontSize: '0.625rem' }} />
+                      )}
+                      {course.status === 'rejected' && (
+                        <Chip label="Rejected" size="small" sx={{ bgcolor: 'rgba(159,64,61,0.1)', color: '#9f403d', fontWeight: 700, fontSize: '0.625rem' }} />
+                      )}
                       <Chip
                         label={course.subject}
                         size="small"
@@ -641,7 +650,7 @@ export default function TeacherDashboard() {
                     <Box sx={{ display: "flex", gap: 1.5 }}>
                       {[
                         { value: "health", label: "Wellbeing" },
-                        { value: "specialNeeds", label: "Learning with Extra Steps" },
+                        { value: "specialNeeds", label: "Learning with Extra Help" },
                       ].map(({ value, label }) => (
                         <Box
                           key={value}
@@ -674,14 +683,14 @@ export default function TeacherDashboard() {
                   placeholder="e.g. Introduction to Algebra"
                 />
                 <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid item xs={12} sm={isProfessional && values.contentType === 'health' ? 12 : 6}>
                     <InputField
                       name="subject"
                       label="Subject"
                       placeholder="e.g. Mathematics"
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  {!(isProfessional && values.contentType === 'health') && <Grid item xs={12} sm={6}>
                     <FormControl
                       fullWidth
                       error={!!(values.grades.length === 0 && touched.grades)}
@@ -772,14 +781,14 @@ export default function TeacherDashboard() {
                         </FormHelperText>
                       )}
                     </FormControl>
-                  </Grid>
+                  </Grid>}
                 </Grid>
-                <InputField
+                {!(isProfessional && values.contentType === 'health') && <InputField
                   name="school"
                   label="School / Institution"
                   placeholder="Optional"
                   optional
-                />
+                />}
                 {(createCourse.isError || updateCourse.isError) && (
                   <Alert severity="error">
                     {(

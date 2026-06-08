@@ -45,7 +45,7 @@ export async function register(req: Request, res: Response): Promise<void> {
     },
   });
 
-  const token = signToken({ userId: user.id, role: user.role, username: user.username, likesToTeach: user.likesToTeach, kidTutorApproved: user.kidTutorApproved });
+  const token = signToken({ userId: user.id, role: user.role, username: user.username, school: user.school, likesToTeach: user.likesToTeach, kidTutorApproved: user.kidTutorApproved });
   res.status(201).json({
     token,
     user: {
@@ -82,7 +82,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const token = signToken({ userId: user.id, role: user.role, username: user.username, likesToTeach: user.likesToTeach, kidTutorApproved: user.kidTutorApproved });
+  const token = signToken({ userId: user.id, role: user.role, username: user.username, school: user.school, likesToTeach: user.likesToTeach, kidTutorApproved: user.kidTutorApproved });
   res.json({
     token,
     user: {

@@ -196,25 +196,8 @@ export default function LegalPage() {
           </Box>
         </Box>
 
-        {/* Contact note */}
-        <Box
-          sx={{
-            mt: 10,
-            p: 4,
-            borderRadius: '12px',
-            bgcolor: 'rgba(27,107,81,0.05)',
-            border: '1px solid rgba(27,107,81,0.12)',
-          }}
-        >
-          <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', color: 'text.primary', mb: 0.75 }}>
-            {t.questionsTitle}
-          </Typography>
-          <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', lineHeight: 1.65 }}>
-            {t.questionsBody}
-          </Typography>
-        </Box>
 
-      </Box>
+</Box>
     </Box>
   );
 }

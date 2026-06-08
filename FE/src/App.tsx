@@ -5,6 +5,7 @@ import AuthPage from './pages/AuthPage';
 import StudentDashboard from './pages/StudentDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import SchoolAdminDashboard from './pages/SchoolAdminDashboard';
 import CourseDetailPage from './pages/CourseDetailPage';
 import CoursesPage from './pages/CoursesPage';
 import HealthPage from './pages/HealthPage';
@@ -80,6 +81,10 @@ export default function App() {
       <Route path="/teacher/analytics" element={<Navigate to="/teacher" replace />} />
       <Route path="/teacher/settings" element={<Navigate to="/teacher" replace />} />
 
+      {/* School admin routes */}
+      <Route path="/school-admin" element={<RequireAuth role="school_admin"><SchoolAdminDashboard /></RequireAuth>} />
+      <Route path="/school-admin/users" element={<RequireAuth role="school_admin"><SchoolAdminDashboard /></RequireAuth>} />
+
       {/* Admin routes */}
       <Route path="/admin" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
       <Route path="/admin/users" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
@@ -89,6 +94,7 @@ export default function App() {
       <Route path="/admin/kid-to-kid" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
       <Route path="/admin/analytics" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
       <Route path="/admin/pending" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
+      <Route path="/admin/school-admins" element={<RequireAuth role="admin"><AdminDashboard /></RequireAuth>} />
 
       <Route path="/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
       <Route path="/legal" element={<LegalPage />} />

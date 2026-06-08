@@ -70,3 +70,73 @@ export function useApproveKidTutor() {
     },
   });
 }
+
+export function useCreateSchoolAdmin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: adminApi.createSchoolAdmin,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
+  });
+}
+
+export function useSchoolUsers() {
+  return useQuery({
+    queryKey: ['school', 'users'],
+    queryFn: adminApi.getSchoolUsers,
+  });
+}
+
+export function useSchoolPendingKidTutors() {
+  return useQuery({
+    queryKey: ['school', 'pending-kid-tutors'],
+    queryFn: adminApi.getSchoolPendingKidTutors,
+  });
+}
+
+export function usePendingCourses() {
+  return useQuery({
+    queryKey: ['admin', 'pending-courses'],
+    queryFn: adminApi.getPendingCourses,
+  });
+}
+
+export function useApproveCourse() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.approveCourse(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'pending-courses'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'courses'] });
+      qc.invalidateQueries({ queryKey: ['courses'] });
+    },
+  });
+}
+
+export function useRejectCourse() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.rejectCourse(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'pending-courses'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'courses'] });
+    },
+  });
+}
+
+export function useResetUserPassword() {
+  return useMutation({
+    mutationFn: ({ id, password }: { id: string; password: string }) =>
+      adminApi.resetUserPassword(id, password),
+  });
+}
+
+export function useSchoolApproveKidTutor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.schoolApproveKidTutor(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['school', 'pending-kid-tutors'] });
+      qc.invalidateQueries({ queryKey: ['school', 'users'] });
+    },
+  });
+}

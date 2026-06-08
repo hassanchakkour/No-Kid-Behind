@@ -9,6 +9,7 @@ export async function getCourses(req: Request, res: Response): Promise<void> {
 
   const courses = await prisma.course.findMany({
     where: {
+      status: 'approved',
       ...(grade ? { grades: { has: String(grade) } } : {}),
       ...(subject ? { subject: { contains: String(subject), mode: 'insensitive' } } : {}),
       ...(school ? { school: { contains: String(school), mode: 'insensitive' } } : {}),
@@ -22,6 +23,15 @@ export async function getCourses(req: Request, res: Response): Promise<void> {
     orderBy: { createdAt: 'desc' },
   });
 
+  res.json(courses);
+}
+
+export async function getMyCourses(req: AuthRequest, res: Response): Promise<void> {
+  const courses = await prisma.course.findMany({
+    where: { teacherId: req.user!.userId },
+    include: { teacher: { select: { id: true, name: true, username: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
   res.json(courses);
 }
 
@@ -57,14 +67,14 @@ export async function createCourse(req: AuthRequest, res: Response): Promise<voi
   const wantsHealth = isHealthContent === true || isHealthContent === 'true';
   const wantsSpecialNeeds = isSpecialNeeds === true || isSpecialNeeds === 'true';
 
-  // Only admins can create health content
-  if (wantsHealth && userRole !== 'admin') {
-    res.status(403).json({ error: 'Only admins can add health content' });
+  // Only admins and professionals can create health content
+  if (wantsHealth && userRole !== 'admin' && userRole !== 'professional') {
+    res.status(403).json({ error: 'Only admins or professionals can add health content' });
     return;
   }
-  // Only admins can create learning difficulties (special needs) content
-  if (wantsSpecialNeeds && userRole !== 'admin') {
-    res.status(403).json({ error: 'Only admins can add learning difficulties content' });
+  // Only admins and professionals can create learning difficulties (special needs) content
+  if (wantsSpecialNeeds && userRole !== 'admin' && userRole !== 'professional') {
+    res.status(403).json({ error: 'Only admins or professionals can add learning difficulties content' });
     return;
   }
 
@@ -98,6 +108,8 @@ export async function createCourse(req: AuthRequest, res: Response): Promise<voi
 
   const gradesArray: string[] = Array.isArray(grades) ? grades : grades ? [grades] : [];
 
+  const courseStatus = userRole === 'professional' ? 'pending' : 'approved';
+
   const course = await prisma.course.create({
     data: {
       title,
@@ -108,6 +120,7 @@ export async function createCourse(req: AuthRequest, res: Response): Promise<voi
       isHealthContent: wantsHealth,
       isSpecialNeeds: wantsSpecialNeeds,
       isKidToKid,
+      status: courseStatus,
       teacherId: req.user!.userId,
     },
     include: {

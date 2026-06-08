@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 import client from './client';
 
-export type UserRole = 'student' | 'professional' | 'kid_tutor' | 'admin';
+export type UserRole = 'student' | 'professional' | 'kid_tutor' | 'admin' | 'school_admin';
 
 export interface RegisterPayload {
   username: string;
