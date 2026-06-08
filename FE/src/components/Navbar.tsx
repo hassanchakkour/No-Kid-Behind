@@ -16,6 +16,9 @@ import HelpOutlineRoundedIcon from "@mui/icons-material/HelpOutlineRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
+import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
+import AppRegistrationRoundedIcon from "@mui/icons-material/AppRegistrationRounded";
+import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 
 interface NavLink {
   label: string;
@@ -33,6 +36,7 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
   const t = translations[lang].nav;
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [authAnchorEl, setAuthAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleAvatarClick = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
@@ -174,7 +178,7 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
               </Box>
             </Box>
 
-            <Box sx={{ display: { xs: "none", [bp]: "flex" }, gap: { lg: 1.5, xl: 2.5 } }}>
+            <Box sx={{ display: { xs: "none", [bp]: "flex" }, gap: { lg: 1, xl: 2.5 } }}>
               {navLinks.map((link) => {
                 const isActive = link.scrollTo ? false : location.pathname === link.path;
                 return (
@@ -183,7 +187,7 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
                       onClick={() => handleNavClick(link)}
                       sx={{ cursor: "pointer", pb: isActive ? "6px" : 0, borderBottom: isActive ? "2px solid" : "none", borderColor: "primary.main" }}
                     >
-                      <Typography sx={{ fontWeight: isActive ? 600 : 400, fontSize: "0.875rem", color: isActive ? "primary.main" : "text.secondary" }}>
+                      <Typography sx={{ fontWeight: isActive ? 600 : 400, fontSize: { lg: "0.8125rem", xl: "0.875rem" }, color: isActive ? "primary.main" : "text.secondary", whiteSpace: "nowrap" }}>
                         {link.label}
                       </Typography>
                     </Box>
@@ -259,14 +263,43 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
                 </Menu>
               </Box>
             ) : (
-              <Box sx={{ display: { xs: "none", [bp]: "flex" }, gap: 1 }}>
-                <Button onClick={() => navigate("/auth?tab=login")} sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.875rem" }}>
-                  {t.signIn}
-                </Button>
-                <Button variant="contained" onClick={() => navigate("/auth?tab=register")} sx={{ px: 3, py: 0.875, fontSize: "0.875rem", borderRadius: "8px" }}>
-                  {t.createAccount}
-                </Button>
-              </Box>
+              <>
+                {/* Compact icon menu at lg, hidden at xl */}
+                <Box sx={{ display: { xs: "none", [bp]: "flex", xl: "none" } }}>
+                  <IconButton
+                    onClick={(e) => setAuthAnchorEl(e.currentTarget)}
+                    sx={{ color: "text.secondary", border: "1px solid", borderColor: "rgba(169,180,185,0.35)", borderRadius: "8px", p: 0.75, "&:hover": { borderColor: "primary.main", color: "primary.main" } }}
+                  >
+                    <AccountCircleRoundedIcon sx={{ fontSize: "1.25rem" }} />
+                  </IconButton>
+                  <Menu
+                    anchorEl={authAnchorEl}
+                    open={Boolean(authAnchorEl)}
+                    onClose={() => setAuthAnchorEl(null)}
+                    transformOrigin={{ horizontal: "right", vertical: "top" }}
+                    anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                    PaperProps={{ sx: { mt: 1, minWidth: 180, borderRadius: "10px", boxShadow: "0px 8px 32px 0px rgba(42,52,57,0.12)", border: "1px solid rgba(169,180,185,0.12)" } }}
+                  >
+                    <MenuItem onClick={() => { navigate("/auth?tab=register"); setAuthAnchorEl(null); }} sx={{ px: 2, py: 1.25, gap: 1.5, "&:hover": { bgcolor: "rgba(27,107,81,0.05)" } }}>
+                      <ListItemIcon sx={{ minWidth: "auto" }}><AppRegistrationRoundedIcon sx={{ fontSize: "1rem", color: "primary.main" }} /></ListItemIcon>
+                      <Typography sx={{ fontSize: "0.875rem", fontWeight: 600, color: "primary.main" }}>{t.createAccount}</Typography>
+                    </MenuItem>
+                    <MenuItem onClick={() => { navigate("/auth?tab=login"); setAuthAnchorEl(null); }} sx={{ px: 2, py: 1.25, gap: 1.5, "&:hover": { bgcolor: "rgba(27,107,81,0.05)" } }}>
+                      <ListItemIcon sx={{ minWidth: "auto" }}><LoginRoundedIcon sx={{ fontSize: "1rem", color: "text.secondary" }} /></ListItemIcon>
+                      <Typography sx={{ fontSize: "0.875rem", fontWeight: 500, color: "text.secondary" }}>{t.signIn}</Typography>
+                    </MenuItem>
+                  </Menu>
+                </Box>
+                {/* Full buttons at xl */}
+                <Box sx={{ display: { xs: "none", xl: "flex" }, gap: 1 }}>
+                  <Button onClick={() => navigate("/auth?tab=login")} sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.875rem", whiteSpace: "nowrap" }}>
+                    {t.signIn}
+                  </Button>
+                  <Button variant="contained" onClick={() => navigate("/auth?tab=register")} sx={{ px: 2.5, py: 0.875, fontSize: "0.875rem", borderRadius: "8px", whiteSpace: "nowrap" }}>
+                    {t.createAccount}
+                  </Button>
+                </Box>
+              </>
             )}
 
             <IconButton onClick={() => setMobileOpen(true)} sx={{ display: { xs: "flex", [bp]: "none" }, color: "text.primary", p: 1 }}>
