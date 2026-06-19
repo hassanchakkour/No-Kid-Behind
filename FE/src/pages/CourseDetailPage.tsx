@@ -79,10 +79,11 @@ export default function CourseDetailPage() {
             >
               <Box
                 component="iframe"
-                src={`https://www.youtube.com/embed/${extractYouTubeId(course.youtubeVideoId)}?rel=0&modestbranding=1`}
+                src={`https://www.youtube.com/embed/${extractYouTubeId(course.youtubeVideoId)}?rel=0&modestbranding=1&origin=${window.location.origin}`}
                 title={course.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
                 sx={{
                   position: 'absolute',
                   top: 0,
