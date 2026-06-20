@@ -7,7 +7,6 @@ import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import theme from './theme/theme';
 import App from './App';
-import SiteGate from './components/SiteGate';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -27,9 +26,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <LanguageProvider>
             <ThemeProvider theme={theme}>
               <CssBaseline />
-              <SiteGate>
-                <App />
-              </SiteGate>
+              <App />
             </ThemeProvider>
           </LanguageProvider>
         </AuthProvider>
