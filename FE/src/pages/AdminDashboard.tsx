@@ -60,6 +60,9 @@ import {
   usePendingCourses,
   useApproveCourse,
   useRejectCourse,
+  useSchoolRequests,
+  useApproveSchoolRequest,
+  useRejectSchoolRequest,
 } from "../hooks/useAdminStats";
 import {
   useCreateCourse,
@@ -1343,6 +1346,9 @@ function ManagementSection() {
     usePendingCourses();
   const approveCourse = useApproveCourse();
   const rejectCourse = useRejectCourse();
+  const { data: schoolRequests, isLoading: srLoading } = useSchoolRequests();
+  const approveSchoolRequest = useApproveSchoolRequest();
+  const rejectSchoolRequest = useRejectSchoolRequest();
   const deleteUser = useDeleteUser();
   const deleteCourse = useAdminDeleteCourse();
   const toggleTeach = useToggleLikesToTeach();
@@ -2130,6 +2136,43 @@ function ManagementSection() {
             >
               {saSuccess}
             </Alert>
+          )}
+
+          {/* Pending school requests */}
+          {!srLoading && schoolRequests && schoolRequests.length > 0 && (
+            <Box sx={{ mb: 4, bgcolor: 'rgba(90,60,140,0.04)', border: '1px solid rgba(90,60,140,0.18)', borderRadius: '12px', overflow: 'hidden' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 3, py: 2, borderBottom: '1px solid rgba(90,60,140,0.12)', bgcolor: 'rgba(90,60,140,0.06)' }}>
+                <Box sx={{ bgcolor: 'rgba(90,60,140,0.12)', borderRadius: '8px', p: 0.875, display: 'flex' }}>
+                  <SchoolRoundedIcon sx={{ color: '#5a3c8c', fontSize: '1rem' }} />
+                </Box>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', color: 'text.primary', flex: 1 }}>
+                  New School Requests
+                </Typography>
+                <Chip label={schoolRequests.length} size="small" sx={{ bgcolor: 'rgba(90,60,140,0.12)', color: '#5a3c8c', fontWeight: 700 }} />
+              </Box>
+              {schoolRequests.map((sr, i) => (
+                <Box key={sr.id} sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 3, py: 2, borderBottom: i < schoolRequests.length - 1 ? '1px solid rgba(169,180,185,0.1)' : 'none', '&:hover': { bgcolor: 'rgba(90,60,140,0.02)' } }}>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', color: 'text.primary' }}>{sr.schoolName}</Typography>
+                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mt: 0.25 }}>
+                      Requested by @{sr.requestedBy.username} · {new Date(sr.createdAt).toLocaleDateString()}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
+                    <Button size="small" disabled={approveSchoolRequest.isPending || rejectSchoolRequest.isPending}
+                      onClick={() => approveSchoolRequest.mutate(sr.id)}
+                      sx={{ bgcolor: 'rgba(27,107,81,0.08)', color: 'primary.main', fontWeight: 700, fontSize: '0.8125rem', borderRadius: '6px', px: 2, '&:hover': { bgcolor: 'rgba(27,107,81,0.15)' } }}>
+                      Approve
+                    </Button>
+                    <Button size="small" disabled={approveSchoolRequest.isPending || rejectSchoolRequest.isPending}
+                      onClick={() => rejectSchoolRequest.mutate(sr.id)}
+                      sx={{ bgcolor: 'rgba(159,64,61,0.08)', color: '#9f403d', fontWeight: 700, fontSize: '0.8125rem', borderRadius: '6px', px: 2, '&:hover': { bgcolor: 'rgba(159,64,61,0.15)' } }}>
+                      Reject
+                    </Button>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
           )}
 
           {/* Existing school admins */}

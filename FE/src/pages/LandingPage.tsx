@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -14,6 +14,7 @@ import CourseCard from "../components/CourseCard";
 import { useCourses } from "../hooks/useCourses";
 import client from "../api/client";
 import schoolData from "../data/public_schools_lebanon.json";
+import arSchoolData from "../data/List_of_schools_arabic.json";
 import AutoStoriesRoundedIcon from "@mui/icons-material/AutoStoriesRounded";
 import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
@@ -25,7 +26,9 @@ import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../i18n/translations";
 
 type SchoolEntry = { Caza: string; Area: string; "School Name": string };
+type ArSchoolEntry = { "القضاء": string; "المنطقة": string; "اسم المدرسة": string };
 const SCHOOL_DATA = schoolData as SchoolEntry[];
+const AR_SCHOOL_DATA = arSchoolData as ArSchoolEntry[];
 
 const FEATURE_ICONS = [
   LockOpenRoundedIcon,
@@ -44,29 +47,34 @@ export default function LandingPage() {
   const [pubArea, setPubArea] = useState("");
   const [pubSchool, setPubSchool] = useState("");
 
+  // Reset cascade when language changes
+  useEffect(() => {
+    setPubCaza("");
+    setPubArea("");
+    setPubSchool("");
+  }, [lang]);
+
   const cazas = useMemo(
-    () => [...new Set(SCHOOL_DATA.map((s) => s.Caza))].sort(),
-    [],
+    () => isRtl
+      ? [...new Set(AR_SCHOOL_DATA.map((s) => s["القضاء"]))].sort()
+      : [...new Set(SCHOOL_DATA.map((s) => s.Caza))].sort(),
+    [isRtl],
   );
   const areas = useMemo(
-    () =>
-      pubCaza
-        ? [
-            ...new Set(
-              SCHOOL_DATA.filter((s) => s.Caza === pubCaza).map((s) => s.Area),
-            ),
-          ].sort()
-        : [],
-    [pubCaza],
+    () => pubCaza
+      ? isRtl
+        ? [...new Set(AR_SCHOOL_DATA.filter((s) => s["القضاء"] === pubCaza).map((s) => s["المنطقة"]))].sort()
+        : [...new Set(SCHOOL_DATA.filter((s) => s.Caza === pubCaza).map((s) => s.Area))].sort()
+      : [],
+    [pubCaza, isRtl],
   );
   const publicSchools = useMemo(
-    () =>
-      pubArea
-        ? SCHOOL_DATA.filter((s) => s.Caza === pubCaza && s.Area === pubArea)
-            .map((s) => s["School Name"])
-            .sort()
-        : [],
-    [pubCaza, pubArea],
+    () => pubArea
+      ? isRtl
+        ? AR_SCHOOL_DATA.filter((s) => s["القضاء"] === pubCaza && s["المنطقة"] === pubArea).map((s) => s["اسم المدرسة"]).sort()
+        : SCHOOL_DATA.filter((s) => s.Caza === pubCaza && s.Area === pubArea).map((s) => s["School Name"]).sort()
+      : [],
+    [pubCaza, pubArea, isRtl],
   );
 
   const analyticsSchool = pubSchool;
@@ -657,7 +665,7 @@ export default function LandingPage() {
               alignItems: "center",
               gap: { xs: 4, md: 8 },
               mb: 10,
-              flexDirection: { xs: "column", md: "row" },
+              flexDirection: { xs: "column", md: isRtl ? "row-reverse" : "row" },
             }}
           >
             {/* SDG image — wrapper crops the PNG's excess whitespace */}
@@ -686,7 +694,7 @@ export default function LandingPage() {
             </Box>
 
             {/* Text */}
-            <Box sx={{ textAlign: { xs: "center", md: "left" } }}>
+            <Box sx={{ textAlign: { xs: "center", md: isRtl ? "right" : "left" } }}>
               <Typography
                 sx={{
                   fontWeight: 700,

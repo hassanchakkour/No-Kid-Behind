@@ -16,6 +16,7 @@ import * as Yup from "yup";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useRegister, useLogin } from "../hooks/useAuthMutations";
+import { usePrivateSchools, useCreateSchoolRequest } from "../hooks/useAdminStats";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../i18n/translations";
 import schoolData from "../data/public_schools_lebanon.json";
@@ -133,13 +134,17 @@ export default function AuthPage() {
   const { login } = useAuth();
   const registerMutation = useRegister();
   const loginMutation = useLogin();
-  const { lang } = useLanguage();
+  const createSchoolRequest = useCreateSchoolRequest();
+  const { data: dynamicPrivateSchools } = usePrivateSchools();
+  const { lang, toggleLang } = useLanguage();
   const t = translations[lang].auth;
   const isRtl = lang === "ar";
 
   useEffect(() => {
     setActiveTab(params.get("tab") === "login" ? "login" : "register");
   }, [params]);
+
+  const allPrivateSchools = dynamicPrivateSchools ?? ["IC", "ACS", "CPF"];
 
   const registerInitial = {
     username: "",
@@ -152,11 +157,13 @@ export default function AuthPage() {
     caza: "",
     area: "",
     school: "",
+    otherSchool: "",
     syndicateNumber: "",
   };
   const loginInitial = { username: "", password: "" };
 
   const handleRegister = async (values: typeof registerInitial) => {
+    const schoolValue = values.school === "Other" ? values.otherSchool.trim() : values.school;
     const data = await registerMutation.mutateAsync({
       username: values.username,
       name: values.name,
@@ -164,9 +171,13 @@ export default function AuthPage() {
       password: values.password,
       role: values.role,
       grade: (values.role === "student" || values.role === "kid_tutor") ? values.grade : undefined,
-      school: values.school || undefined,
+      school: schoolValue || undefined,
       syndicateNumber: values.role === "professional" ? values.syndicateNumber : undefined,
     });
+    // If user typed a custom school, fire a request to admin for approval
+    if (values.school === "Other" && values.otherSchool.trim()) {
+      createSchoolRequest.mutate(values.otherSchool.trim());
+    }
     login(data.token, data.user);
     if (data.user.role === "professional" || data.user.role === "kid_tutor") {
       navigate("/teacher");
@@ -236,16 +247,6 @@ export default function AuthPage() {
           </Box>
         </Box>
 
-        <Box sx={{ position: "relative", zIndex: 1 }}>
-          <Box sx={{ bgcolor: "rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", border: "1px solid rgba(166,242,209,0.15)", borderRadius: "16px", p: 3, display: "flex", gap: 4 }}>
-            {t.stats.map(({ value, label }) => (
-              <Box key={label} sx={{ textAlign: "center", flex: 1 }}>
-                <Typography sx={{ fontWeight: 800, fontSize: "1.625rem", letterSpacing: "-0.04em", color: "#e0ffee", lineHeight: 1 }}>{value}</Typography>
-                <Typography sx={{ fontWeight: 600, fontSize: "0.6875rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(166,242,209,0.6)", mt: 0.5 }}>{label}</Typography>
-              </Box>
-            ))}
-          </Box>
-        </Box>
       </Box>
 
       {/* ── RIGHT: Form panel ── */}
@@ -260,16 +261,30 @@ export default function AuthPage() {
           </Box>
           <Box sx={{ display: { xs: "none", lg: "block" } }} />
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography sx={{ fontSize: "0.875rem", color: "text.secondary" }}>
-              {activeTab === "register" ? t.alreadyHaveAccount : t.dontHaveAccount}
-            </Typography>
-            <Typography
-              onClick={() => setActiveTab(activeTab === "register" ? "login" : "register")}
-              sx={{ fontSize: "0.875rem", fontWeight: 700, color: "primary.main", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            {/* Language toggle */}
+            <Box
+              onClick={toggleLang}
+              sx={{ display: "flex", alignItems: "center", gap: 0.75, border: "1px solid", borderColor: "rgba(169,180,185,0.3)", borderRadius: "20px", px: 1, py: 0.4, cursor: "pointer", userSelect: "none", "&:hover": { borderColor: "primary.main" }, transition: "border-color 0.15s" }}
             >
-              {activeTab === "register" ? t.switchToSignIn : t.switchToRegister}
-            </Typography>
+              {(["en", "ar"] as const).map((l, i) => (
+                <Box key={l} sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                  {i === 1 && <Typography sx={{ fontSize: "0.7rem", color: "text.disabled", lineHeight: 1 }}>|</Typography>}
+                  <Box component="img" src={l === "en" ? "https://flagcdn.com/w40/gb.png" : "https://flagcdn.com/w40/lb.png"} alt={l} sx={{ width: 20, height: 14, objectFit: "cover", borderRadius: "2px", opacity: lang === l ? 1 : 0.3, filter: lang === l ? "none" : "grayscale(80%)", transition: "opacity 0.15s, filter 0.15s" }} />
+                </Box>
+              ))}
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography sx={{ fontSize: "0.875rem", color: "text.secondary" }}>
+                {activeTab === "register" ? t.alreadyHaveAccount : t.dontHaveAccount}
+              </Typography>
+              <Typography
+                onClick={() => setActiveTab(activeTab === "register" ? "login" : "register")}
+                sx={{ fontSize: "0.875rem", fontWeight: 700, color: "primary.main", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+              >
+                {activeTab === "register" ? t.switchToSignIn : t.switchToRegister}
+              </Typography>
+            </Box>
           </Box>
         </Box>
 
@@ -540,15 +555,29 @@ export default function AuthPage() {
                                 </Typography>
                                 <TextField
                                   select label={`${t.fieldSchool} *`} value={values.school}
-                                  onChange={(e) => setFieldValue("school", e.target.value)}
+                                  onChange={(e) => { setFieldValue("school", e.target.value); if (e.target.value !== "Other") setFieldValue("otherSchool", ""); }}
                                   error={touched.school && !!errors.school} helperText={touched.school && errors.school}
                                   variant="outlined" size="small" fullWidth
                                   InputProps={{ startAdornment: <InputAdornment position="start"><SchoolOutlinedIcon sx={{ fontSize: "1rem" }} /></InputAdornment> }}
                                   sx={inputSx}
                                 >
                                   <MenuItem value="" disabled><em style={{ color: "#a9b4b9" }}>{t.selectSchool}</em></MenuItem>
-                                  {PRIVATE_SCHOOLS.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+                                  {allPrivateSchools.map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+                                  <MenuItem value="Other"><em>Other (specify below)</em></MenuItem>
                                 </TextField>
+                                {values.school === "Other" && (
+                                  <TextField
+                                    label="School Name *"
+                                    placeholder="Enter your school name"
+                                    value={values.otherSchool}
+                                    onChange={(e) => setFieldValue("otherSchool", e.target.value)}
+                                    variant="outlined" size="small" fullWidth
+                                    InputProps={{ startAdornment: <InputAdornment position="start"><SchoolOutlinedIcon sx={{ fontSize: "1rem" }} /></InputAdornment> }}
+                                    sx={inputSx}
+                                    helperText="Your school will be sent to admin for approval and added to the list once verified."
+                                    FormHelperTextProps={{ sx: { color: 'text.disabled', fontSize: '0.75rem' } }}
+                                  />
+                                )}
                               </Box>
                             )}
 

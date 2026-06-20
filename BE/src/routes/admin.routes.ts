@@ -5,12 +5,17 @@ import {
   createSchoolAdmin, getSchoolAdminUsers, getSchoolAdminPendingKidTutors,
   approveKidTutorScoped, resetUserPassword,
   getPendingCourses, approveCourse, rejectCourse,
+  getPrivateSchools, createSchoolRequest, getSchoolRequests, approveSchoolRequest, rejectSchoolRequest,
 } from '../controllers/admin.controller';
 import { authenticate, requireRole } from '../middleware/auth';
 
 const router = Router();
 
-// All admin routes require authentication
+// ── Public endpoints (no auth required) ─────────────────────────────────────
+router.get('/private-schools', getPrivateSchools);
+router.post('/school-request', authenticate, createSchoolRequest);
+
+// All other admin routes require authentication
 router.use(authenticate);
 
 // ── Super admin only ────────────────────────────────────────────────────────
@@ -27,6 +32,11 @@ router.patch('/user/:id/password', requireRole('admin'), resetUserPassword);
 router.get('/pending-courses', requireRole('admin'), getPendingCourses);
 router.patch('/course/:id/approve', requireRole('admin'), approveCourse);
 router.patch('/course/:id/reject', requireRole('admin'), rejectCourse);
+
+// ── School requests ─────────────────────────────────────────────────────────
+router.get('/school-requests', requireRole('admin'), getSchoolRequests);
+router.patch('/school-request/:id/approve', requireRole('admin'), approveSchoolRequest);
+router.patch('/school-request/:id/reject', requireRole('admin'), rejectSchoolRequest);
 
 // ── School admin scoped (admin OR school_admin) ─────────────────────────────
 router.get('/school/users', requireRole('admin', 'school_admin'), getSchoolAdminUsers);

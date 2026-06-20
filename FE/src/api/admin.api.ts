@@ -60,6 +60,15 @@ export interface SchoolUser {
   createdAt: string;
 }
 
+export interface SchoolRequest {
+  id: string;
+  schoolName: string;
+  userId: string;
+  requestedBy: { id: string; name: string; username: string };
+  status: string;
+  createdAt: string;
+}
+
 export const adminApi = {
   getStats: () =>
     client.get<AdminStats>('/admin/stats').then((r: AxiosResponse<AdminStats>) => r.data),
@@ -94,4 +103,14 @@ export const adminApi = {
     client.patch(`/admin/course/${id}/approve`).then((r: AxiosResponse) => r.data),
   rejectCourse: (id: string) =>
     client.patch(`/admin/course/${id}/reject`).then((r: AxiosResponse) => r.data),
+  getPrivateSchools: () =>
+    client.get<string[]>('/admin/private-schools').then((r: AxiosResponse<string[]>) => r.data),
+  createSchoolRequest: (schoolName: string) =>
+    client.post('/admin/school-request', { schoolName }).then((r: AxiosResponse) => r.data),
+  getSchoolRequests: () =>
+    client.get<SchoolRequest[]>('/admin/school-requests').then((r: AxiosResponse<SchoolRequest[]>) => r.data),
+  approveSchoolRequest: (id: string) =>
+    client.patch(`/admin/school-request/${id}/approve`).then((r: AxiosResponse) => r.data),
+  rejectSchoolRequest: (id: string) =>
+    client.patch(`/admin/school-request/${id}/reject`).then((r: AxiosResponse) => r.data),
 };

@@ -140,3 +140,43 @@ export function useSchoolApproveKidTutor() {
     },
   });
 }
+
+export function usePrivateSchools() {
+  return useQuery({
+    queryKey: ['private-schools'],
+    queryFn: adminApi.getPrivateSchools,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useCreateSchoolRequest() {
+  return useMutation({
+    mutationFn: (schoolName: string) => adminApi.createSchoolRequest(schoolName),
+  });
+}
+
+export function useSchoolRequests() {
+  return useQuery({
+    queryKey: ['admin', 'school-requests'],
+    queryFn: adminApi.getSchoolRequests,
+  });
+}
+
+export function useApproveSchoolRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.approveSchoolRequest(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'school-requests'] });
+      qc.invalidateQueries({ queryKey: ['private-schools'] });
+    },
+  });
+}
+
+export function useRejectSchoolRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminApi.rejectSchoolRequest(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'school-requests'] }),
+  });
+}

@@ -297,6 +297,54 @@ export async function getSchoolAdminUsers(req: AuthRequest, res: Response): Prom
   res.json(users);
 }
 
+// ── School Requests ────────────────────────────────────────────────────────
+
+export async function getPrivateSchools(_req: Request, res: Response): Promise<void> {
+  const approved = await prisma.schoolRequest.findMany({
+    where: { status: 'approved' },
+    select: { schoolName: true },
+    orderBy: { schoolName: 'asc' },
+  });
+  const base = ['IC', 'ACS', 'CPF'];
+  const extra = approved.map((s) => s.schoolName).filter((n) => !base.includes(n));
+  res.json([...base, ...extra]);
+}
+
+export async function createSchoolRequest(req: AuthRequest, res: Response): Promise<void> {
+  const userId = req.user!.userId;
+  const { schoolName } = req.body;
+  if (!schoolName?.trim()) { res.status(400).json({ error: 'School name is required' }); return; }
+  const existing = await prisma.schoolRequest.findFirst({ where: { schoolName: schoolName.trim(), status: { not: 'rejected' } } });
+  if (existing) { res.status(409).json({ error: 'A request for this school already exists' }); return; }
+  const request = await prisma.schoolRequest.create({ data: { schoolName: schoolName.trim(), userId } });
+  res.status(201).json(request);
+}
+
+export async function getSchoolRequests(_req: Request, res: Response): Promise<void> {
+  const requests = await prisma.schoolRequest.findMany({
+    where: { status: 'pending' },
+    include: { requestedBy: { select: { id: true, name: true, username: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
+  res.json(requests);
+}
+
+export async function approveSchoolRequest(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  const sr = await prisma.schoolRequest.findUnique({ where: { id } });
+  if (!sr) { res.status(404).json({ error: 'Not found' }); return; }
+  const updated = await prisma.schoolRequest.update({ where: { id }, data: { status: 'approved' } });
+  res.json(updated);
+}
+
+export async function rejectSchoolRequest(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  const sr = await prisma.schoolRequest.findUnique({ where: { id } });
+  if (!sr) { res.status(404).json({ error: 'Not found' }); return; }
+  const updated = await prisma.schoolRequest.update({ where: { id }, data: { status: 'rejected' } });
+  res.json(updated);
+}
+
 export async function getSchoolAdminPendingKidTutors(req: AuthRequest, res: Response): Promise<void> {
   const callerRole = req.user!.role;
   const school = callerRole === 'school_admin' ? req.user!.school : (req.query.school as string | undefined);

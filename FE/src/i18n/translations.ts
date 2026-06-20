@@ -130,7 +130,7 @@ export const translations = {
       pageLabel: "Legal",
       pageTitle: "Privacy Policy & Terms of Service",
       lastUpdated:
-        "Last updated: May 2026. Please read these documents carefully before using the platform.",
+        "Last updated: June 2026. Please read these documents carefully before using the platform.",
       privacyLabel: "Privacy Policy",
       termsLabel: "Terms of Service",
       privacySections: [
@@ -454,7 +454,7 @@ export const translations = {
       pageLabel: "قانوني",
       pageTitle: "سياسة الخصوصية وشروط الخدمة",
       lastUpdated:
-        "آخر تحديث: مايو 2026. يرجى قراءة هذه الوثائق بعناية قبل استخدام المنصة.",
+        "آخر تحديث: يونيو 2026. يرجى قراءة هذه الوثائق بعناية قبل استخدام المنصة.",
       privacyLabel: "سياسة الخصوصية",
       termsLabel: "شروط الخدمة",
       privacySections: [
@@ -589,7 +589,7 @@ export const translations = {
       features: [
         "مجاني تماماً، لا حجب للمحتوى",
         "متاح في أي مكان في العالم",
-        "دورات مختارة من معلمين معتمدين",
+        "فيديوهات مختارة بعناية",
       ] as string[],
       stats: [
         { value: "50k+", label: "متعلم" },
@@ -607,7 +607,7 @@ export const translations = {
       iAmA: "أنا...",
       roles: [
         { label: "طالب", subtitle: "تصفح وتعلّم" },
-        { label: "ولد مدرّس", subtitle: "علّم أقرانك وشارك فيديوهاتك" },
+        { label: "معلِّم صَّغير", subtitle: "علّم أقرانك وشارك فيديوهاتك" },
         { label: "مهني", subtitle: "شارك محتواك" },
       ] as Array<{ label: string; subtitle: string }>,
       fieldFullName: "الاسم الكامل",
