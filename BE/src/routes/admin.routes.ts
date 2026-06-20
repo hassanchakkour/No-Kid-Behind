@@ -5,7 +5,7 @@ import {
   createSchoolAdmin, getSchoolAdminUsers, getSchoolAdminPendingKidTutors,
   approveKidTutorScoped, resetUserPassword,
   getPendingCourses, approveCourse, rejectCourse,
-  getPrivateSchools, createSchoolRequest, getSchoolRequests, approveSchoolRequest, rejectSchoolRequest,
+  getPrivateSchools, addPrivateSchool, removePrivateSchool, createSchoolRequest, getSchoolRequests, approveSchoolRequest, rejectSchoolRequest,
 } from '../controllers/admin.controller';
 import { authenticate, requireRole } from '../middleware/auth';
 
@@ -34,6 +34,8 @@ router.patch('/course/:id/approve', requireRole('admin'), approveCourse);
 router.patch('/course/:id/reject', requireRole('admin'), rejectCourse);
 
 // ── School requests ─────────────────────────────────────────────────────────
+router.post('/private-schools', requireRole('admin'), addPrivateSchool);
+router.delete('/private-schools/:name', requireRole('admin'), removePrivateSchool);
 router.get('/school-requests', requireRole('admin'), getSchoolRequests);
 router.patch('/school-request/:id/approve', requireRole('admin'), approveSchoolRequest);
 router.patch('/school-request/:id/reject', requireRole('admin'), rejectSchoolRequest);

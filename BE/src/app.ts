@@ -12,11 +12,22 @@ export const prisma = new PrismaClient({ adapter });
 
 const app = express();
 
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173', credentials: true }));
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+];
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) cb(null, true);
+    else cb(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // Visitor tracking middleware
-app.use(async (req, res, next) => {
+app.use(async (req, _res, next) => {
   if (req.method === 'GET' && req.path.startsWith('/courses')) {
     const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || 'unknown';
     prisma.visitorLog.create({ data: { ip } }).catch(() => {});

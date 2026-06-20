@@ -310,6 +310,23 @@ export async function getPrivateSchools(_req: Request, res: Response): Promise<v
   res.json([...base, ...extra]);
 }
 
+export async function addPrivateSchool(req: AuthRequest, res: Response): Promise<void> {
+  const { schoolName } = req.body;
+  if (!schoolName?.trim()) { res.status(400).json({ error: 'School name is required' }); return; }
+  const existing = await prisma.schoolRequest.findFirst({ where: { schoolName: schoolName.trim(), status: 'approved' } });
+  if (existing) { res.status(409).json({ error: 'School already exists' }); return; }
+  const record = await prisma.schoolRequest.create({ data: { schoolName: schoolName.trim(), userId: req.user!.userId, status: 'approved' } });
+  res.status(201).json(record);
+}
+
+export async function removePrivateSchool(req: AuthRequest, res: Response): Promise<void> {
+  const { name } = req.params;
+  const BASE = ['IC', 'ACS', 'CPF'];
+  if (BASE.includes(name)) { res.status(400).json({ error: 'Cannot remove a base school' }); return; }
+  await prisma.schoolRequest.deleteMany({ where: { schoolName: name, status: 'approved' } });
+  res.json({ success: true });
+}
+
 export async function createSchoolRequest(req: AuthRequest, res: Response): Promise<void> {
   const userId = req.user!.userId;
   const { schoolName } = req.body;

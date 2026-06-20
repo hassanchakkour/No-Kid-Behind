@@ -63,6 +63,9 @@ import {
   useSchoolRequests,
   useApproveSchoolRequest,
   useRejectSchoolRequest,
+  usePrivateSchools,
+  useAddPrivateSchool,
+  useRemovePrivateSchool,
 } from "../hooks/useAdminStats";
 import {
   useCreateCourse,
@@ -1349,6 +1352,12 @@ function ManagementSection() {
   const { data: schoolRequests, isLoading: srLoading } = useSchoolRequests();
   const approveSchoolRequest = useApproveSchoolRequest();
   const rejectSchoolRequest = useRejectSchoolRequest();
+  const { data: privateSchools } = usePrivateSchools();
+  const addPrivateSchool = useAddPrivateSchool();
+  const removePrivateSchool = useRemovePrivateSchool();
+  const [addSchoolOpen, setAddSchoolOpen] = useState(false);
+  const [newSchoolName, setNewSchoolName] = useState("");
+  const [addSchoolError, setAddSchoolError] = useState("");
   const deleteUser = useDeleteUser();
   const deleteCourse = useAdminDeleteCourse();
   const toggleTeach = useToggleLikesToTeach();
@@ -2174,6 +2183,72 @@ function ManagementSection() {
               ))}
             </Box>
           )}
+
+          {/* Private Schools List */}
+          <Box sx={{ mb: 4, border: '1px solid rgba(169,180,185,0.18)', borderRadius: '12px', overflow: 'hidden' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 3, py: 2, borderBottom: '1px solid rgba(169,180,185,0.12)', bgcolor: '#f7f9fb' }}>
+              <Box sx={{ bgcolor: 'rgba(27,107,81,0.1)', borderRadius: '8px', p: 0.875, display: 'flex' }}>
+                <SchoolRoundedIcon sx={{ color: 'primary.main', fontSize: '1rem' }} />
+              </Box>
+              <Typography sx={{ fontWeight: 700, fontSize: '0.9375rem', color: 'text.primary', flex: 1 }}>
+                Private Schools
+              </Typography>
+              <Button size="small" variant="contained" startIcon={<AddRoundedIcon />}
+                onClick={() => { setNewSchoolName(""); setAddSchoolError(""); setAddSchoolOpen(true); }}
+                sx={{ borderRadius: '7px', fontWeight: 700, fontSize: '0.8125rem', px: 2 }}>
+                Add School
+              </Button>
+            </Box>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, p: 3 }}>
+              {(privateSchools ?? ['IC', 'ACS', 'CPF']).map((school) => {
+                const isBase = ['IC', 'ACS', 'CPF'].includes(school);
+                return (
+                  <Chip
+                    key={school}
+                    label={school}
+                    onDelete={isBase ? undefined : () => removePrivateSchool.mutate(school)}
+                    sx={{
+                      fontWeight: 600, fontSize: '0.875rem',
+                      bgcolor: isBase ? 'rgba(27,107,81,0.08)' : '#f0f4f7',
+                      color: isBase ? 'primary.main' : 'text.primary',
+                      border: isBase ? '1px solid rgba(27,107,81,0.2)' : '1px solid rgba(169,180,185,0.2)',
+                      '& .MuiChip-deleteIcon': { color: '#9f403d', '&:hover': { color: '#7a2e2b' } },
+                    }}
+                  />
+                );
+              })}
+            </Box>
+          </Box>
+
+          {/* Add School Dialog */}
+          <Dialog open={addSchoolOpen} onClose={() => setAddSchoolOpen(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: '12px', p: 1 } }}>
+            <DialogTitle sx={{ fontWeight: 700 }}>Add Private School</DialogTitle>
+            <DialogContent sx={{ pt: 1 }}>
+              <TextField
+                autoFocus fullWidth label="School Name" placeholder="e.g. Notre Dame"
+                value={newSchoolName}
+                onChange={(e) => { setNewSchoolName(e.target.value); setAddSchoolError(""); }}
+                error={!!addSchoolError} helperText={addSchoolError}
+                sx={{ mt: 1 }}
+              />
+            </DialogContent>
+            <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+              <Button onClick={() => setAddSchoolOpen(false)} sx={{ color: 'text.secondary' }}>Cancel</Button>
+              <Button variant="contained" disabled={addPrivateSchool.isPending || !newSchoolName.trim()}
+                onClick={async () => {
+                  try {
+                    await addPrivateSchool.mutateAsync(newSchoolName.trim());
+                    setAddSchoolOpen(false);
+                  } catch (e: unknown) {
+                    const err = e as { response?: { data?: { error?: string } } };
+                    setAddSchoolError(err?.response?.data?.error ?? 'Something went wrong');
+                  }
+                }}
+                sx={{ borderRadius: '8px', fontWeight: 700, px: 3 }}>
+                {addPrivateSchool.isPending ? 'Adding…' : 'Add'}
+              </Button>
+            </DialogActions>
+          </Dialog>
 
           {/* Existing school admins */}
           {!statsLoading && users && (

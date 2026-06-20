@@ -149,6 +149,22 @@ export function usePrivateSchools() {
   });
 }
 
+export function useAddPrivateSchool() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (schoolName: string) => adminApi.addPrivateSchool(schoolName),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['private-schools'] }),
+  });
+}
+
+export function useRemovePrivateSchool() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) => adminApi.removePrivateSchool(name),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['private-schools'] }),
+  });
+}
+
 export function useCreateSchoolRequest() {
   return useMutation({
     mutationFn: (schoolName: string) => adminApi.createSchoolRequest(schoolName),
