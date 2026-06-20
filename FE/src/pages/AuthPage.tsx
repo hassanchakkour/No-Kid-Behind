@@ -174,11 +174,11 @@ export default function AuthPage() {
       school: schoolValue || undefined,
       syndicateNumber: values.role === "professional" ? values.syndicateNumber : undefined,
     });
-    // If user typed a custom school, fire a request to admin for approval
-    if (values.school === "Other" && values.otherSchool.trim()) {
-      createSchoolRequest.mutate(values.otherSchool.trim());
-    }
+    // Set token first so the school request goes out authenticated
     login(data.token, data.user);
+    if (values.school === "Other" && values.otherSchool.trim()) {
+      await createSchoolRequest.mutateAsync(values.otherSchool.trim()).catch(() => {});
+    }
     if (data.user.role === "professional" || data.user.role === "kid_tutor") {
       navigate("/teacher");
     } else {
