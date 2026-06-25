@@ -212,7 +212,7 @@ export default function LandingPage() {
                 fontWeight: 800,
                 fontSize: { xs: "2.75rem", md: "4.5rem" },
                 letterSpacing: "-0.04em",
-                lineHeight: 1.0,
+                lineHeight: isRtl ? 1.2 : 1.0,
                 color: "#e0ffee",
                 mb: 3,
               }}

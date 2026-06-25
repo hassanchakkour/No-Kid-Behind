@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
 
-const GRADES = ['All', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12', 'Higher Education', 'Professional'];
+const GRADES = ['All', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
 
 export default function StudentDashboard() {
   const { user, updateAuth } = useAuth();

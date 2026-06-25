@@ -57,9 +57,6 @@ const GRADE_OPTIONS = [
   "Grade 10",
   "Grade 11",
   "Grade 12",
-  "Higher Education",
-  "Professional",
-  "All Levels",
 ];
 
 const courseSchema = Yup.object({
@@ -712,19 +709,7 @@ export default function TeacherDashboard() {
                         multiple
                         value={values.grades}
                         onChange={(e) => {
-                          const next = e.target.value as string[];
-                          const prev = values.grades;
-                          const justAdded = next.find((g) => !prev.includes(g));
-                          if (justAdded === "All Levels") {
-                            setFieldValue("grades", ["All Levels"]);
-                          } else if (justAdded) {
-                            setFieldValue(
-                              "grades",
-                              next.filter((g) => g !== "All Levels")
-                            );
-                          } else {
-                            setFieldValue("grades", next);
-                          }
+                          setFieldValue("grades", e.target.value as string[]);
                         }}
                         onBlur={() => setFieldTouched("grades", true)}
                         variant="standard"

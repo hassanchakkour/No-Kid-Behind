@@ -5,20 +5,22 @@ import { useNavigate } from 'react-router-dom';
 import { Course } from '../api/courses.api';
 
 const GRADE_NUMS: Record<string, number> = {
+  'Grade 1': 1, 'Grade 2': 2, 'Grade 3': 3, 'Grade 4': 4, 'Grade 5': 5, 'Grade 6': 6,
   'Grade 7': 7, 'Grade 8': 8, 'Grade 9': 9, 'Grade 10': 10,
   'Grade 11': 11, 'Grade 12': 12, 'Higher Education': 13, 'Professional': 14, 'All Levels': 0,
 };
 
 function formatGrades(grades: string[]): string {
   if (!Array.isArray(grades) || grades.length === 0) return '';
-  if (grades.length === 1) return grades[0];
-  const numbered = grades.filter((g) => GRADE_NUMS[g] >= 7 && GRADE_NUMS[g] <= 12).sort((a, b) => GRADE_NUMS[a] - GRADE_NUMS[b]);
-  if (numbered.length === grades.length && numbered.length > 1) {
+  const sorted = [...grades].sort((a, b) => (GRADE_NUMS[a] ?? 99) - (GRADE_NUMS[b] ?? 99));
+  if (sorted.length === 1) return sorted[0];
+  const numbered = sorted.filter((g) => GRADE_NUMS[g] >= 1 && GRADE_NUMS[g] <= 12);
+  if (numbered.length === sorted.length && numbered.length > 1) {
     const nums = numbered.map((g) => GRADE_NUMS[g]);
     const isConsecutive = nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
     if (isConsecutive) return `Grades ${nums[0]}–${nums[nums.length - 1]}`;
   }
-  return grades.join(', ');
+  return sorted.join(', ');
 }
 
 interface CourseCardProps {

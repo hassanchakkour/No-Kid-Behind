@@ -33,9 +33,6 @@ const GRADES = [
   "Grade 10",
   "Grade 11",
   "Grade 12",
-  "Higher Education",
-  "Professional",
-  "All Levels",
 ];
 
 export default function CoursesPage() {

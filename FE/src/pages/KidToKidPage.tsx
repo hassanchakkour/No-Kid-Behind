@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Box,
   Typography,
@@ -8,15 +8,21 @@ import {
   InputAdornment,
   CircularProgress,
   Chip,
+  Button,
+  Dialog,
+  IconButton,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import ChildCareRoundedIcon from "@mui/icons-material/ChildCareRounded";
+import PlayCircleOutlineRoundedIcon from "@mui/icons-material/PlayCircleOutlineRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import Navbar from "../components/Navbar";
 import CourseCard from "../components/CourseCard";
 import { useCourses } from "../hooks/useCourses";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../i18n/translations";
+import kidToKidVideo from "../demo-videos/kid-to-kid.mp4";
 
 const GRADES = [
   "All",
@@ -32,9 +38,6 @@ const GRADES = [
   "Grade 10",
   "Grade 11",
   "Grade 12",
-  "Higher Education",
-  "Professional",
-  "All Levels",
 ];
 
 export default function KidToKidPage() {
@@ -45,6 +48,14 @@ export default function KidToKidPage() {
   const [grade, setGrade] = useState("");
   const [subject, setSubject] = useState("");
   const [search, setSearch] = useState("");
+  const [guideOpen, setGuideOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleGuideClose = () => {
+    videoRef.current?.pause();
+    if (videoRef.current) videoRef.current.currentTime = 0;
+    setGuideOpen(false);
+  };
 
   const { data: allCourses, isLoading } = useCourses({ isKidToKid: true });
 
@@ -111,6 +122,28 @@ export default function KidToKidPage() {
               <Typography sx={{ fontSize: "1rem", color: "rgba(255,248,236,0.75)", maxWidth: 480, lineHeight: 1.6 }}>
                 {t.subtitle}
               </Typography>
+              <Button
+                onClick={() => setGuideOpen(true)}
+                startIcon={<PlayCircleOutlineRoundedIcon />}
+                size="small"
+                sx={{
+                  mt: 2,
+                  color: "#fff8ec",
+                  borderColor: "rgba(255,220,130,0.5)",
+                  border: "1px solid",
+                  borderRadius: "8px",
+                  px: 2,
+                  py: 0.75,
+                  fontWeight: 600,
+                  fontSize: "0.8125rem",
+                  textTransform: "none",
+                  backdropFilter: "blur(4px)",
+                  bgcolor: "rgba(255,255,255,0.07)",
+                  "&:hover": { bgcolor: "rgba(255,255,255,0.14)", borderColor: "rgba(255,220,130,0.8)" },
+                }}
+              >
+                {t.guideBtn}
+              </Button>
             </Box>
 
             <Box
@@ -245,6 +278,31 @@ export default function KidToKidPage() {
           </Grid>
         )}
       </Box>
+
+      {/* ── Guide Video Modal ── */}
+      <Dialog
+        open={guideOpen}
+        onClose={handleGuideClose}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { bgcolor: "#000", borderRadius: "16px", overflow: "hidden", m: 2 } }}
+      >
+        <Box sx={{ position: "relative" }}>
+          <IconButton
+            onClick={handleGuideClose}
+            sx={{ position: "absolute", top: 8, right: 8, zIndex: 1, color: "#fff", bgcolor: "rgba(0,0,0,0.5)", "&:hover": { bgcolor: "rgba(0,0,0,0.75)" } }}
+          >
+            <CloseRoundedIcon />
+          </IconButton>
+          <video
+            ref={videoRef}
+            src={kidToKidVideo}
+            controls
+            autoPlay
+            style={{ width: "100%", display: "block", maxHeight: "80vh" }}
+          />
+        </Box>
+      </Dialog>
     </Box>
   );
 }

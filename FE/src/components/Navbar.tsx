@@ -197,7 +197,7 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
                       arrow
                       enterDelay={300}
                       componentsProps={{
-                        tooltip: { sx: { bgcolor: "text.primary", color: "background.paper", fontSize: "0.75rem", maxWidth: 220, borderRadius: "8px", px: 1.5, py: 1 } },
+                        tooltip: { sx: { bgcolor: "text.primary", color: "background.paper", fontSize: "0.75rem", maxWidth: 220, borderRadius: "8px", px: 1.5, py: 1, textAlign: lang === "ar" ? "right" : "left", direction: lang === "ar" ? "rtl" : "ltr" } },
                         arrow: { sx: { color: "text.primary" } },
                       }}
                     >

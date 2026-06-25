@@ -48,8 +48,6 @@ const GRADE_OPTIONS = [
   { value: "Grade 10", label: "Grade 10" },
   { value: "Grade 11", label: "Grade 11" },
   { value: "Grade 12", label: "Grade 12" },
-  { value: "Higher Education", label: "Higher Education" },
-  { value: "Professional", label: "Professional" },
 ];
 
 const PRIVATE_SCHOOLS = ["IC", "ACS", "CPF"];

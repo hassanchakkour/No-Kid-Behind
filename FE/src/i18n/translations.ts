@@ -17,7 +17,7 @@ export const translations = {
         {
           label: "Learning with Extra Help",
           description:
-            "Learn your way: Educational Videos made easy by professionals.",
+            "Learn your way: Educational videos made easy by professionals.",
         },
         {
           label: "Kid to Kid Tutoring",
@@ -72,7 +72,7 @@ export const translations = {
         label: "Our Mission",
         title: "Why No Kid Behind?",
         subtitle:
-          "Our mission is to help Lebanese youth overcome their circumstances by providing access to essential learning materials and creating spaces where children can teach and support one another, ensuring that no learner is left behind in their education or personal wellbeing.",
+          "Our mission is to help Lebanese young learners overcome their circumstances by providing access to essential learning materials and creating spaces where children can teach and support one another, ensuring that no learner is left behind in their education or personal wellbeing.",
       },
       features: [
         {
@@ -85,7 +85,7 @@ export const translations = {
         },
         {
           title: "Curated Videos",
-          body: "Videos are made by students and professionals ; organized by grade and subjects.",
+          body: "Videos are made by students and professionals organized by grade and subjects.",
         },
         {
           title: "Community Driven",
@@ -243,6 +243,7 @@ export const translations = {
       emptyTitle: "No kid-to-kid Videos yet.",
       emptySubtitleFiltered: "Try adjusting your filters.",
       emptySubtitleDefault: "Student teachers will start sharing soon!",
+      guideBtn: "Watch Guide",
     },
     health: {
       title: "Wellbeing",
@@ -258,6 +259,7 @@ export const translations = {
       emptyTitle: "No health videos found.",
       emptySubtitleFiltered: "Try adjusting your filters.",
       emptySubtitleDefault: "Check back soon, content is being added.",
+      guideBtn: "Watch Guide",
     },
     auth: {
       leftTitleLine1: "Learning is the",
@@ -267,7 +269,7 @@ export const translations = {
       features: [
         "Completely free, no paywalls ever",
         "Accessible anywhere in the world",
-        "Curated Videos by verified educators",
+        "Curated educational videos for Lebanese youth",
       ] as string[],
       stats: [
         { value: "50k+", label: "Learners" },
@@ -394,9 +396,9 @@ export const translations = {
       },
       mission: {
         label: "مهمتنا",
-        title: "لماذا ضرورة شمول جميع الاولاد ؟",
+        title: "لماذا ضرورة شمول جميع الاولاد؟",
         subtitle:
-          "مهمتنا مساعدة الشباب اللبناني على تخطي ظروفهم عبر تيسير الوصول إلى المواد التعليمية الأساسية، وإنشاء مساحات تتيح للاولاد تعليم ودعم بعضهم البعض، لضمان عدم تخلف أي متعلم عن الركب في التعلم أو الرفاهية.",
+          "مهمتنا مساعدة المتعلمينَ اللبنانيينَ الصغارِ على تخطي ظروفهم عبر تيسير الوصول إلى المواد التعليمية الأساسية، وإنشاء مساحات تتيح للأطفال تعليم ودعم بعضهم البعض، لضمان عدم تخلف أي متعلم عن الركب في تعليمه أو رفاهيته الشخصية.",
       },
       features: [
         {
@@ -565,6 +567,7 @@ export const translations = {
       emptyTitle: "لا توجد فيديوهات بعد.",
       emptySubtitleFiltered: "حاول تعديل عوامل التصفية.",
       emptySubtitleDefault: "سيبدأ الطلاب المدرسون في المشاركة قريباً!",
+      guideBtn: "شاهد الدليل",
     },
     health: {
       title: "الرفاهية",
@@ -580,6 +583,7 @@ export const translations = {
       emptyTitle: "لا توجد فيديوهات.",
       emptySubtitleFiltered: "حاول تعديل عوامل التصفية.",
       emptySubtitleDefault: "تحقق لاحقاً، يتم إضافة المحتوى.",
+      guideBtn: "شاهد الدليل",
     },
     auth: {
       leftTitleLine1: "التعلّم هو",
@@ -589,7 +593,7 @@ export const translations = {
       features: [
         "مجاني تماماً، لا حجب للمحتوى",
         "متاح في أي مكان في العالم",
-        "فيديوهات مختارة بعناية",
+        "مقاطع فيديو تعليمية للمتعلمينَ اللبنانيينَ الصغارِ",
       ] as string[],
       stats: [
         { value: "50k+", label: "متعلم" },
