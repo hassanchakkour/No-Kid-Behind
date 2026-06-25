@@ -140,6 +140,7 @@ export default function KidToKidPage() {
                   backdropFilter: "blur(4px)",
                   bgcolor: "rgba(255,255,255,0.07)",
                   "&:hover": { bgcolor: "rgba(255,255,255,0.14)", borderColor: "rgba(255,220,130,0.8)" },
+                  "& .MuiButton-startIcon": { mr: "6px", ml: "6px" },
                 }}
               >
                 {t.guideBtn}

@@ -111,6 +111,7 @@ export default function HealthPage() {
                   backdropFilter: "blur(4px)",
                   bgcolor: "rgba(255,255,255,0.07)",
                   "&:hover": { bgcolor: "rgba(255,255,255,0.14)", borderColor: "rgba(166,210,255,0.8)" },
+                  "& .MuiButton-startIcon": { mr: "6px", ml: "6px" },
                 }}
               >
                 {t.guideBtn}
