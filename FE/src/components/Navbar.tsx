@@ -34,6 +34,7 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
   const { user, isAuthenticated, logout } = useAuth();
   const { lang, toggleLang } = useLanguage();
   const t = translations[lang].nav;
+  const isRtl = lang === "ar";
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [authAnchorEl, setAuthAnchorEl] = useState<null | HTMLElement>(null);
@@ -311,12 +312,12 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
 
       {/* Mobile Drawer */}
       <Drawer
-        anchor="right"
+        anchor={isRtl ? "left" : "right"}
         open={mobileOpen}
         onClose={handleDrawerClose}
         PaperProps={{ sx: { width: "85vw", maxWidth: 320, bgcolor: "background.default", display: "flex", flexDirection: "column" } }}
       >
-        <Box sx={{ px: 2.5, pt: 2.5, pb: 2, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid", borderColor: "divider" }}>
+        <Box dir={isRtl ? "rtl" : "ltr"} sx={{ px: 2.5, pt: 2.5, pb: 2, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid", borderColor: "divider" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             <Box sx={{ width: 28, height: 28, bgcolor: "primary.main", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <AutoStoriesRoundedIcon sx={{ fontSize: "0.875rem", color: "#a6f2d1" }} />
@@ -345,7 +346,7 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
         </Box>
 
         {isAuthenticated && (
-          <Box sx={{ px: 2.5, py: 2, borderBottom: "1px solid", borderColor: "divider", bgcolor: "rgba(27,107,81,0.04)" }}>
+          <Box dir={isRtl ? "rtl" : "ltr"} sx={{ px: 2.5, py: 2, borderBottom: "1px solid", borderColor: "divider", bgcolor: "rgba(27,107,81,0.04)" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
               <Avatar sx={{ width: 40, height: 40, bgcolor: "primary.main", color: "#a6f2d1", fontSize: "0.9375rem", fontWeight: 800 }}>{initials}</Avatar>
               <Box>
@@ -358,9 +359,9 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
           </Box>
         )}
 
-        <Box sx={{ flex: 1, overflowY: "auto", py: 1.5 }}>
-          <Typography sx={{ px: 2.5, pb: 1, fontWeight: 700, fontSize: "0.625rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "text.disabled" }}>
-            Navigation
+        <Box dir={isRtl ? "rtl" : "ltr"} sx={{ flex: 1, overflowY: "auto", py: 1.5 }}>
+          <Typography sx={{ px: 2.5, pb: 1, fontWeight: 700, fontSize: "0.625rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "text.disabled", textAlign: isRtl ? "right" : "left" }}>
+            {isRtl ? "التنقل" : "Navigation"}
           </Typography>
           <List disablePadding>
             {navLinks.map((link) => {
@@ -369,15 +370,15 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
                 <ListItemButton
                   key={link.label}
                   onClick={() => { handleNavClick(link); handleDrawerClose(); }}
-                  sx={{ px: 2.5, py: 1.5, mx: 1, borderRadius: "10px", mb: 0.5, bgcolor: isActive ? "rgba(27,107,81,0.08)" : "transparent", "&:hover": { bgcolor: isActive ? "rgba(27,107,81,0.12)" : "rgba(27,107,81,0.04)" } }}
+                  sx={{ px: 2.5, py: 1.5, mx: 1, borderRadius: "10px", mb: 0.5, flexDirection: isRtl ? "row-reverse" : "row", bgcolor: isActive ? "rgba(27,107,81,0.08)" : "transparent", "&:hover": { bgcolor: isActive ? "rgba(27,107,81,0.12)" : "rgba(27,107,81,0.04)" } }}
                 >
                   <ListItemText
                     primary={link.label}
                     secondary={link.description}
-                    primaryTypographyProps={{ fontWeight: isActive ? 700 : 500, fontSize: "0.9375rem", color: isActive ? "primary.main" : "text.primary", fontFamily: "'Public Sans', sans-serif" }}
-                    secondaryTypographyProps={{ fontSize: "0.75rem", color: "text.secondary", mt: 0.25, fontFamily: "'Public Sans', sans-serif" }}
+                    primaryTypographyProps={{ fontWeight: isActive ? 700 : 500, fontSize: "0.9375rem", color: isActive ? "primary.main" : "text.primary", fontFamily: "'Public Sans', sans-serif", textAlign: isRtl ? "right" : "left" }}
+                    secondaryTypographyProps={{ fontSize: "0.75rem", color: "text.secondary", mt: 0.25, fontFamily: "'Public Sans', sans-serif", textAlign: isRtl ? "right" : "left" }}
                   />
-                  {isActive && <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "primary.main", ml: 1, flexShrink: 0 }} />}
+                  {isActive && <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "primary.main", ml: isRtl ? 0 : 1, mr: isRtl ? 1 : 0, flexShrink: 0 }} />}
                 </ListItemButton>
               );
             })}
@@ -386,17 +387,17 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
           {isAuthenticated && (
             <>
               <Divider sx={{ my: 1.5, borderColor: "divider" }} />
-              <Typography sx={{ px: 2.5, pb: 1, fontWeight: 700, fontSize: "0.625rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "text.disabled" }}>
-                Account
+              <Typography sx={{ px: 2.5, pb: 1, fontWeight: 700, fontSize: "0.625rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "text.disabled", textAlign: isRtl ? "right" : "left" }}>
+                {isRtl ? "الحساب" : "Account"}
               </Typography>
               <List disablePadding>
                 {[
                   { label: getDashboardLabel(), path: getDashboardPath(), Icon: DashboardRoundedIcon },
                   { label: "Settings", path: "/settings", Icon: SettingsRoundedIcon },
                 ].map(({ label, path, Icon }) => (
-                  <ListItemButton key={path} onClick={() => { navigate(path); handleDrawerClose(); }} sx={{ px: 2.5, py: 1.25, mx: 1, borderRadius: "10px", mb: 0.5, "&:hover": { bgcolor: "rgba(27,107,81,0.04)" } }}>
-                    <Icon sx={{ fontSize: "1rem", color: "text.secondary", mr: 1.5 }} />
-                    <ListItemText primary={label} primaryTypographyProps={{ fontSize: "0.9375rem", fontWeight: 500, color: "text.primary", fontFamily: "'Public Sans', sans-serif" }} />
+                  <ListItemButton key={path} onClick={() => { navigate(path); handleDrawerClose(); }} sx={{ px: 2.5, py: 1.25, mx: 1, borderRadius: "10px", mb: 0.5, flexDirection: isRtl ? "row-reverse" : "row", "&:hover": { bgcolor: "rgba(27,107,81,0.04)" } }}>
+                    <Icon sx={{ fontSize: "1rem", color: "text.secondary", mr: isRtl ? 0 : 1.5, ml: isRtl ? 1.5 : 0 }} />
+                    <ListItemText primary={label} primaryTypographyProps={{ fontSize: "0.9375rem", fontWeight: 500, color: "text.primary", fontFamily: "'Public Sans', sans-serif", textAlign: isRtl ? "right" : "left" }} />
                   </ListItemButton>
                 ))}
               </List>
@@ -404,10 +405,10 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
           )}
         </Box>
 
-        <Box sx={{ px: 2, pb: 3, pt: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
+        <Box dir={isRtl ? "rtl" : "ltr"} sx={{ px: 2, pb: 3, pt: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
           {isAuthenticated ? (
-            <Button fullWidth onClick={handleLogout} startIcon={<LogoutRoundedIcon />} sx={{ py: 1.25, borderRadius: "10px", color: "#9f403d", bgcolor: "rgba(159,64,61,0.06)", fontWeight: 600, fontSize: "0.9375rem", textTransform: "none", "&:hover": { bgcolor: "rgba(159,64,61,0.1)" } }}>
-              Logout
+            <Button fullWidth onClick={handleLogout} startIcon={<LogoutRoundedIcon />} sx={{ py: 1.25, borderRadius: "10px", color: "#9f403d", bgcolor: "rgba(159,64,61,0.06)", fontWeight: 600, fontSize: "0.9375rem", textTransform: "none", "&:hover": { bgcolor: "rgba(159,64,61,0.1)" }, "& .MuiButton-startIcon": { mr: "6px", ml: "6px" } }}>
+              {isRtl ? "تسجيل الخروج" : "Logout"}
             </Button>
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>

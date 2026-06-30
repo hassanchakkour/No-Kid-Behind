@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Box,
   Typography,
@@ -7,14 +7,20 @@ import {
   InputAdornment,
   CircularProgress,
   Chip,
+  Button,
+  Dialog,
+  IconButton,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AccessibilityNewRoundedIcon from "@mui/icons-material/AccessibilityNewRounded";
+import PlayCircleOutlineRoundedIcon from "@mui/icons-material/PlayCircleOutlineRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import Navbar from "../components/Navbar";
 import CourseCard from "../components/CourseCard";
 import { useCourses } from "../hooks/useCourses";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../i18n/translations";
+import extraStepVideo from "../demo-videos/extraStep.mp4";
 
 export default function SpecialNeedsPage() {
   const { lang } = useLanguage();
@@ -23,6 +29,14 @@ export default function SpecialNeedsPage() {
 
   const [subject, setSubject] = useState("");
   const [search, setSearch] = useState("");
+  const [guideOpen, setGuideOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleGuideClose = () => {
+    videoRef.current?.pause();
+    if (videoRef.current) videoRef.current.currentTime = 0;
+    setGuideOpen(false);
+  };
 
   const { data: allVideos, isLoading } = useCourses({ isSpecialNeeds: true });
 
@@ -78,6 +92,29 @@ export default function SpecialNeedsPage() {
               <Typography sx={{ fontSize: "1rem", color: "rgba(243,232,255,0.7)", maxWidth: 480, lineHeight: 1.6 }}>
                 {t.subtitle}
               </Typography>
+              <Button
+                onClick={() => setGuideOpen(true)}
+                startIcon={<PlayCircleOutlineRoundedIcon />}
+                size="small"
+                sx={{
+                  mt: 2,
+                  color: "#f3e8ff",
+                  borderColor: "rgba(220,180,255,0.5)",
+                  border: "1px solid",
+                  borderRadius: "8px",
+                  px: 2,
+                  py: 0.75,
+                  fontWeight: 600,
+                  fontSize: "0.8125rem",
+                  textTransform: "none",
+                  backdropFilter: "blur(4px)",
+                  bgcolor: "rgba(255,255,255,0.07)",
+                  "&:hover": { bgcolor: "rgba(255,255,255,0.14)", borderColor: "rgba(220,180,255,0.8)" },
+                  "& .MuiButton-startIcon": { mr: "6px", ml: "6px" },
+                }}
+              >
+                {t.guideBtn}
+              </Button>
             </Box>
 
             <Box
@@ -201,6 +238,31 @@ export default function SpecialNeedsPage() {
           </Grid>
         )}
       </Box>
+
+      {/* ── Guide Video Modal ── */}
+      <Dialog
+        open={guideOpen}
+        onClose={handleGuideClose}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { bgcolor: "#000", borderRadius: "16px", overflow: "hidden", m: 2 } }}
+      >
+        <Box sx={{ position: "relative" }}>
+          <IconButton
+            onClick={handleGuideClose}
+            sx={{ position: "absolute", top: 8, right: 8, zIndex: 1, color: "#fff", bgcolor: "rgba(0,0,0,0.5)", "&:hover": { bgcolor: "rgba(0,0,0,0.75)" } }}
+          >
+            <CloseRoundedIcon />
+          </IconButton>
+          <video
+            ref={videoRef}
+            src={extraStepVideo}
+            controls
+            autoPlay
+            style={{ width: "100%", display: "block", maxHeight: "80vh" }}
+          />
+        </Box>
+      </Dialog>
     </Box>
   );
 }

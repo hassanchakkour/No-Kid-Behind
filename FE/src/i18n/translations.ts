@@ -196,7 +196,7 @@ export const translations = {
     },
     courses: {
       title: "Learning Corner",
-      subtitle: "Access General educational videos for all grade levels",
+      subtitle: "Access general educational videos for all grade levels",
       countLabel: "Videos Available",
       filters: "Filters",
       searchPlaceholder: "Search by title or subject…",
@@ -213,7 +213,7 @@ export const translations = {
     extraSteps: {
       title: "Learning with Extra Help",
       subtitle:
-        "Learn your way: Educational Videos made easy by professionals.",
+        "Learn your way: Educational videos made easy by professionals.",
       countLabel: "Videos Available",
       filters: "Filter",
       searchPlaceholder: "Search by title or topic…",
@@ -225,12 +225,13 @@ export const translations = {
       emptyTitle: "No videos found.",
       emptySubtitleFiltered: "Try adjusting your filters.",
       emptySubtitleDefault: "Content is being added. Check back soon.",
+      guideBtn: "Watch Guide",
     },
     kidToKid: {
       overline: "Student-Led Learning",
       title: "Kid to Kid Tutoring",
       subtitle:
-        "study with me, Educational videos made easy - by kids for kids",
+        "Study with me, educational videos made easy - by kids for kids",
       countLabel: "Videos Available",
       filters: "Filters",
       searchPlaceholder: "Search by title or subject…",
@@ -269,7 +270,7 @@ export const translations = {
       features: [
         "Completely free, no paywalls ever",
         "Accessible anywhere in the world",
-        "Curated educational videos for Lebanese youth",
+        "Curated educational videos for Lebanese young learners",
       ] as string[],
       stats: [
         { value: "50k+", label: "Learners" },
@@ -444,11 +445,11 @@ export const translations = {
         ],
         supportLink: "الدعم",
         copyright:
-          "© 2026 No Kid Behind. Built to grow great minds through learning.",
+          "© 2026 No Kid Behind بُني لتنمية العقول الرائعة من خلال التعلم",
         legalLinks: [
-          { label: "Terms", href: "/legal#terms" },
-          { label: "Privacy", href: "/legal#privacy" },
-          { label: "Contact", href: null },
+          { label: "الشروط", href: "/legal#terms" },
+          { label: "الخصوصية", href: "/legal#privacy" },
+          { label: "تواصل معنا", href: null },
         ],
       },
     },
@@ -550,6 +551,7 @@ export const translations = {
       emptyTitle: "لا توجد فيديوهات.",
       emptySubtitleFiltered: "حاول تعديل عوامل التصفية.",
       emptySubtitleDefault: "يتم إضافة المحتوى. تحقق لاحقاً.",
+      guideBtn: "شاهد الدليل",
     },
     kidToKid: {
       overline: "تعلّم بقيادة الطلاب",
